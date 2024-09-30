@@ -6,7 +6,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Response
 
 class DeezerRemoteDataSource(
-    private val deezerApiService: DeezerApiService,
+    private val deezerApiService: DeezerApiService = DeezerApi.retrofitService,
     private val ioDispatcher: CoroutineDispatcher
 ) {
     suspend fun getTrack(): Response<TrackApiModel> =
