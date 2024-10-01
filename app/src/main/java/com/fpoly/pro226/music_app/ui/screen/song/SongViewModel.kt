@@ -1,30 +1,36 @@
 package com.fpoly.pro226.music_app.ui.screen.song
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class SongViewModel(
     private val deezerRepository: DeezerRepository
 ) : ViewModel() {
-    private val _songUiState = MutableStateFlow(SongUiState())
-    val songUiState: StateFlow<SongUiState> = _songUiState.asStateFlow()
+    private var fetchSong: Job? = null
+    var songUiState by mutableStateOf(SongUiState())
+        private set
 
-    fun getTrack(id: String) {
-        viewModelScope.launch {
-            val response = deezerRepository.getTrack(true)
-            if (response?.isSuccessful == true) {
-                response.body()?.let { track ->
-                    _songUiState.update {
-                        it.copy(currentSong = track)
+    fun getTrack(id: String = "") {
+        fetchSong?.cancel()
+        fetchSong = viewModelScope.launch {
+            try {
+                songUiState = songUiState.copy(isLoading = true)
+                val response = deezerRepository.getTrack(true)
+                if (response?.isSuccessful == true) {
+                    response.body()?.let { track ->
+                        songUiState = songUiState.copy(currentSong = track, isLoading = false)
                     }
                 }
-
+            } catch (e: Exception) {
+                songUiState = songUiState.copy(isLoading = false)
+            } finally {
+                fetchSong = null
             }
         }
     }
