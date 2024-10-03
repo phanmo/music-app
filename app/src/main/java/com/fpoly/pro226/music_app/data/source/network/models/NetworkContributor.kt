@@ -1,7 +1,7 @@
 package com.fpoly.pro226.music_app.data.source.network.models
 
-data class Artist(
-    val id: String,
+data class NetworkContributor(
+    val id: Int,
     val link: String,
     val name: String,
     val picture: String,
@@ -10,6 +10,7 @@ data class Artist(
     val picture_small: String,
     val picture_xl: String,
     val radio: Boolean,
+    val role: String,
     val share: String,
     val tracklist: String,
     val type: String

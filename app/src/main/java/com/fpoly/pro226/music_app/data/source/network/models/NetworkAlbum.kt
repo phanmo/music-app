@@ -1,6 +1,6 @@
 package com.fpoly.pro226.music_app.data.source.network.models
 
-data class Album(
+data class NetworkAlbum(
     val cover: String,
     val cover_big: String,
     val cover_medium: String,
