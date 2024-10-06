@@ -6,8 +6,16 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
+import com.fpoly.pro226.music_app.data.source.network.models.NetworkTrack
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+
+
+data class SongUiState(
+    val isLoading: Boolean = false,
+    val isPlaying: Boolean = false,
+    val currentSong: NetworkTrack? = null,
+)
 
 class SongViewModel(
     private val deezerRepository: DeezerRepository

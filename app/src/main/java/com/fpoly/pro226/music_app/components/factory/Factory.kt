@@ -1,4 +1,4 @@
-package com.fpoly.pro226.music_app.utilities.components.factory
+package com.fpoly.pro226.music_app.components.factory
 
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
 import com.fpoly.pro226.music_app.ui.screen.song.SongViewModel
