@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">FMusic</string>
+    <string name="channel_description">Play music</string>
 </resources>
