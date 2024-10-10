@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -136,9 +137,8 @@ fun SongContent(innerPadding: PaddingValues) {
         Spacer(modifier = Modifier.height(20.dp))
         // Image
         AsyncImage(
-
+            model = "https://e-cdns-images.dzcdn.net/images/cover/2e018122cb56986277102d2041a592c8/1000x1000-000000-80-0-0.jpg",
             contentScale = ContentScale.Crop,
-            model = "https://scontent.fdad3-5.fna.fbcdn.net/v/t39.30808-1/432248062_3683324481879033_6791941424878945129_n.jpg?stp=dst-jpg_s480x480&_nc_cat=106&ccb=1-7&_nc_sid=0ecb9b&_nc_eui2=AeFVMcMI5l9gXIfNCUHA6htASwg2r4fAffZLCDavh8B99uzduw5wXhl7jubgz9lOK2N_HNJ_MRgBCxleUDsl3TKm&_nc_ohc=4A7rTQS0obMQ7kNvgEYGeRl&_nc_ht=scontent.fdad3-5.fna&_nc_gid=A2Ezm8eIVriVJIxtA6MfX3M&oh=00_AYBYhxWQUhXd0c7CeCsAtkWviqrZTqMC2kzwJLsY5mxkHg&oe=670821DF",
             contentDescription = "Album Art",
             modifier = Modifier
                 .fillMaxWidth()
@@ -284,6 +284,7 @@ fun SongContent(innerPadding: PaddingValues) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .fillMaxHeight()
                 .padding(16.dp)
                 .background(
                     color = _7CEEFF,
