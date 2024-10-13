@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">FMusic</string>
+    <string name="pause">Pause</string>
     <string name="channel_description">Play music</string>
+    <string name="exo_controls_shuffle_on_description">Disable shuffle mode</string>
+    <string name="exo_controls_shuffle_off_description">Enable shuffle mode</string>
+    <string name="notification_content_title">Playback cannot be resumed</string>
+    <string name="notification_content_text">Press on the play button on the media notification if it
+    is still present, otherwise please open the app to start the playback and re-connect the session
+    to the controller</string>
+    <string name="notification_channel_name">Playback cannot be resumed</string>
+    <string name="notification_permission_denied">
+    "Without notification access the app can't warn about failed background operations"</string>
 </resources>
