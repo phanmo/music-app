@@ -21,10 +21,6 @@ import com.google.common.util.concurrent.ListenableFuture
 open class FMusicMediaLibrarySessionCallback(context: Context) :
     MediaLibraryService.MediaLibrarySession.Callback {
 
-    init {
-        MediaItemTree.initialize(context.assets)
-    }
-
     @OptIn(UnstableApi::class) // TODO: b/328238954 - Remove once new CommandButton icons are stable.
     private val customLayoutCommandButtons: List<CommandButton> =
         listOf(

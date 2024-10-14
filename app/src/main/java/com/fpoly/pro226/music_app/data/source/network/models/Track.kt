@@ -1,11 +1,11 @@
 package com.fpoly.pro226.music_app.data.source.network.models
 
-data class NetworkTrack(
-    val album: NetworkAlbum,
-    val artist: NetworkArtist,
+data class Track(
+    val album: Album,
+    val artist: Artist,
     val available_countries: List<String>,
     val bpm: Double,
-    val contributors: List<NetworkContributor>,
+    val contributors: List<Contributor>,
     val disk_number: Int,
     val duration: String,
     val explicit_content_cover: Int,

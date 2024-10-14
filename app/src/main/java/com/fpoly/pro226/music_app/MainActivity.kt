@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.session.LibraryResult
@@ -40,8 +41,12 @@ import androidx.media3.session.SessionToken
 import com.fpoly.pro226.music_app.components.FMusicApplication
 import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.components.services.FMusicPlaybackService
+import com.fpoly.pro226.music_app.components.services.MediaItemTree
+import com.fpoly.pro226.music_app.ui.screen.song.SongViewModel
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
@@ -63,6 +68,7 @@ class MainActivity : ComponentActivity() {
     private val browser: MediaBrowser?
         get() = if (browserFuture.isDone && !browserFuture.isCancelled) browserFuture.get() else null
 
+    private var songViewModel : SongViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,13 +132,15 @@ class MainActivity : ComponentActivity() {
                 0
             )
         }
+        songViewModel = appContainer.songViewModelFactory.create()
 
+        songViewModel?.getAlbum()
 
     }
 
-    private fun displayFolder() {
+    private fun displayFolder(title: String?) {
         val browser = this.browser ?: return
-        val id = "[genre]Rock"
+        val id = "[album]$title"
         val mediaItemFuture = browser.getItem(id)
         val childrenFuture = browser.getChildren(
             id, /* page= */
@@ -163,6 +171,17 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         initializeBrowser()
+        lifecycleScope.launch {
+            songViewModel?.fetchAlbumEvent?.collect{alb->
+                alb?.let {
+                    browserFuture.addListener({
+                        MediaItemTree.initialize(alb)
+                        displayFolder(alb.title)
+                    }, ContextCompat.getMainExecutor(this@MainActivity))
+                }
+
+            }
+        }
     }
 
     override fun onStop() {
@@ -177,7 +196,9 @@ class MainActivity : ComponentActivity() {
                 SessionToken(this, ComponentName(this, FMusicPlaybackService::class.java))
             )
                 .buildAsync()
-        browserFuture.addListener({ displayFolder() }, ContextCompat.getMainExecutor(this))
+//        browserFuture.addListener({
+//            displayFolder()
+//                                  }, ContextCompat.getMainExecutor(this))
     }
 
     private fun releaseBrowser() {

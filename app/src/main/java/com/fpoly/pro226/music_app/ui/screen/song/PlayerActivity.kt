@@ -54,6 +54,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.media3.ui.PlayerView
+import com.fpoly.pro226.music_app.components.FMusicApplication
+import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.components.services.FMusicPlaybackService
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.google.common.util.concurrent.ListenableFuture
@@ -68,9 +70,11 @@ class PlayerActivity : ComponentActivity() {
     companion object {
         const val TAG = "PlayerActivity"
     }
+    private val appContainer: AppContainer by lazy {
+        (application as FMusicApplication).appContainer
+    }
 
     private lateinit var controllerFuture: ListenableFuture<MediaController>
-//    private var controller: MediaController? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
