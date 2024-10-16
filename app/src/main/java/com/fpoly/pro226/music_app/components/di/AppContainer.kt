@@ -1,5 +1,6 @@
 package com.fpoly.pro226.music_app.components.di
 
+import com.fpoly.pro226.music_app.components.factory.ExploreViewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepositoryImpl
 import com.fpoly.pro226.music_app.data.source.network.BASE_URL
@@ -32,6 +33,7 @@ class AppContainer(externalScope: CoroutineScope) {
         DeezerRepositoryImpl(deezerRemoteDataSource, externalScope)
 
     val songViewModelFactory = SongViewModelFactory(deezerRepository)
+    val exploreViewModelFactory = ExploreViewModelFactory(deezerRepository)
 
     private fun provideHttpClient(): OkHttpClient {
         val logging = HttpLoggingInterceptor()

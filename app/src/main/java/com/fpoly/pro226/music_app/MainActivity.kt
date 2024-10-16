@@ -132,7 +132,7 @@ class MainActivity : ComponentActivity() {
         }
         songViewModel = appContainer.songViewModelFactory.create()
 
-        songViewModel?.getAlbum()
+//        songViewModel?.getAlbum()
 
     }
 
