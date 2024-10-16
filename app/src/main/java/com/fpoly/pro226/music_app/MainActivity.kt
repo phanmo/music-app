@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -75,31 +76,28 @@ class MainActivity : ComponentActivity() {
         setContent {
             MusicAppTheme {
                 // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-//                    FMusicNavGraph(appContainer = appContainer)
-                    Column {
-                        Button(onClick = {
-                            run {
-                                Log.d("TAG", "onCreate: browser = $browser ")
-                                val browser = browser ?: return@run
-                                browser.setMediaItems(
-                                    subItemMediaList,
-                                    /* startIndex= */ 0,
-                                    /* startPositionMs= */ C.TIME_UNSET
-                                )
-                                browser.shuffleModeEnabled = false
-                                browser.prepare()
-                                browser.play()
-                                browser.sessionActivity?.send()
-                            }
-                        }) {
-                            Text(text = "Send session to PlayerActivity")
-                        }
-                    }
-                }
+
+                    FMusicNavGraph(appContainer = appContainer)
+//                    Column {
+//                        Button(onClick = {
+//                            run {
+//                                Log.d("TAG", "onCreate: browser = $browser ")
+//                                val browser = browser ?: return@run
+//                                browser.setMediaItems(
+//                                    subItemMediaList,
+//                                    /* startIndex= */ 0,
+//                                    /* startPositionMs= */ C.TIME_UNSET
+//                                )
+//                                browser.shuffleModeEnabled = false
+//                                browser.prepare()
+//                                browser.play()
+//                                browser.sessionActivity?.send()
+//                            }
+//                        }) {
+//                            Text(text = "Send session to PlayerActivity")
+//                        }
+//                    }
+
             }
         }
 

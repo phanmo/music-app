@@ -55,7 +55,7 @@ dependencies {
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     // Retrofit with Scalar Converter
-    implementation ("com.squareup.retrofit2:converter-gson:2.10.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.10.0")
 
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.1")
@@ -66,12 +66,19 @@ dependencies {
     // Load image from network
     implementation("io.coil-kt:coil-compose:2.7.0")
 
-    implementation ("androidx.media3:media3-exoplayer:1.4.1")
-    implementation ("androidx.media3:media3-ui:1.4.1")
-    implementation ("androidx.media3:media3-common:1.4.1")
-    implementation ("androidx.media3:media3-session:1.4.1")
+    implementation("androidx.compose.material:material:1.7.3")
 
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.8.1")
+
+    val nav_version = "2.8.0"
+
+    implementation("androidx.navigation:navigation-compose:$nav_version")
+
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-ui:1.4.1")
+    implementation("androidx.media3:media3-common:1.4.1")
+    implementation("androidx.media3:media3-session:1.4.1")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.8.1")
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
