@@ -81,7 +81,7 @@ fun LoginScreen(
 //        )
         Image(
             painterResource(
-                id = R.drawable.app_logo
+                id = R.drawable.ic_app
             ),
             contentDescription = "Logo",
             modifier = Modifier
