@@ -35,15 +35,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fpoly.pro226.music_app.R
+import com.fpoly.pro226.music_app.components.di.AppContainer
+import com.fpoly.pro226.music_app.data.source.network.models.Artist
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import kotlinx.coroutines.launch
 
 @Composable
-fun GenreScreen() {
+fun GenreScreen(
+    appContainer: AppContainer,
+    id: Int, onBack: () -> Unit,
+    onItemArtistClick: (Artist) -> Unit
+) {
+    val vm: GenreViewModel = remember {
+        appContainer.genreViewModelFactory.create(id)
+    }
+    val uiState = vm.genreUiState
     Scaffold(
         backgroundColor = Color.Black,
         topBar = {
-            TopBar()
+            TopBar(onBack)
         }) { innerPadding ->
         val tabs = listOf("Artists", "Radios")
         var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -89,7 +99,7 @@ fun GenreScreen() {
                 userScrollEnabled = false
             ) { page ->
                 when (page) {
-                    0 -> ArtistsViewPage()
+                    0 -> ArtistsViewPage(uiState.artists, onItemArtistClick)
                     1 -> RadiosViewPage()
                 }
             }
@@ -98,7 +108,7 @@ fun GenreScreen() {
 }
 
 @Composable
-fun TopBar() {
+fun TopBar(onBack: () -> Unit) {
     TopAppBar(backgroundColor = Color.Black) {
         Row(
             modifier = Modifier
@@ -113,6 +123,7 @@ fun TopBar() {
                 modifier = Modifier
                     .size(24.dp)
                     .clickable {
+                        onBack()
                     }
             )
 
@@ -143,6 +154,6 @@ fun TopBar() {
 @Composable
 fun GenreScreenPreview() {
     MusicAppTheme {
-        GenreScreen()
+//        GenreScreen()
     }
 }

@@ -1,5 +1,6 @@
 package com.fpoly.pro226.music_app.ui.screen.track
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,25 +34,54 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.fpoly.pro226.music_app.R
+import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.data.source.network.models.Track
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._1E1E1E_85
 import com.fpoly.pro226.music_app.ui.theme._8A9A9D
 
 @Composable
-fun TrackScreen(artists: List<Track> = listOf()) {
+fun TrackScreen(
+    artistId: Int,
+    appContainer: AppContainer,
+    onBack: () -> Unit,
+    onItemClick: (track: List<Track>, startIndex: Int) -> Unit,
+    onLoadTrackList: (track: List<Track>) -> Unit
+) {
+    val vm: TrackViewModel = remember {
+        appContainer.trackViewModelFactory.create(artistId)
+    }
+    val uiState = vm.tracksUiState
+
+    LaunchedEffect(uiState) {
+        if (uiState.tracks.isNotEmpty()) {
+            Log.d("TrackScreen", "TrackScreen: ${uiState.tracks}")
+            onLoadTrackList(uiState.tracks)
+        }
+    }
+
     Scaffold(
         backgroundColor = Color.Black,
         topBar = {
-            TopBar()
+            TopBar(
+                title = if (uiState.tracks.isNotEmpty()) {
+                    uiState.tracks[0].contributors[0].name
+                } else {
+                    ""
+                },
+                onBack = onBack
+            )
         }
     ) { innerPadding ->
         LazyColumn(modifier = Modifier.padding(innerPadding)) {
-            items(10) { index ->
+            items(uiState.tracks.size) { index ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                        .clickable {
+                            onItemClick(uiState.tracks, index)
+                        },
                     colors = CardDefaults.cardColors(containerColor = _1E1E1E_85)
                 ) {
                     Row(
@@ -68,7 +100,7 @@ fun TrackScreen(artists: List<Track> = listOf()) {
                         )
                         Spacer(modifier = Modifier.width(18.dp))
                         AsyncImage(
-                            model = "https://e-cdns-images.dzcdn.net/images/misc/b0b8efcbc3cb688864ce69da0061e525/1000x1000-000000-80-0-0.jpg",
+                            model = uiState.tracks[index].album.cover_medium,
                             contentScale = ContentScale.Crop,
                             contentDescription = "Artists avatar",
                             placeholder = painterResource(R.drawable.ic_app),
@@ -80,14 +112,14 @@ fun TrackScreen(artists: List<Track> = listOf()) {
                         Spacer(modifier = Modifier.width(32.dp))
                         Column {
                             Text(
-                                text = "Swim",
+                                text = uiState.tracks[index].title,
                                 fontSize = 17.sp,
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Text(
-                                text = "Ngan",
+                                text = uiState.tracks[index].contributors[0].name,
                                 fontSize = 14.sp,
                                 color = _8A9A9D,
                                 fontWeight = FontWeight.Bold,
@@ -104,7 +136,10 @@ fun TrackScreen(artists: List<Track> = listOf()) {
 
 
 @Composable
-fun TopBar() {
+fun TopBar(
+    title: String,
+    onBack: () -> Unit
+) {
     TopAppBar(backgroundColor = Color.Black) {
         Row(
             modifier = Modifier
@@ -119,6 +154,7 @@ fun TopBar() {
                 modifier = Modifier
                     .size(24.dp)
                     .clickable {
+                        onBack()
                     }
             )
 
@@ -127,7 +163,7 @@ fun TopBar() {
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "ROSE",
+                    text = title.uppercase(),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyLarge,
@@ -149,6 +185,6 @@ fun TopBar() {
 @Composable
 fun TrackScreenPreview() {
     MusicAppTheme {
-        TrackScreen()
+//        TrackScreen()
     }
 }

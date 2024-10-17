@@ -2,10 +2,11 @@ package com.fpoly.pro226.music_app.data.repositories
 
 import com.fpoly.pro226.music_app.data.source.network.DeezerRemoteDataSource
 import com.fpoly.pro226.music_app.data.source.network.models.Album
+import com.fpoly.pro226.music_app.data.source.network.models.Artists
 import com.fpoly.pro226.music_app.data.source.network.models.Genres
-import com.fpoly.pro226.music_app.data.source.network.models.Radio
 import com.fpoly.pro226.music_app.data.source.network.models.Radios
 import com.fpoly.pro226.music_app.data.source.network.models.Track
+import com.fpoly.pro226.music_app.data.source.network.models.Tracks
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.sync.Mutex
@@ -17,6 +18,8 @@ interface DeezerRepository {
     suspend fun getGenres(): Response<Genres>?
     suspend fun getRadios(): Response<Radios>?
     suspend fun getAlbum(): Response<Album>?
+    suspend fun getArtists(genreId: Int): Response<Artists>?
+    suspend fun getTracks(artistId: Int): Response<Tracks>?
 }
 
 class DeezerRepositoryImpl(
@@ -54,6 +57,18 @@ class DeezerRepositoryImpl(
     override suspend fun getAlbum(): Response<Album> {
         return externalScope.async {
             deezerRemoteDataSource.getAlbum()
+        }.await()
+    }
+
+    override suspend fun getArtists(genreId: Int): Response<Artists> {
+        return externalScope.async {
+            deezerRemoteDataSource.getArtists(genreId)
+        }.await()
+    }
+
+    override suspend fun getTracks(artistId: Int): Response<Tracks> {
+        return externalScope.async {
+            deezerRemoteDataSource.getTracks(artistId)
         }.await()
     }
 }

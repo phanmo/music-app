@@ -2,6 +2,7 @@ package com.fpoly.pro226.music_app.ui.screen.explore
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,13 +41,17 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.fpoly.pro226.music_app.R
 import com.fpoly.pro226.music_app.components.di.AppContainer
+import com.fpoly.pro226.music_app.data.source.network.models.Genre
 import com.fpoly.pro226.music_app.data.source.network.models.Genres
 import com.fpoly.pro226.music_app.data.source.network.models.Radios
 import com.fpoly.pro226.music_app.ui.theme.D9D9D9
-import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 
 @Composable
-fun ExploreScreen(appContainer: AppContainer) {
+fun ExploreScreen(
+    appContainer: AppContainer,
+    onClick: (Genre) -> Unit,
+    onBack: () -> Unit
+) {
     val vm: ExploreViewModel = remember {
         appContainer.exploreViewModelFactory.create()
     }
@@ -83,7 +89,7 @@ fun ExploreScreen(appContainer: AppContainer) {
             modifier = Modifier.padding(start = 4.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
-        uiState.genres?.let { GridViewGenres(it) }
+        uiState.genres?.let { GridViewGenres(it, onClick) }
         Spacer(modifier = Modifier.height(32.dp))
         Text(
             text = "Browse All",
@@ -101,7 +107,7 @@ fun ExploreScreen(appContainer: AppContainer) {
 
 
 @Composable
-fun GridViewGenres(items: Genres) {
+fun GridViewGenres(items: Genres, onClick: (Genre) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier.fillMaxWidth(),
@@ -110,13 +116,16 @@ fun GridViewGenres(items: Genres) {
             Card(
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 6.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .clickable {
+                        onClick(items.data[index + 1])
+                    },
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.Gray)
             ) {
                 Box {
                     AsyncImage(
-                        model = items.data[index].picture,
+                        model = items.data[index + 1].picture,
                         contentScale = ContentScale.Crop,
                         contentDescription = "Album Art",
                         modifier = Modifier
@@ -126,7 +135,7 @@ fun GridViewGenres(items: Genres) {
                         error = painterResource(R.drawable.ic_app)
                     )
                     Text(
-                        text = items.data[index].name,
+                        text = items.data[index + 1].name,
                         color = Color.White,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
@@ -183,8 +192,15 @@ fun GridViewRadios(items: Radios) {
 @Composable
 fun SearchBar() {
     var text by remember { mutableStateOf(TextFieldValue("")) }
-    val containerColor = D9D9D9
+    val containerColor = Color.White
     TextField(
+        leadingIcon = {
+            Image(
+                colorFilter = ColorFilter.tint(D9D9D9),
+                painter = painterResource(id = R.drawable.search),
+                contentDescription = "Search"
+            )
+        },
         maxLines = 1,
         singleLine = true,
         value = text,
@@ -201,13 +217,13 @@ fun SearchBar() {
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
         ),
-        textStyle = LocalTextStyle.current.copy(fontSize = 15.sp),
+        textStyle = LocalTextStyle.current.copy(fontSize = 16.sp),
         shape = RoundedCornerShape(24.dp),
         placeholder = {
             Text(
                 "Songs, Artists, Podcasts & More",
                 color = Color.Gray,
-                fontSize = 13.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Normal,
                 style = MaterialTheme.typography.bodySmall
             )
@@ -217,8 +233,18 @@ fun SearchBar() {
 
 @Preview(showBackground = true)
 @Composable
-fun ExploreScreenPreview() {
-    MusicAppTheme {
-//        ExploreScreen(null)
-    }
+fun SearchBarPreview() {
+    SearchBar()
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GridViewGenresPreview() {
+    GridViewGenres(Genres(data = listOf())) {}
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GridViewRadiossPreview() {
+    GridViewRadios(Radios(data = listOf()))
 }

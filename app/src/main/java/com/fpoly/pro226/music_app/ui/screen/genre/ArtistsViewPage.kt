@@ -1,5 +1,6 @@
 package com.fpoly.pro226.music_app.ui.screen.genre
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,14 +30,19 @@ import com.fpoly.pro226.music_app.data.source.network.models.Artist
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 
 @Composable
-fun ArtistsViewPage(artists: List<Artist> = listOf()) {
-
+fun ArtistsViewPage(
+    artists: List<Artist> = listOf(),
+    onItemClick: (Artist) -> Unit
+) {
     LazyColumn {
-        items(30) { index ->
+        items(artists.size) { index ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(14.dp),
+                    .padding(14.dp)
+                    .clickable {
+                        onItemClick(artists[index])
+                    },
                 colors = CardDefaults.cardColors(containerColor = Color.Black)
 
             ) {
@@ -48,7 +54,7 @@ fun ArtistsViewPage(artists: List<Artist> = listOf()) {
                         .fillMaxSize()
                 ) {
                     AsyncImage(
-                        model = "https://e-cdns-images.dzcdn.net/images/misc/b0b8efcbc3cb688864ce69da0061e525/1000x1000-000000-80-0-0.jpg",
+                        model = artists[index].picture_medium,
                         contentScale = ContentScale.Crop,
                         contentDescription = "Artists avatar",
                         modifier = Modifier
@@ -59,8 +65,7 @@ fun ArtistsViewPage(artists: List<Artist> = listOf()) {
                     )
                     Spacer(modifier = Modifier.width(20.dp))
                     Text(
-//                        text = artists[index].name,
-                        text = "FMusic",
+                        text = artists[index].name,
                         color = Color.White,
                         fontSize = 20.sp,
                         style = MaterialTheme.typography.bodyLarge
@@ -75,6 +80,6 @@ fun ArtistsViewPage(artists: List<Artist> = listOf()) {
 @Composable
 fun ArtistsViewPagePreview() {
     MusicAppTheme {
-        ArtistsViewPage()
+        ArtistsViewPage() {}
     }
 }

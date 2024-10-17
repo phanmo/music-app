@@ -26,9 +26,6 @@ class PlayerActivity : ComponentActivity() {
         (application as FMusicApplication).appContainer
     }
 
-    private lateinit var controllerFuture: ListenableFuture<MediaController>
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -41,11 +38,6 @@ class PlayerActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    override fun onDestroy() {
-        MediaController.releaseFuture(controllerFuture)
-        super.onDestroy()
     }
 }
 
