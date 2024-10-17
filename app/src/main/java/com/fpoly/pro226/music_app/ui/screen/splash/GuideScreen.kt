@@ -4,7 +4,14 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,14 +34,14 @@ import com.fpoly.pro226.music_app.ui.theme._121111
 import com.fpoly.pro226.music_app.ui.theme._44D7DD
 
 @Composable
-fun SplashScreen() {
+fun GuideScreen(onStarted: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(_44D7DD)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.img_girl), // Thay thế 'your_image' bằng tên ảnh của bạn
+            painter = painterResource(id = R.drawable.img_girl),
             contentDescription = "Splash Image",
             modifier = Modifier
                 .fillMaxWidth()
@@ -93,8 +100,10 @@ fun SplashScreen() {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Button
-                ButtonWithElevation(label = "Get Started") {
-
+                ButtonWithElevation(
+                    label = "Get Started"
+                ) {
+                    onStarted()
                 }
             }
         }
@@ -105,6 +114,6 @@ fun SplashScreen() {
 @Composable
 fun SongContentPreview() {
     MusicAppTheme {
-        SplashScreen()
+        GuideScreen() {}
     }
 }

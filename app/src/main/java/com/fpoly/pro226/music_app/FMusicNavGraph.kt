@@ -1,23 +1,28 @@
 package com.fpoly.pro226.music_app
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.data.source.network.models.Track
 import com.fpoly.pro226.music_app.ui.components.FMusicBottomNavigation
 import com.fpoly.pro226.music_app.ui.screen.explore.ExploreScreen
 import com.fpoly.pro226.music_app.ui.screen.genre.GenreScreen
-import com.fpoly.pro226.music_app.ui.screen.song.SongScreen
+import com.fpoly.pro226.music_app.ui.screen.login.LoginScreen
+import com.fpoly.pro226.music_app.ui.screen.register.RegisterScreen
+import com.fpoly.pro226.music_app.ui.screen.splash.GuideScreen
 import com.fpoly.pro226.music_app.ui.screen.track.TrackScreen
 import kotlinx.coroutines.CoroutineScope
 
@@ -26,20 +31,45 @@ fun FMusicNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    startDestination: String = FMusicDestinations.EXPLORE_ROUTE,
+    startDestination: String = FMusicDestinations.GUIDE_ROUTE,
     appContainer: AppContainer,
     startPlayerActivity: (tracks: List<Track>, startIndex: Int) -> Unit,
     onLoadTrackList: (track: List<Track>) -> Unit
 
 ) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val isShowBottomNavigation = remember { mutableStateOf(false) }
+
     Box(modifier = modifier.fillMaxSize()) {
         NavHost(
             navController = navController,
             startDestination = startDestination,
             modifier = modifier
         ) {
-            composable(FMusicDestinations.SONG_ROUTE) {
-                SongScreen(viewModel = appContainer.songViewModelFactory.create())
+            composable(FMusicDestinations.GUIDE_ROUTE) {
+                GuideScreen {
+                    navController.navigate(FMusicDestinations.LOGIN_ROUTE)
+                }
+            }
+
+            composable(FMusicDestinations.LOGIN_ROUTE) {
+                LoginScreen(
+                    onLoginSuccess = {
+                        navController.navigate(FMusicDestinations.EXPLORE_ROUTE)
+                    },
+                    onClickRegister = {
+                        navController.navigate(FMusicDestinations.REGISTER_ROUTE)
+                    })
+            }
+
+            composable(FMusicDestinations.REGISTER_ROUTE) {
+                RegisterScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onRegisterSuccess = {
+                        navController.popBackStack()
+                    })
             }
 
             composable(FMusicDestinations.EXPLORE_ROUTE) {
@@ -75,19 +105,28 @@ fun FMusicNavGraph(
                         navController.popBackStack()
                     },
                     onItemClick = { tracks, index ->
+                        // go to Playback screen
                         startPlayerActivity(tracks, index)
                     },
                     onLoadTrackList = {
-                       onLoadTrackList(it)
+                        onLoadTrackList(it)
                     }
-                    )
+                )
             }
         }
-        FMusicBottomNavigation(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            onItemSelected = {
+        if (isShowBottomNavigation.value) {
+            FMusicBottomNavigation(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onItemSelected = {
 
-            })
+                })
+        }
+        LaunchedEffect(navBackStackEntry) {
+            val currentRoue = navBackStackEntry?.destination?.route
+            isShowBottomNavigation.value = !(currentRoue == FMusicDestinations.REGISTER_ROUTE ||
+                    currentRoue == FMusicDestinations.LOGIN_ROUTE ||
+                    currentRoue == FMusicDestinations.GUIDE_ROUTE)
+        }
 
     }
 

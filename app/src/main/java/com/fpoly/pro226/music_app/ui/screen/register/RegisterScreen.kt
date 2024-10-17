@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,11 +40,15 @@ import com.fpoly.pro226.music_app.ui.theme._7CEEFF
 import com.fpoly.pro226.music_app.ui.theme._DBE7E8
 
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(
+    onBack: () -> Unit,
+    onRegisterSuccess: () -> Unit
+) {
     Column(
         modifier = Modifier
             .background(_121111)
             .padding(16.dp)
+            .fillMaxHeight()
     ) {
         Image(
             painterResource(
@@ -54,6 +59,9 @@ fun RegisterScreen() {
                 .width(24.dp)
                 .height(24.dp)
                 .fillMaxWidth()
+                .clickable {
+                    onBack()
+                }
                 .align(alignment = Alignment.Start)
         )
         Image(
@@ -68,7 +76,7 @@ fun RegisterScreen() {
                 .align(alignment = Alignment.CenterHorizontally)
         )
         Text(
-            text = "Register",
+            text = "Create a new account",
             color = Color.White,
             fontWeight = FontWeight.Bold,
             fontSize = 30.sp,
@@ -116,10 +124,16 @@ fun RegisterScreen() {
             },
             onValueChange = {},
         )
-        ButtonWithElevation(label = "Register", onclick = {})
+        ButtonWithElevation(
+            label = "Register",
+            onclick = {
+                onRegisterSuccess()
+            })
         ContinueWith()
         Row(
-            modifier = Modifier.padding(bottom = 20.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(bottom = 20.dp)
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
         ) {
             Box(
@@ -131,7 +145,8 @@ fun RegisterScreen() {
                     .border(
                         BorderStroke(1.dp, _DBE7E8),
                         shape = CircleShape
-                    ).padding(5.dp)
+                    )
+                    .padding(5.dp)
                     .clickable {}
             ) {
                 Image(
@@ -148,7 +163,8 @@ fun RegisterScreen() {
                     .border(
                         BorderStroke(1.dp, _DBE7E8),
                         shape = CircleShape
-                    ).padding(5.dp)
+                    )
+                    .padding(5.dp)
                     .clickable {}
             ) {
                 Image(
@@ -164,24 +180,26 @@ fun RegisterScreen() {
         ) {
             Text(
                 text = "Don't have an account? ",
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight(500),
                 color = Color.White,
             )
             Text(
                 text = "Log in",
-                fontSize = 18.sp,
-                fontWeight = FontWeight(500),
+                fontSize = 16.sp,
                 color = _7CEEFF,
-                modifier = Modifier.clickable {}
+                modifier = Modifier.clickable {
+                    onBack()
+                }
             )
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun SongContentPreview() {
     MusicAppTheme {
-        RegisterScreen()
+        RegisterScreen({}, {})
     }
 }

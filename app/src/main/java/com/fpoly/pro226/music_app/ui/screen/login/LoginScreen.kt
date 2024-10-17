@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,15 +19,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -40,7 +37,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -55,31 +51,34 @@ import com.fpoly.pro226.music_app.ui.theme.FFFFFF_87
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._00C2CB
 import com.fpoly.pro226.music_app.ui.theme._06A0B5
-import com.fpoly.pro226.music_app.ui.theme._1E1E1E_85
-import com.fpoly.pro226.music_app.ui.theme._DBE7E8
 import com.fpoly.pro226.music_app.ui.theme._121111
-import com.fpoly.pro226.music_app.ui.theme._39C0D4
+import com.fpoly.pro226.music_app.ui.theme._1E1E1E_85
 import com.fpoly.pro226.music_app.ui.theme._7CEEFF
+import com.fpoly.pro226.music_app.ui.theme._DBE7E8
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    onClickRegister: () -> Unit
+) {
     val rememberMeState = remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .background(_121111)
+            .fillMaxHeight()
             .padding(16.dp)
     ) {
-        Image(
-            painterResource(
-                id = R.drawable.back
-            ),
-            contentDescription = "Logo",
-            modifier = Modifier
-                .width(24.dp)
-                .height(24.dp)
-                .fillMaxWidth()
-                .align(alignment = Alignment.Start)
-        )
+//        Image(
+//            painterResource(
+//                id = R.drawable.back
+//            ),
+//            contentDescription = "Logo",
+//            modifier = Modifier
+//                .width(24.dp)
+//                .height(24.dp)
+//                .fillMaxWidth()
+//                .align(alignment = Alignment.Start)
+//        )
         Image(
             painterResource(
                 id = R.drawable.app_logo
@@ -92,7 +91,7 @@ fun LoginScreen() {
                 .align(alignment = Alignment.CenterHorizontally)
         )
         Text(
-            text = "Log In",
+            text = "Login to your account",
             color = Color.White,
             fontWeight = FontWeight.Bold,
             fontSize = 30.sp,
@@ -128,9 +127,9 @@ fun LoginScreen() {
             onValueChange = {},
         )
         RememberMeCheckBox(rememberMeState)
-        ButtonWithElevation(label = "Log In", onclick = {})
+        ButtonWithElevation(label = "Log In", onLoginSuccess)
         Text(
-            text = "Forgot password ?", color = _39C0D4, fontSize = 14.sp,
+            text = "Forgot password ?", color = Color.Cyan, fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .padding(top = 5.dp)
@@ -187,16 +186,16 @@ fun LoginScreen() {
         ) {
             Text(
                 text = "Don't have an account? ",
-                fontSize = 18.sp,
-                fontWeight = FontWeight(500),
+                fontSize = 16.sp,
                 color = Color.White,
             )
             Text(
                 text = "Register",
-                fontSize = 18.sp,
-                fontWeight = FontWeight(500),
+                fontSize = 16.sp,
                 color = _7CEEFF,
-                modifier = Modifier.clickable {}
+                modifier = Modifier.clickable {
+                    onClickRegister()
+                }
             )
         }
     }
@@ -252,23 +251,23 @@ fun TextField(
             .fillMaxWidth()
             .padding(bottom = 10.dp),
         leadingIcon = leadingIcon,
-        trailingIcon = {
-            if (isPassword) {
-                val image = if (passwordVisible.value)
-                    painterResource(id = R.drawable.eye_off)
-                else painterResource(id = R.drawable.eye_off)
-                IconButton(onClick = {
-                    passwordVisible.value = !passwordVisible.value
-                }) {
-                    Icon(
-                        painter = image,
-                        contentDescription = "",
-                        tint = FFFFFF_87,
-                        modifier = Modifier.size(16.dp),
-                    )
-                }
-            }
-        },
+//        trailingIcon = {
+//            if (isPassword) {
+//                val image = if (passwordVisible.value)
+//                    painterResource(id = R.drawable.eye_off)
+//                else painterResource(id = R.drawable.eye_off)
+//                IconButton(onClick = {
+//                    passwordVisible.value = !passwordVisible.value
+//                }) {
+//                    Icon(
+//                        painter = image,
+//                        contentDescription = "",
+//                        tint = FFFFFF_87,
+//                        modifier = Modifier.size(16.dp),
+//                    )
+//                }
+//            }
+//        },
         shape = RoundedCornerShape(10.dp)
     )
 }
@@ -306,10 +305,11 @@ fun ButtonWithElevation(label: String, onclick: () -> Unit) {
     Button(
         onClick = onclick,
         shape = RoundedCornerShape(50.dp),
-        colors = ButtonDefaults.buttonColors(_06A0B5),
+        colors = ButtonDefaults.buttonColors(_00C2CB),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(0.dp, 10.dp),
+            .padding(0.dp, 10.dp)
+            .height(58.dp),
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = 10.dp,
             pressedElevation = 15.dp,
@@ -363,6 +363,6 @@ fun ContinueWith() {
 @Composable
 fun SongContentPreview() {
     MusicAppTheme {
-        LoginScreen()
+        LoginScreen(onLoginSuccess = {}) {}
     }
 }
