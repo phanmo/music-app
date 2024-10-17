@@ -1,11 +1,14 @@
 package com.fpoly.pro226.music_app.components.di
 
+import com.fpoly.pro226.music_app.components.factory.ExploreViewModelFactory
+import com.fpoly.pro226.music_app.components.factory.GenreViewModelFactory
+import com.fpoly.pro226.music_app.components.factory.SongViewModelFactory
+import com.fpoly.pro226.music_app.components.factory.TrackViewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepositoryImpl
 import com.fpoly.pro226.music_app.data.source.network.BASE_URL
 import com.fpoly.pro226.music_app.data.source.network.DeezerApiService
 import com.fpoly.pro226.music_app.data.source.network.DeezerRemoteDataSource
-import com.fpoly.pro226.music_app.components.factory.SongViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
@@ -32,6 +35,9 @@ class AppContainer(externalScope: CoroutineScope) {
         DeezerRepositoryImpl(deezerRemoteDataSource, externalScope)
 
     val songViewModelFactory = SongViewModelFactory(deezerRepository)
+    val exploreViewModelFactory = ExploreViewModelFactory(deezerRepository)
+    val genreViewModelFactory = GenreViewModelFactory(deezerRepository)
+    val trackViewModelFactory = TrackViewModelFactory(deezerRepository)
 
     private fun provideHttpClient(): OkHttpClient {
         val logging = HttpLoggingInterceptor()

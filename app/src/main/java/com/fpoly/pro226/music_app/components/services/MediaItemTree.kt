@@ -8,10 +8,9 @@ import androidx.media3.common.MediaItem.SubtitleConfiguration
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.util.UnstableApi
 import com.fpoly.pro226.music_app.data.source.network.models.Album
+import com.fpoly.pro226.music_app.data.source.network.models.Track
 import com.google.common.collect.ImmutableList
-import org.json.JSONObject
 import java.io.BufferedReader
-import java.lang.StringBuilder
 
 object MediaItemTree {
     private var treeNodes: MutableMap<String, MediaItemNode> = mutableMapOf()
@@ -85,12 +84,9 @@ object MediaItemTree {
             .build()
     }
 
-    private fun loadJSONFromAsset(assets: AssetManager): String =
-        assets.open("catalog.json").bufferedReader().use(BufferedReader::readText)
-
-    fun initialize(album: Album) {
-        if (isInitialized) return
-        isInitialized = true
+    fun initialize(album: Album, tracks: List<Track>) {
+        treeNodes.clear()
+        titleMap.clear()
         // create root and folders for album/artist/genre.
         treeNodes[ROOT_ID] =
             MediaItemNode(
@@ -135,26 +131,24 @@ object MediaItemTree {
         treeNodes[ROOT_ID]!!.addChild(ALBUM_ID)
         treeNodes[ROOT_ID]!!.addChild(ARTIST_ID)
         treeNodes[ROOT_ID]!!.addChild(GENRE_ID)
-
-        // Here, parse the json file in asset for media list.
-        // We use a file in asset for demo purpose
-//        val jsonObject = JSONObject(loadJSONFromAsset(assets))
-//        val mediaList = jsonObject.getJSONArray("media")
-
-
         // create subfolder with same artist, album, etc.
-        for (i in 0 until album.tracks.data.size) {
-            addNodeToTree(album, i)
+        tracks.forEach { track ->
+            addNodeToTree(album, track)
         }
+
     }
 
-    private fun addNodeToTree(album: Album, trackPosition: Int) {
-        val track = album.tracks.data[trackPosition]
+    private fun addNodeToTree(album: Album, track: Track) {
         val id = track.id
         val alb = album.title
         val title = track.title
         val artist = track.artist.name
-        val genre = album.genres.data[0].name
+        val genre = "Unknown"
+//        val genre = if (album.genres.data.isEmpty()) {
+//            album.genres.data[0].name
+//        } else {
+//            "Unknown"
+//        }
         val subtitleConfigurations: MutableList<SubtitleConfiguration> = mutableListOf()
 //        if (mediaObject.has("subtitles")) {
 //            val subtitlesJson = mediaObject.getJSONArray("subtitles")
@@ -169,7 +163,7 @@ object MediaItemTree {
 //            }
 //        }
         val sourceUri = Uri.parse(track.preview)
-        val imageUri = Uri.parse(album.cover_medium)
+        val imageUri = Uri.parse(track.album.cover_medium)
 
         // key of such items in tree
         // Track
@@ -231,12 +225,15 @@ object MediaItemTree {
 
     fun expandItem(item: MediaItem): MediaItem? {
         val treeItem = getItem(item.mediaId) ?: return null
+
         @OptIn(UnstableApi::class) // MediaMetadata.populate
         val metadata = treeItem.mediaMetadata.buildUpon().populate(item.mediaMetadata).build()
         return item
             .buildUpon()
             .setMediaMetadata(metadata)
-            .setSubtitleConfigurations(treeItem.localConfiguration?.subtitleConfigurations ?: listOf())
+            .setSubtitleConfigurations(
+                treeItem.localConfiguration?.subtitleConfigurations ?: listOf()
+            )
             .setUri(treeItem.localConfiguration?.uri)
             .build()
     }

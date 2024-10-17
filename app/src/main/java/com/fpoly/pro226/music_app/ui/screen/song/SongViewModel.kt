@@ -58,7 +58,6 @@ class SongViewModel(
                 val response = deezerRepository.getAlbum()
                 if (response?.isSuccessful == true) {
                     response.body()?.let { album ->
-                        Log.d("XXX", "getAlbum: = $album")
                         fetchAlbumEvent.value = album
 //                        songUiState = songUiState.copy(album = album, isLoading = false)
                     }
