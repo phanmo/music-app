@@ -43,7 +43,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun GenreScreen(
     appContainer: AppContainer,
-    id: Int, onBack: () -> Unit,
+    id: String,
+    onBack: () -> Unit,
     onItemArtistClick: (Artist) -> Unit
 ) {
     val vm: GenreViewModel = remember {

@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.fpoly.pro226.music_app.components.di.AppContainer
+import com.fpoly.pro226.music_app.data.models.TrackDestination
 import com.fpoly.pro226.music_app.data.source.network.models.Track
 import com.fpoly.pro226.music_app.ui.components.FMusicBottomNavigation
 import com.fpoly.pro226.music_app.ui.screen.explore.ExploreScreen
@@ -77,15 +78,18 @@ fun FMusicNavGraph(
                     appContainer,
                     onBack = {
                     },
-                    onClick = {
+                    onClickGenreItem = {
                         navController.navigate("${FMusicDestinations.GENRE_ROUTE}/${it.id}")
+                    }, onClickRadioItem = { idRadio ->
+                        navController.navigate("${FMusicDestinations.TRACK_ROUTE_RADIO}/${idRadio}")
+
                     })
             }
 
             composable("${FMusicDestinations.GENRE_ROUTE}/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id") ?: "0"
                 GenreScreen(
-                    appContainer, id.toInt(),
+                    appContainer, id,
                     onBack = {
                         navController.popBackStack()
                     },
@@ -99,7 +103,7 @@ fun FMusicNavGraph(
             composable("${FMusicDestinations.TRACK_ROUTE}/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id") ?: "0"
                 TrackScreen(
-                    id.toInt(),
+                    trackDestination = TrackDestination.Artist(id),
                     appContainer,
                     onBack = {
                         navController.popBackStack()
@@ -113,6 +117,25 @@ fun FMusicNavGraph(
                     }
                 )
             }
+            composable("${FMusicDestinations.TRACK_ROUTE_RADIO}/{idRadio}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("idRadio") ?: "0"
+                TrackScreen(
+                    trackDestination = TrackDestination.Radio(id),
+                    appContainer,
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onItemClick = { tracks, index ->
+                        // go to Playback screen
+                        startPlayerActivity(tracks, index)
+                    },
+                    onLoadTrackList = {
+                        onLoadTrackList(it)
+                    }
+                )
+            }
+
+
         }
         if (isShowBottomNavigation.value) {
             FMusicBottomNavigation(

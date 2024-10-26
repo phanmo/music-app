@@ -18,7 +18,7 @@ data class GenreUiState(
 
 class GenreViewModel(
     private val deezerRepository: DeezerRepository,
-    genreId: Int
+    genreId: String
 ) : ViewModel() {
     private var fetchArtists: Job? = null
     var genreUiState by mutableStateOf(GenreUiState())
@@ -29,7 +29,7 @@ class GenreViewModel(
     }
 
 
-    private fun getArtists(genreId: Int) {
+    private fun getArtists(genreId: String) {
         fetchArtists?.cancel()
         fetchArtists = viewModelScope.launch {
             try {

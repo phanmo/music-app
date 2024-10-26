@@ -32,9 +32,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.fpoly.pro226.music_app.R
 import com.fpoly.pro226.music_app.components.di.AppContainer
+import com.fpoly.pro226.music_app.components.factory.TrackViewModelFactory
+import com.fpoly.pro226.music_app.data.models.TrackDestination
 import com.fpoly.pro226.music_app.data.source.network.models.Track
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._1E1E1E_85
@@ -42,15 +45,15 @@ import com.fpoly.pro226.music_app.ui.theme._8A9A9D
 
 @Composable
 fun TrackScreen(
-    artistId: Int,
+    trackDestination: TrackDestination,
     appContainer: AppContainer,
     onBack: () -> Unit,
     onItemClick: (track: List<Track>, startIndex: Int) -> Unit,
     onLoadTrackList: (track: List<Track>) -> Unit
 ) {
-    val vm: TrackViewModel = remember {
-        appContainer.trackViewModelFactory.create(artistId)
-    }
+    val vm: TrackViewModel = viewModel(
+        factory = TrackViewModelFactory(trackDestination, appContainer.deezerRepository)
+    )
     val uiState = vm.tracksUiState
 
     LaunchedEffect(uiState) {
@@ -64,8 +67,9 @@ fun TrackScreen(
         backgroundColor = Color.Black,
         topBar = {
             TopBar(
+                top = uiState.tracks.size.toString(),
                 title = if (uiState.tracks.isNotEmpty()) {
-                    uiState.tracks[0].contributors[0].name
+                    uiState.tracks[0].artist.name
                 } else {
                     ""
                 },
@@ -119,7 +123,7 @@ fun TrackScreen(
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Text(
-                                text = uiState.tracks[index].contributors[0].name,
+                                text = uiState.tracks[index].artist.name,
                                 fontSize = 14.sp,
                                 color = _8A9A9D,
                                 fontWeight = FontWeight.Bold,
@@ -137,6 +141,7 @@ fun TrackScreen(
 
 @Composable
 fun TopBar(
+    top: String,
     title: String,
     onBack: () -> Unit
 ) {
@@ -170,7 +175,7 @@ fun TopBar(
                     color = Color.Cyan
                 )
                 Text(
-                    text = "Top 50 songs",
+                    text = "Top $top songs",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Thin,
                     style = MaterialTheme.typography.bodySmall,

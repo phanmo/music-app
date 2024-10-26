@@ -5,7 +5,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
 import com.fpoly.pro226.music_app.data.source.network.models.Genres
 import com.fpoly.pro226.music_app.data.source.network.models.Radios
@@ -20,15 +24,39 @@ data class ExploreUiState(
 )
 
 class ExploreViewModel(private val deezerRepository: DeezerRepository) : ViewModel() {
+
+    companion object {
+
+        // Define a custom key for your dependency
+        val MY_REPOSITORY_KEY = object : CreationExtras.Key<DeezerRepository> {}
+
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                // Get the dependency in your factory
+                val myRepository = this[MY_REPOSITORY_KEY] as DeezerRepository
+                ExploreViewModel(
+                    deezerRepository = myRepository,
+                )
+            }
+        }
+    }
+
     private var fetchGenres: Job? = null
     private var fetchRadios: Job? = null
     var exploreUiState by mutableStateOf(ExploreUiState())
         private set
 
+
     init {
         getGenres()
         getRadios()
         Log.d("TAG", "ExploreViewModel init")
+    }
+
+    override fun onCleared() {
+        Log.d("TAG", "ExploreViewModel onCleared")
+
+        super.onCleared()
     }
 
     private fun getGenres() {

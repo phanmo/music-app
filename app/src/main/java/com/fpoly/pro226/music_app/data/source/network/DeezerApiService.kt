@@ -28,13 +28,18 @@ interface DeezerApiService {
     suspend fun getRadios(): Response<Radios>
 
     @GET("/genre/{genreId}/artists")
-    suspend fun getArtists(@Path("genreId") genreId: Int): Response<Artists>
+    suspend fun getArtists(@Path("genreId") genreId: String): Response<Artists>
 
     //https://api.deezer.com/artist/6982223/top?limit=50
     @GET("/artist/{id}/top")
     suspend fun getTracks(
-        @Path("id") artistId: Int,
+        @Path("id") artistId: String,
         @Query("limit") limit: Int = 50
     ): Response<Tracks>
 
+    //https://api.deezer.com/radio/38305/tracks
+    @GET("/radio/{id}/tracks")
+    suspend fun getTracksByRadioId(
+        @Path("id") radioId: String,
+        ): Response<Tracks>
 }

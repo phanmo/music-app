@@ -34,13 +34,18 @@ class DeezerRemoteDataSource(
             deezerApiService.getRadios()
         }
 
-    suspend fun getArtists(genreId: Int): Response<Artists> =
+    suspend fun getArtists(genreId: String): Response<Artists> =
         withContext(ioDispatcher) {
             deezerApiService.getArtists(genreId)
         }
 
-    suspend fun getTracks(artistId: Int): Response<Tracks> =
+    suspend fun getTracks(artistId: String): Response<Tracks> =
         withContext(ioDispatcher) {
             deezerApiService.getTracks(artistId)
+        }
+
+    suspend fun getTracksByRadioId(radioId: String): Response<Tracks> =
+        withContext(ioDispatcher) {
+            deezerApiService.getTracksByRadioId(radioId)
         }
 }

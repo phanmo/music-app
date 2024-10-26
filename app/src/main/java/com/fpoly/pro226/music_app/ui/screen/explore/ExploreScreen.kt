@@ -6,11 +6,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,6 +41,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.fpoly.pro226.music_app.R
 import com.fpoly.pro226.music_app.components.di.AppContainer
@@ -49,59 +54,91 @@ import com.fpoly.pro226.music_app.ui.theme.D9D9D9
 @Composable
 fun ExploreScreen(
     appContainer: AppContainer,
-    onClick: (Genre) -> Unit,
-    onBack: () -> Unit
+    onClickGenreItem: (Genre) -> Unit,
+    onBack: () -> Unit,
+    onClickRadioItem: (id: String) -> Unit
 ) {
-    val vm: ExploreViewModel = remember {
-        appContainer.exploreViewModelFactory.create()
+    val extras = MutableCreationExtras().apply {
+        set(ExploreViewModel.MY_REPOSITORY_KEY, appContainer.deezerRepository)
     }
+    val vm: ExploreViewModel = viewModel(
+        factory = ExploreViewModel.Factory,
+        extras = extras,
+    )
+
     val uiState = vm.exploreUiState
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
             .padding(8.dp)
     ) {
-        Box(contentAlignment = Alignment.CenterStart) {
-            Image(
-                painter = painterResource(R.drawable.ic_app),
-                contentDescription = "Icon app",
-                modifier = Modifier.size(width = 63.dp, height = 48.dp)
-            )
-            Text(
-                text = "Search",
-                color = Color.Cyan,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 54.dp)
-            )
+        item {
+            Box(contentAlignment = Alignment.CenterStart) {
+                Image(
+                    painter = painterResource(R.drawable.ic_app),
+                    contentDescription = "Icon app",
+                    modifier = Modifier.size(width = 63.dp, height = 48.dp)
+                )
+                Text(
+                    text = "Search",
+                    color = Color.Cyan,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = 54.dp)
+                )
 
+            }
         }
-        Spacer(modifier = Modifier.height(22.dp))
-        SearchBar()
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Your Top Genres",
-            color = Color.White,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 4.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        uiState.genres?.let { GridViewGenres(it, onClick) }
-        Spacer(modifier = Modifier.height(32.dp))
-        Text(
-            text = "Browse All",
-            color = Color.White,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 4.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        uiState.radios?.let { GridViewRadios(it) }
+        item {
+            Spacer(modifier = Modifier.height(22.dp))
+        }
+        item {
+            SearchBar()
+        }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
+        item {
+            Text(
+                text = "Your Top Genres",
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+        uiState.genres?.let {
+            item {
+                GridViewGenres(it, onClickGenreItem)
+            }
+        }
+        item {
+            Spacer(modifier = Modifier.height(32.dp))
+        }
 
+        item {
+            Text(
+                text = "Browse All",
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+        uiState.radios?.let {
+            item {
+                GridViewRadios(it, onClickRadioItem)
+            }
+        }
     }
 }
 
@@ -110,7 +147,9 @@ fun ExploreScreen(
 fun GridViewGenres(items: Genres, onClick: (Genre) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(max = (114 * items.data.size).dp),
     ) {
         items(4) { index ->
             Card(
@@ -150,16 +189,21 @@ fun GridViewGenres(items: Genres, onClick: (Genre) -> Unit) {
 }
 
 @Composable
-fun GridViewRadios(items: Radios) {
+fun GridViewRadios(items: Radios, onClickRadioItem: (id: String) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(max = (114 * items.data.size).dp),
     ) {
         items(items.data.size) { index ->
             Card(
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 6.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .clickable {
+                        onClickRadioItem(items.data[index].id)
+                    },
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.Gray)
             ) {
@@ -246,5 +290,5 @@ fun GridViewGenresPreview() {
 @Preview(showBackground = true)
 @Composable
 fun GridViewRadiossPreview() {
-    GridViewRadios(Radios(data = listOf()))
+    GridViewRadios(Radios(data = listOf())) {}
 }
