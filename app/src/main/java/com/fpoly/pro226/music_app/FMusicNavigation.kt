@@ -9,6 +9,7 @@ private object FMusicScreens {
     const val LOGIN_SCREEN = "login"
     const val REGISTER_SCREEN = "register"
     const val GUIDE_SCREEN = "guide"
+    const val MAIN_SCREEN = "main"
 
 }
 
@@ -21,4 +22,5 @@ object FMusicDestinations {
     const val LOGIN_ROUTE = FMusicScreens.LOGIN_SCREEN
     const val REGISTER_ROUTE = FMusicScreens.REGISTER_SCREEN
     const val GUIDE_ROUTE = FMusicScreens.GUIDE_SCREEN
+    const val MAIN_ROUTE = FMusicScreens.MAIN_SCREEN
 }

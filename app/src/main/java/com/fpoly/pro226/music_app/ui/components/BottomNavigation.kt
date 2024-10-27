@@ -1,5 +1,6 @@
 package com.fpoly.pro226.music_app.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigationItem
@@ -22,7 +23,10 @@ import com.fpoly.pro226.music_app.R
 import com.fpoly.pro226.music_app.ui.theme._44D7DD
 
 @Composable
-fun FMusicBottomNavigation(modifier: Modifier, onItemSelected: (Int) -> Unit) {
+fun FMusicBottomNavigation(
+    modifier: Modifier,
+    onItemSelected: (Int) -> Unit,
+) {
     val items = listOf("Home", "Explore", "Library")
     val selectedItem = remember { mutableIntStateOf(0) }
 
@@ -103,6 +107,6 @@ fun getIconForItem(item: String): Int {
 @Preview(showBackground = true)
 @Composable
 fun BottomNavigationPreview() {
-    FMusicBottomNavigation(Modifier) {}
+    FMusicBottomNavigation(modifier = Modifier, onItemSelected = {})
 
 }

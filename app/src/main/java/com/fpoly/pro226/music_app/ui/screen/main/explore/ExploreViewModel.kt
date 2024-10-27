@@ -1,4 +1,4 @@
-package com.fpoly.pro226.music_app.ui.screen.explore
+package com.fpoly.pro226.music_app.ui.screen.main.explore
 
 import android.util.Log
 import androidx.compose.runtime.getValue

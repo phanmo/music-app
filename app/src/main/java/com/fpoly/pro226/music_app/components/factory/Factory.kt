@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.fpoly.pro226.music_app.data.models.TrackDestination
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
-import com.fpoly.pro226.music_app.ui.screen.explore.ExploreViewModel
+import com.fpoly.pro226.music_app.ui.screen.main.explore.ExploreViewModel
 import com.fpoly.pro226.music_app.ui.screen.genre.GenreViewModel
 import com.fpoly.pro226.music_app.ui.screen.song.SongViewModel
 import com.fpoly.pro226.music_app.ui.screen.track.TrackViewModel

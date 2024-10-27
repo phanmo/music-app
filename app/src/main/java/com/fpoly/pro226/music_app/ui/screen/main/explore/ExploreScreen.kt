@@ -1,4 +1,4 @@
-package com.fpoly.pro226.music_app.ui.screen.explore
+package com.fpoly.pro226.music_app.ui.screen.main.explore
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -72,7 +73,17 @@ fun ExploreScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF102B2D),
+                        Color(0xFF000000),
+                        Color(0xFF000000),
+                    )
+                )
+            )
             .padding(8.dp)
+
     ) {
         item {
             Box(contentAlignment = Alignment.CenterStart) {
@@ -86,7 +97,7 @@ fun ExploreScreen(
                     color = Color.Cyan,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 54.dp)
+                    modifier = Modifier.padding(start = 64.dp)
                 )
 
             }

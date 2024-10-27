@@ -16,6 +16,8 @@ import retrofit2.Response
 
 interface DeezerRepository {
     suspend fun getTrack(refresh: Boolean = false): Response<Track>?
+    suspend fun getTracksChart(): Response<Tracks>
+    suspend fun getArtistsChart(): Response<Artists>
     suspend fun getGenres(): Response<Genres>?
     suspend fun getRadios(): Response<Radios>?
     suspend fun getAlbum(): Response<Album>?
@@ -52,6 +54,18 @@ class DeezerRepositoryImpl(
     override suspend fun getGenres(): Response<Genres> {
         return externalScope.async {
             deezerRemoteDataSource.getGenres()
+        }.await()
+    }
+
+    override suspend fun getArtistsChart(): Response<Artists> {
+        return externalScope.async {
+            deezerRemoteDataSource.getArtistsChart()
+        }.await()
+    }
+
+    override suspend fun getTracksChart(): Response<Tracks> {
+        return externalScope.async {
+            deezerRemoteDataSource.getTracksChart()
         }.await()
     }
 

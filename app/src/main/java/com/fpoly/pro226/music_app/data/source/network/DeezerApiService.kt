@@ -41,5 +41,14 @@ interface DeezerApiService {
     @GET("/radio/{id}/tracks")
     suspend fun getTracksByRadioId(
         @Path("id") radioId: String,
-        ): Response<Tracks>
+    ): Response<Tracks>
+
+    //https://api.deezer.com/chart/0/tracks
+    @GET("/chart/0/tracks")
+    suspend fun getTracksChart(): Response<Tracks>
+
+    //https://api.deezer.com/chart/0/artists
+
+    @GET("/chart/0/artists")
+    suspend fun getArtistsChart(): Response<Artists>
 }
