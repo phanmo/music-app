@@ -16,8 +16,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import com.fpoly.pro226.music_app.FMusicDestinations
 import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.data.source.network.models.Genre
+import com.fpoly.pro226.music_app.data.source.network.models.Track
 import com.fpoly.pro226.music_app.ui.components.FMusicBottomNavigation
 import com.fpoly.pro226.music_app.ui.screen.main.home.HomeScreen
 import com.fpoly.pro226.music_app.ui.screen.main.explore.ExploreScreen
@@ -27,10 +30,13 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
+    onLoadTrackList: (track: List<Track>) -> Unit,
+    navController: NavHostController,
     appContainer: AppContainer,
     onClickGenreItem: (Genre) -> Unit,
     onBack: () -> Unit,
-    onClickRadioItem: (id: String) -> Unit
+    onClickRadioItem: (id: String) -> Unit,
+    startPlayerActivity: (tracks: List<Track>, startIndex: Int) -> Unit,
 ) {
     val pagerState = rememberPagerState(pageCount = { 3 })
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -48,7 +54,18 @@ fun MainScreen(
             ) { page ->
                 selectedTabIndex = page
                 when (page) {
-                    0 -> HomeScreen(appContainer)
+                    0 -> HomeScreen(
+                        appContainer = appContainer,
+                        onClickItemArtist = { id ->
+                            navController.navigate("${FMusicDestinations.TRACK_ROUTE}/${id}")
+                        },
+                        onClickItemTrack = startPlayerActivity,
+                        onLoadTrackList = onLoadTrackList,
+                        onClickItemPlaylist = { id ->
+                            navController.navigate("${FMusicDestinations.PLAYLIST_ROUTE}/${id}")
+                        }
+                    )
+
                     1 -> ExploreScreen(
                         appContainer,
                         onClickRadioItem = onClickRadioItem,

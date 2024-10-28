@@ -1,5 +1,6 @@
 package com.fpoly.pro226.music_app.ui.screen.main.home
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,14 +49,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.fpoly.pro226.music_app.R
 import com.fpoly.pro226.music_app.components.di.AppContainer
+import com.fpoly.pro226.music_app.data.source.network.models.Track
 import com.fpoly.pro226.music_app.ui.theme.FFFFFF94
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._1E1E1E_85
 import com.fpoly.pro226.music_app.ui.theme._436369
 import com.fpoly.pro226.music_app.ui.theme._8A9A9D
+import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(appContainer: AppContainer) {
+fun HomeScreen(
+    onLoadTrackList: (track: List<Track>) -> Unit,
+    appContainer: AppContainer,
+    onClickItemArtist: (String) -> Unit,
+    onClickItemTrack: (tracks: List<Track>, startIndex: Int) -> Unit,
+    onClickItemPlaylist: (String) -> Unit
+) {
     val extras = MutableCreationExtras().apply {
         set(HomeViewModel.MY_REPOSITORY_KEY, appContainer.deezerRepository)
     }
@@ -60,8 +72,14 @@ fun HomeScreen(appContainer: AppContainer) {
         factory = HomeViewModel.Factory,
         extras = extras,
     )
-
     val uiState = vm.homeUiState
+
+    LaunchedEffect(uiState) {
+        if (uiState.tracks?.data?.isNotEmpty() == true) {
+            Log.d("TrackScreen", "TrackScreen: ${uiState.tracks}")
+            onLoadTrackList(uiState.tracks.data)
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -102,6 +120,7 @@ fun HomeScreen(appContainer: AppContainer) {
                                     .padding(end = 8.dp, top = 6.dp, bottom = 6.dp)
                                     .fillMaxWidth()
                                     .clickable {
+                                        onClickItemArtist(artists[index].id)
                                     },
                                 shape = RoundedCornerShape(10.dp),
                                 colors = CardDefaults.cardColors(containerColor = _436369)
@@ -144,47 +163,45 @@ fun HomeScreen(appContainer: AppContainer) {
                     modifier = Modifier.padding(top = 35.dp)
                 )
             }
-            item {
-                LazyRow {
-                    items(4) { index ->
-                        Card(
-                            modifier = Modifier
-                                .padding(top = 16.dp, bottom = 16.dp, end = 12.dp)
-                                .fillMaxWidth()
-                                .shadow(
-                                    10.dp,
+            uiState.playlists?.data?.let { playlists ->
+                item {
+                    LazyRow {
+                        items(playlists.size) { index ->
+                            Card(
+                                modifier = Modifier
+                                    .padding(top = 16.dp, bottom = 16.dp, end = 12.dp)
+                                    .fillMaxWidth()
+                                    .shadow(
+                                        10.dp,
 //                                    shape = RoundedCornerShape(8.dp),
-                                )
-                                .clickable {
-                                },
-                            shape = RoundedCornerShape(24.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.Gray)
-                        ) {
-                            Box {
-                                AsyncImage(
-                                    model = "",
-                                    contentScale = ContentScale.Crop,
-                                    contentDescription = "Album Art",
+                                    )
+                                    .clickable {
+                                        onClickItemPlaylist(playlists[index].id.toString())
+                                    },
+                                shape = RoundedCornerShape(24.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color.Gray)
+                            ) {
+                                Box(
                                     modifier = Modifier
-                                        .height(130.dp)
-                                        .clip(RoundedCornerShape(24.dp)),
-                                    placeholder = painterResource(R.drawable.ic_app),
-                                    error = painterResource(R.drawable.ic_app)
-                                )
-                                Text(
-                                    text = "Okshdfsdfhsjfhjshjdshjf",
-                                    color = Color.White,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier
-                                        .padding(bottom = 16.dp, start = 8.dp, end = 8.dp)
-                                        .align(Alignment.BottomStart)
-                                )
-                            }
+                                        .size(130.dp)
+                                ) {
+                                    AsyncImage(
+                                        model = playlists[index].picture_medium,
+                                        contentScale = ContentScale.Crop,
+                                        contentDescription = "Album Art",
+                                        modifier = Modifier
+                                            .size(130.dp)
+                                            .clip(RoundedCornerShape(24.dp)),
+                                        placeholder = painterResource(R.drawable.ic_app),
+                                        error = painterResource(R.drawable.ic_app)
+                                    )
+                                }
 
+                            }
                         }
                     }
                 }
+
             }
             item {
                 Text(
@@ -203,6 +220,7 @@ fun HomeScreen(appContainer: AppContainer) {
                             .fillMaxWidth()
                             .padding(vertical = 6.dp)
                             .clickable {
+                                onClickItemTrack(tracks, index)
                             },
                         colors = CardDefaults.cardColors(containerColor = _1E1E1E_85)
                     ) {

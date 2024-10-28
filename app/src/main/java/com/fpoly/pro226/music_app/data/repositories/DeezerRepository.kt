@@ -5,6 +5,8 @@ import com.fpoly.pro226.music_app.data.source.network.DeezerRemoteDataSource
 import com.fpoly.pro226.music_app.data.source.network.models.Album
 import com.fpoly.pro226.music_app.data.source.network.models.Artists
 import com.fpoly.pro226.music_app.data.source.network.models.Genres
+import com.fpoly.pro226.music_app.data.source.network.models.Playlist
+import com.fpoly.pro226.music_app.data.source.network.models.Playlists
 import com.fpoly.pro226.music_app.data.source.network.models.Radios
 import com.fpoly.pro226.music_app.data.source.network.models.Track
 import com.fpoly.pro226.music_app.data.source.network.models.Tracks
@@ -17,7 +19,10 @@ import retrofit2.Response
 interface DeezerRepository {
     suspend fun getTrack(refresh: Boolean = false): Response<Track>?
     suspend fun getTracksChart(): Response<Tracks>
+    suspend fun getTracksByPlaylistId(id: String): Response<Tracks>
     suspend fun getArtistsChart(): Response<Artists>
+    suspend fun getPlaylistById(playlistId: String): Response<Playlist>
+    suspend fun getPlaylistsChart(): Response<Playlists>
     suspend fun getGenres(): Response<Genres>?
     suspend fun getRadios(): Response<Radios>?
     suspend fun getAlbum(): Response<Album>?
@@ -63,9 +68,21 @@ class DeezerRepositoryImpl(
         }.await()
     }
 
+    override suspend fun getPlaylistById(playlistId: String): Response<Playlist> {
+        return externalScope.async {
+            deezerRemoteDataSource.getPlaylist(playlistId)
+        }.await()
+    }
+
     override suspend fun getTracksChart(): Response<Tracks> {
         return externalScope.async {
             deezerRemoteDataSource.getTracksChart()
+        }.await()
+    }
+
+    override suspend fun getTracksByPlaylistId(id: String): Response<Tracks> {
+        return externalScope.async {
+            deezerRemoteDataSource.getTracksByPlaylistId(id)
         }.await()
     }
 
@@ -96,6 +113,12 @@ class DeezerRepositoryImpl(
     override suspend fun getTracksByRadioId(radioId: String): Response<Tracks> {
         return externalScope.async {
             deezerRemoteDataSource.getTracksByRadioId(radioId)
+        }.await()
+    }
+
+    override suspend fun getPlaylistsChart(): Response<Playlists> {
+        return externalScope.async {
+            deezerRemoteDataSource.getPlaylistsChart()
         }.await()
     }
 }

@@ -23,6 +23,7 @@ import com.fpoly.pro226.music_app.ui.screen.main.explore.ExploreScreen
 import com.fpoly.pro226.music_app.ui.screen.genre.GenreScreen
 import com.fpoly.pro226.music_app.ui.screen.login.LoginScreen
 import com.fpoly.pro226.music_app.ui.screen.main.MainScreen
+import com.fpoly.pro226.music_app.ui.screen.playlist.PlaylistScreen
 import com.fpoly.pro226.music_app.ui.screen.register.RegisterScreen
 import com.fpoly.pro226.music_app.ui.screen.splash.GuideScreen
 import com.fpoly.pro226.music_app.ui.screen.track.TrackScreen
@@ -46,6 +47,9 @@ fun FMusicNavGraph(
     ) {
         composable(FMusicDestinations.MAIN_ROUTE) {
             MainScreen(
+                onLoadTrackList = onLoadTrackList,
+                startPlayerActivity = startPlayerActivity,
+                navController = navController,
                 appContainer = appContainer,
                 onClickRadioItem = { idRadio ->
                     navController.navigate("${FMusicDestinations.TRACK_ROUTE_RADIO}/${idRadio}")
@@ -124,6 +128,21 @@ fun FMusicNavGraph(
                     // go to Playback screen
                     startPlayerActivity(tracks, index)
                 },
+                onLoadTrackList = {
+                    onLoadTrackList(it)
+                }
+            )
+        }
+
+        composable("${FMusicDestinations.PLAYLIST_ROUTE}/{idPlaylist}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("idPlaylist") ?: "0"
+            PlaylistScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                startPlayerActivity = startPlayerActivity,
+                appContainer = appContainer,
+                idPlaylist = id,
                 onLoadTrackList = {
                     onLoadTrackList(it)
                 }

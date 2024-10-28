@@ -3,6 +3,8 @@ package com.fpoly.pro226.music_app.data.source.network
 import com.fpoly.pro226.music_app.data.source.network.models.Album
 import com.fpoly.pro226.music_app.data.source.network.models.Artists
 import com.fpoly.pro226.music_app.data.source.network.models.Genres
+import com.fpoly.pro226.music_app.data.source.network.models.Playlist
+import com.fpoly.pro226.music_app.data.source.network.models.Playlists
 import com.fpoly.pro226.music_app.data.source.network.models.Radios
 import com.fpoly.pro226.music_app.data.source.network.models.Track
 import com.fpoly.pro226.music_app.data.source.network.models.Tracks
@@ -39,6 +41,11 @@ class DeezerRemoteDataSource(
             deezerApiService.getArtists(genreId)
         }
 
+    suspend fun getPlaylist(playlistId: String): Response<Playlist> =
+        withContext(ioDispatcher) {
+            deezerApiService.getPlaylist(playlistId)
+        }
+
     suspend fun getTracks(artistId: String): Response<Tracks> =
         withContext(ioDispatcher) {
             deezerApiService.getTracks(artistId)
@@ -49,6 +56,11 @@ class DeezerRemoteDataSource(
             deezerApiService.getTracksByRadioId(radioId)
         }
 
+    suspend fun getTracksByPlaylistId(id: String): Response<Tracks> =
+        withContext(ioDispatcher) {
+            deezerApiService.getTracksByPlaylistId(id)
+        }
+
     suspend fun getTracksChart(): Response<Tracks> =
         withContext(ioDispatcher) {
             deezerApiService.getTracksChart()
@@ -57,5 +69,10 @@ class DeezerRemoteDataSource(
     suspend fun getArtistsChart(): Response<Artists> =
         withContext(ioDispatcher) {
             deezerApiService.getArtistsChart()
+        }
+
+    suspend fun getPlaylistsChart(): Response<Playlists> =
+        withContext(ioDispatcher) {
+            deezerApiService.getPlaylistsChart()
         }
 }

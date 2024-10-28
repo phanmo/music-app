@@ -3,6 +3,8 @@ package com.fpoly.pro226.music_app.data.source.network
 import com.fpoly.pro226.music_app.data.source.network.models.Album
 import com.fpoly.pro226.music_app.data.source.network.models.Artists
 import com.fpoly.pro226.music_app.data.source.network.models.Genres
+import com.fpoly.pro226.music_app.data.source.network.models.Playlist
+import com.fpoly.pro226.music_app.data.source.network.models.Playlists
 import com.fpoly.pro226.music_app.data.source.network.models.Radios
 import com.fpoly.pro226.music_app.data.source.network.models.Track
 import com.fpoly.pro226.music_app.data.source.network.models.Tracks
@@ -30,6 +32,10 @@ interface DeezerApiService {
     @GET("/genre/{genreId}/artists")
     suspend fun getArtists(@Path("genreId") genreId: String): Response<Artists>
 
+    // https://api.deezer.com/playlist/908622995
+    @GET("/playlist/{playlistId}")
+    suspend fun getPlaylist(@Path("playlistId") playlistId: String): Response<Playlist>
+
     //https://api.deezer.com/artist/6982223/top?limit=50
     @GET("/artist/{id}/top")
     suspend fun getTracks(
@@ -51,4 +57,14 @@ interface DeezerApiService {
 
     @GET("/chart/0/artists")
     suspend fun getArtistsChart(): Response<Artists>
+
+    //    https://api.deezer.com/chart/0/playlists
+    @GET("/chart/0/playlists")
+    suspend fun getPlaylistsChart(): Response<Playlists>
+
+    //    https://api.deezer.com/playlist/4096400722/tracks
+    @GET("/playlist/{id}/tracks")
+    suspend fun getTracksByPlaylistId(
+        @Path("id") playlistId: String
+    ): Response<Tracks>
 }

@@ -109,6 +109,7 @@ class MainActivity : ComponentActivity() {
 
     }
 
+
     private fun displayFolder(title: String?) {
         val browser = this.browser ?: return
         val id = "[album]$title"
