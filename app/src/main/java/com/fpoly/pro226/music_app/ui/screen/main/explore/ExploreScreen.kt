@@ -17,8 +17,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -51,6 +54,7 @@ import com.fpoly.pro226.music_app.data.source.network.models.Genre
 import com.fpoly.pro226.music_app.data.source.network.models.Genres
 import com.fpoly.pro226.music_app.data.source.network.models.Radios
 import com.fpoly.pro226.music_app.ui.theme.D9D9D9
+import com.fpoly.pro226.music_app.ui.theme._00C2CB
 
 @Composable
 fun ExploreScreen(
@@ -86,24 +90,10 @@ fun ExploreScreen(
 
     ) {
         item {
-            Box(contentAlignment = Alignment.CenterStart) {
-                Image(
-                    painter = painterResource(R.drawable.ic_app),
-                    contentDescription = "Icon app",
-                    modifier = Modifier.size(width = 63.dp, height = 48.dp)
-                )
-                Text(
-                    text = "Search",
-                    color = Color.Cyan,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 64.dp)
-                )
-
-            }
+            CustomTopAppBar()
         }
         item {
-            Spacer(modifier = Modifier.height(22.dp))
+            Spacer(modifier = Modifier.height(12.dp))
         }
         item {
             SearchBar()
@@ -153,6 +143,34 @@ fun ExploreScreen(
     }
 }
 
+@Composable
+fun CustomTopAppBar() {
+    TopAppBar(
+        backgroundColor = Color.Transparent,
+        elevation = 0.dp,
+        title = {
+            Box(contentAlignment = Alignment.CenterStart) {
+                Image(
+                    painter = painterResource(R.drawable.logotransparent),
+                    contentDescription = "Icon app",
+                    modifier = Modifier.size(width = 63.dp, height = 48.dp)
+                )
+                Text(
+                    text = "Search",
+                    color = _00C2CB,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(start = 54.dp)
+                )
+
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+
+    )
+}
 
 @Composable
 fun GridViewGenres(items: Genres, onClick: (Genre) -> Unit) {

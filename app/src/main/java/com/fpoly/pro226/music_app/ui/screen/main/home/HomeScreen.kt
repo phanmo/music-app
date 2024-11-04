@@ -256,6 +256,8 @@ fun HomeScreen(
                                     fontSize = 17.sp,
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                                 Text(
