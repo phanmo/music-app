@@ -13,6 +13,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
 import com.fpoly.pro226.music_app.data.source.network.models.Genres
 import com.fpoly.pro226.music_app.data.source.network.models.Radios
+import com.fpoly.pro226.music_app.data.source.network.models.Tracks
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -21,6 +22,7 @@ data class ExploreUiState(
     val isLoading: Boolean = false,
     val genres: Genres? = null,
     val radios: Radios? = null,
+    val resulTrack: Tracks? = null,
 )
 
 class ExploreViewModel(private val deezerRepository: DeezerRepository) : ViewModel() {
@@ -43,6 +45,7 @@ class ExploreViewModel(private val deezerRepository: DeezerRepository) : ViewMod
 
     private var fetchGenres: Job? = null
     private var fetchRadios: Job? = null
+    private var fetchTrack: Job? = null
     var exploreUiState by mutableStateOf(ExploreUiState())
         private set
 
@@ -95,6 +98,30 @@ class ExploreViewModel(private val deezerRepository: DeezerRepository) : ViewMod
                 fetchRadios = null
             }
         }
+    }
+
+    fun searchTrack(query: String) {
+        fetchTrack?.cancel()
+        fetchTrack = viewModelScope.launch {
+            try {
+                exploreUiState = exploreUiState.copy(isLoading = true)
+                val response = deezerRepository.searchTrack(query)
+                if (response.isSuccessful) {
+                    response.body()?.let { tracks ->
+                        Log.d("HAHA", "searchTrack: $query")
+                        exploreUiState = exploreUiState.copy(resulTrack = tracks, isLoading = false)
+                    }
+                }
+            } catch (e: Exception) {
+                exploreUiState = exploreUiState.copy(isLoading = false)
+            } finally {
+                fetchTrack = null
+            }
+        }
+    }
+
+    fun clearTracks() {
+        exploreUiState = exploreUiState.copy(resulTrack = null)
     }
 
 }

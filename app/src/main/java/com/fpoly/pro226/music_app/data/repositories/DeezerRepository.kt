@@ -28,6 +28,7 @@ interface DeezerRepository {
     suspend fun getAlbum(): Response<Album>?
     suspend fun getArtists(genreId: String): Response<Artists>?
     suspend fun getTracks(artistId: String): Response<Tracks>?
+    suspend fun searchTrack(query: String): Response<Tracks>
     suspend fun getTracksByRadioId(radioId: String): Response<Tracks>?
 }
 
@@ -109,6 +110,11 @@ class DeezerRepositoryImpl(
             deezerRemoteDataSource.getTracks(artistId)
         }.await()
     }
+
+    override suspend fun searchTrack(query: String): Response<Tracks> {
+        return externalScope.async {
+            deezerRemoteDataSource.searchTrack(query)
+        }.await()    }
 
     override suspend fun getTracksByRadioId(radioId: String): Response<Tracks> {
         return externalScope.async {

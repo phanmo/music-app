@@ -67,4 +67,10 @@ interface DeezerApiService {
     suspend fun getTracksByPlaylistId(
         @Path("id") playlistId: String
     ): Response<Tracks>
+
+    //    https://api.deezer.com/search/track?q=eminem
+    @GET("/search/track")
+    suspend fun searchTrack(
+        @Query("q") query: String
+    ): Response<Tracks>
 }

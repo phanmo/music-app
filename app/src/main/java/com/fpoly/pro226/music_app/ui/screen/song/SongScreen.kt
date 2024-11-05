@@ -198,9 +198,13 @@ fun SongContent(
             override fun run() {
                 mediaController.value?.let { controller ->
                     currentPosition.longValue = controller.currentPosition
-                    duration.longValue = controller.getDuration()
+                    duration.longValue = if (controller.getDuration() < 0) {
+                        0
+                    } else {
+                        controller.getDuration()
+                    }
                 }
-                handler.postDelayed(this, 300L)
+                handler.postDelayed(this, 100L)
             }
         }
     }
@@ -266,36 +270,35 @@ fun SongContent(
                 )
             }
         }
-        if ((mediaController.value?.duration ?: 0) > 0) {
-            Slider(
-                value = currentPosition.longValue.toFloat(),
-                valueRange = 0f..duration.longValue.toFloat(),
-                onValueChange = { newValue ->
-                    currentPosition.longValue = newValue.toLong()
-                },
-                onValueChangeFinished = {
-                    mediaController.value?.seekTo(currentPosition.longValue)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(10.dp)
-                    .padding(horizontal = 16.dp),
-                thumb = {
-                    SliderDefaults.Thumb(
-                        interactionSource = interactionSource,
-                        modifier = Modifier.size(17.dp),
-                        colors = SliderDefaults.colors(
-                            thumbColor = _7CEEFF,
-                            activeTrackColor = _7CEEFF,
-                        )
+        Slider(
+            value = currentPosition.longValue.toFloat(),
+            valueRange = 0f..duration.longValue.toFloat(),
+            onValueChange = { newValue ->
+                currentPosition.longValue = newValue.toLong()
+            },
+            onValueChangeFinished = {
+                mediaController.value?.seekTo(currentPosition.longValue)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(10.dp)
+                .padding(horizontal = 16.dp),
+            thumb = {
+                SliderDefaults.Thumb(
+                    interactionSource = interactionSource,
+                    modifier = Modifier.size(17.dp),
+                    colors = SliderDefaults.colors(
+                        thumbColor = _7CEEFF,
+                        activeTrackColor = _7CEEFF,
                     )
-                },
-                colors = SliderDefaults.colors(
-                    thumbColor = _7CEEFF,
-                    activeTrackColor = _7CEEFF,
                 )
+            },
+            colors = SliderDefaults.colors(
+                thumbColor = _7CEEFF,
+                activeTrackColor = _7CEEFF,
             )
-        }
+        )
+
 
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,

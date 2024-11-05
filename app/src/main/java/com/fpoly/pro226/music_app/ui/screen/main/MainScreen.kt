@@ -70,7 +70,9 @@ fun MainScreen(
                         appContainer,
                         onClickRadioItem = onClickRadioItem,
                         onClickGenreItem = onClickGenreItem,
-                        onBack = onBack
+                        onBack = onBack,
+                        startPlayerActivity = startPlayerActivity,
+                        onLoadTrackList = onLoadTrackList
                     )
 
                     2 -> LibraryScreen()

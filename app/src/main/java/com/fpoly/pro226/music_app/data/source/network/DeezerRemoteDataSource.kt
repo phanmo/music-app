@@ -75,4 +75,9 @@ class DeezerRemoteDataSource(
         withContext(ioDispatcher) {
             deezerApiService.getPlaylistsChart()
         }
+
+    suspend fun searchTrack(query: String): Response<Tracks> =
+        withContext(ioDispatcher) {
+            deezerApiService.searchTrack(query)
+        }
 }
