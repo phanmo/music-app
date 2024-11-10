@@ -1,5 +1,13 @@
 package com.fpoly.pro226.music_app.ui.screen.main.explore
 
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.speech.RecognizerIntent
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,6 +53,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
@@ -355,9 +364,45 @@ fun ListTrackSearch(
 
 @Composable
 fun SearchBar(vm: ExploreViewModel) {
-    var text by remember { mutableStateOf(TextFieldValue("")) }
+    val context = LocalContext.current
+
+    var fieldValue by remember { mutableStateOf(TextFieldValue("")) }
     val coroutineScope = rememberCoroutineScope()
     val containerColor = Color.White
+
+    val voiceRecognitionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val text =
+                result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0) ?: ""
+            fieldValue = fieldValue.copy(
+                text = text,
+            )
+            vm.searchTrack(text)
+        }
+    }
+
+    fun startVoiceRecognition() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VN")
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Nói gì đó để tìm kiếm...")
+        }
+        try {
+            voiceRecognitionLauncher.launch(intent)
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(
+                context,
+                "Thiết bị của bạn không hỗ trợ nhận diện giọng nói",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
     TextField(
         leadingIcon = {
             Image(
@@ -367,23 +412,32 @@ fun SearchBar(vm: ExploreViewModel) {
             )
         },
         trailingIcon = {
-            if (text.text.isNotEmpty()) {
+            if (fieldValue.text.isNotEmpty()) {
                 androidx.compose.material.Icon(
                     imageVector = Icons.Default.Clear,
                     contentDescription = "Clear text",
                     tint = Color.Gray,
                     modifier = Modifier.clickable {
                         vm.clearTracks()
-                        text = text.copy("", selection = TextRange.Zero)
+                        fieldValue = fieldValue.copy("", selection = TextRange.Zero)
+                    }
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_mic_24),
+                    contentDescription = "Search",
+                    modifier = Modifier.clickable {
+                        startVoiceRecognition()
                     }
                 )
             }
         },
         maxLines = 1,
         singleLine = true,
-        value = text,
+        value = fieldValue,
         onValueChange = { newText ->
-            text = newText
+            Log.d("TAG", "SearchBar: $newText")
+            fieldValue = newText
             coroutineScope.launch {
                 vm.searchTrack(newText.text)
                 delay(500)
