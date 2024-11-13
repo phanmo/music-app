@@ -4,9 +4,14 @@ import com.fpoly.pro226.music_app.components.factory.GenreViewModelFactory
 import com.fpoly.pro226.music_app.components.factory.SongViewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepositoryImpl
+import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
+import com.fpoly.pro226.music_app.data.repositories.FMusicRepositoryImpl
 import com.fpoly.pro226.music_app.data.source.network.BASE_URL
 import com.fpoly.pro226.music_app.data.source.network.DeezerApiService
 import com.fpoly.pro226.music_app.data.source.network.DeezerRemoteDataSource
+import com.fpoly.pro226.music_app.data.source.network.FMusicApiService
+import com.fpoly.pro226.music_app.data.source.network.FMusicRemoteDataSource
+import com.fpoly.pro226.music_app.data.source.network.F_MUSIC_BASE_URL
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
@@ -16,6 +21,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 class AppContainer(externalScope: CoroutineScope) {
+
+    private val fMusicRetrofit = Retrofit.Builder()
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(provideHttpClient())
+        .baseUrl(F_MUSIC_BASE_URL)
+        .build()
 
     private val retrofit = Retrofit.Builder()
         .addConverterFactory(GsonConverterFactory.create())
@@ -27,10 +38,20 @@ class AppContainer(externalScope: CoroutineScope) {
         retrofit.create(DeezerApiService::class.java)
     }
 
+    private val fMusicRetrofitService: FMusicApiService by lazy {
+        retrofit.create(FMusicApiService::class.java)
+    }
+
     private val deezerRemoteDataSource = DeezerRemoteDataSource(retrofitService, Dispatchers.IO)
+    private val fMusicRemoteDataSource =
+        FMusicRemoteDataSource(fMusicRetrofitService, Dispatchers.IO)
 
     val deezerRepository: DeezerRepository =
         DeezerRepositoryImpl(deezerRemoteDataSource, externalScope)
+
+    val fMusicRepository: FMusicRepository =
+        FMusicRepositoryImpl(fMusicRemoteDataSource, externalScope)
+
 
     val songViewModelFactory = SongViewModelFactory(deezerRepository)
     val genreViewModelFactory = GenreViewModelFactory(deezerRepository)
