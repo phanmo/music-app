@@ -24,6 +24,7 @@ import com.fpoly.pro226.music_app.components.FMusicApplication
 import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.components.services.FMusicPlaybackService
 import com.fpoly.pro226.music_app.components.services.MediaItemTree
+import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
 import com.fpoly.pro226.music_app.ui.screen.song.SongViewModel
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.google.common.util.concurrent.ListenableFuture
@@ -48,11 +49,17 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val preferencesManager = PreferencesManager(this)
+        var startDestination = FMusicDestinations.GUIDE_ROUTE
+        if (preferencesManager.getAccessToken() != null) {
+            startDestination = FMusicDestinations.MAIN_ROUTE
+        }
         setContent {
             MusicAppTheme {
                 // A surface container using the 'background' color from the theme
 
                 FMusicNavGraph(
+                    startDestination = startDestination,
                     appContainer = appContainer,
                     startPlayerActivity = { tracks, startIndex ->
                         run {

@@ -58,9 +58,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fpoly.pro226.music_app.R
 import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
+import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.User
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
+import com.fpoly.pro226.music_app.ui.components.LoadingDialog
 import com.fpoly.pro226.music_app.ui.screen.playlist.PlaylistViewModel
 import com.fpoly.pro226.music_app.ui.theme.FFFFFF_87
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
@@ -93,6 +95,10 @@ fun LoginScreen(
 
     LaunchedEffect(uiState) {
         if (uiState.isLoginSuccess == true) {
+            val preferencesManager = PreferencesManager(context)
+            uiState.loginRes?.token?.let { accessToken ->
+                preferencesManager.saveAccessToken(accessToken)
+            }
             onLoginSuccess()
         } else if (uiState.isLoginSuccess == false) {
             Toast.makeText(context, "Email or Password is incorrect !", Toast.LENGTH_SHORT).show()
@@ -405,18 +411,6 @@ fun ContinueWith() {
                 .background(Color.Gray)
         )
     }
-}
-
-@Composable
-fun LoadingDialog(onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = null,
-        text = {
-            CircularProgressIndicator()
-        },
-        buttons = {}
-    )
 }
 
 

@@ -28,18 +28,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fpoly.pro226.music_app.R
+import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._00C2CB
 import com.fpoly.pro226.music_app.ui.theme._A6F3FF
 
 @Composable
-fun LibraryScreen() {
+fun LibraryScreen(onLogoutClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -53,7 +55,7 @@ fun LibraryScreen() {
                 )
             )
     ) {
-        CustomTopAppBar()
+        CustomTopAppBar(onLogoutClick)
         LazyColumn(
             modifier = Modifier
                 .padding(top = 68.dp, start = 16.dp, end = 16.dp)
@@ -96,7 +98,8 @@ fun LibraryScreen() {
 }
 
 @Composable
-fun CustomTopAppBar() {
+fun CustomTopAppBar(onLogoutClick: () -> Unit) {
+    val context = LocalContext.current
     TopAppBar(
         backgroundColor = Color.Transparent,
         elevation = 0.dp,
@@ -121,10 +124,12 @@ fun CustomTopAppBar() {
         actions = {
             IconButton(
                 onClick = {
-
+                    val preferencesManager = PreferencesManager(context)
+                    preferencesManager.clearAccessToken()
+                    onLogoutClick()
                 }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.search),
+                    painter = painterResource(id = R.drawable.baseline_logout_24),
                     contentDescription = "Notification",
                     tint = Color.White
                 )
@@ -157,7 +162,7 @@ fun ItemButton(onClick: () -> Unit, content: @Composable () -> Unit, title: Stri
 
         Text(
             text = title,
-            color = Color.White, // Text color
+            color = Color.White,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
@@ -169,6 +174,6 @@ fun ItemButton(onClick: () -> Unit, content: @Composable () -> Unit, title: Stri
 @Composable
 fun LibraryScreenPreview() {
     MusicAppTheme {
-        LibraryScreen()
+        LibraryScreen(){}
     }
 }

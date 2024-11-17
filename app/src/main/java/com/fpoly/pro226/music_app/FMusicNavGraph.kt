@@ -1,25 +1,15 @@
 package com.fpoly.pro226.music_app
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.data.models.TrackDestination
 import com.fpoly.pro226.music_app.data.source.network.models.Track
-import com.fpoly.pro226.music_app.ui.components.FMusicBottomNavigation
-import com.fpoly.pro226.music_app.ui.screen.main.explore.ExploreScreen
 import com.fpoly.pro226.music_app.ui.screen.genre.GenreScreen
 import com.fpoly.pro226.music_app.ui.screen.login.LoginScreen
 import com.fpoly.pro226.music_app.ui.screen.main.MainScreen
@@ -34,7 +24,7 @@ fun FMusicNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    startDestination: String = FMusicDestinations.GUIDE_ROUTE,
+    startDestination: String,
     appContainer: AppContainer,
     startPlayerActivity: (tracks: List<Track>, startIndex: Int) -> Unit,
     onLoadTrackList: (track: List<Track>) -> Unit
@@ -61,7 +51,9 @@ fun FMusicNavGraph(
         }
         composable(FMusicDestinations.GUIDE_ROUTE) {
             GuideScreen {
-                navController.navigate(FMusicDestinations.LOGIN_ROUTE)
+                navController.navigate(FMusicDestinations.LOGIN_ROUTE) {
+                    popUpTo(FMusicDestinations.GUIDE_ROUTE) { inclusive = true }
+                }
             }
         }
 
@@ -69,7 +61,9 @@ fun FMusicNavGraph(
             LoginScreen(
                 fMusicRepository = appContainer.fMusicRepository,
                 onLoginSuccess = {
-                    navController.navigate(FMusicDestinations.MAIN_ROUTE)
+                    navController.navigate(FMusicDestinations.MAIN_ROUTE) {
+                        popUpTo(FMusicDestinations.LOGIN_ROUTE) { inclusive = true }
+                    }
                 },
                 onClickRegister = {
                     navController.navigate(FMusicDestinations.REGISTER_ROUTE)

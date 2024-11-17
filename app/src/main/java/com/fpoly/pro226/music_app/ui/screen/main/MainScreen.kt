@@ -75,7 +75,12 @@ fun MainScreen(
                         onLoadTrackList = onLoadTrackList
                     )
 
-                    2 -> LibraryScreen()
+                    2 -> LibraryScreen() {
+                        navController.navigate(FMusicDestinations.LOGIN_ROUTE) {
+                            popUpTo(FMusicDestinations.MAIN_ROUTE) { inclusive = true }
+                        }
+
+                    }
                 }
             }
             FMusicBottomNavigation(
