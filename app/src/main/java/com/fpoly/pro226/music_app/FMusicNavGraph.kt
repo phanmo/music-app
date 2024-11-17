@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.data.models.TrackDestination
 import com.fpoly.pro226.music_app.data.source.network.models.Track
+import com.fpoly.pro226.music_app.ui.screen.game.GameScreen
 import com.fpoly.pro226.music_app.ui.screen.genre.GenreScreen
 import com.fpoly.pro226.music_app.ui.screen.login.LoginScreen
 import com.fpoly.pro226.music_app.ui.screen.main.MainScreen
@@ -55,6 +56,7 @@ fun FMusicNavGraph(
                     popUpTo(FMusicDestinations.GUIDE_ROUTE) { inclusive = true }
                 }
             }
+//            GameScreen()
         }
 
         composable(FMusicDestinations.LOGIN_ROUTE) {
