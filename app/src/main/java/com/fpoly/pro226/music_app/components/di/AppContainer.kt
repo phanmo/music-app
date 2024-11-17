@@ -39,7 +39,7 @@ class AppContainer(externalScope: CoroutineScope) {
     }
 
     private val fMusicRetrofitService: FMusicApiService by lazy {
-        retrofit.create(FMusicApiService::class.java)
+        fMusicRetrofit.create(FMusicApiService::class.java)
     }
 
     private val deezerRemoteDataSource = DeezerRemoteDataSource(retrofitService, Dispatchers.IO)

@@ -67,6 +67,7 @@ fun FMusicNavGraph(
 
         composable(FMusicDestinations.LOGIN_ROUTE) {
             LoginScreen(
+                fMusicRepository = appContainer.fMusicRepository,
                 onLoginSuccess = {
                     navController.navigate(FMusicDestinations.MAIN_ROUTE)
                 },
