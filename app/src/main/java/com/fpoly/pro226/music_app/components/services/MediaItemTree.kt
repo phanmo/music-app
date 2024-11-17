@@ -2,7 +2,9 @@ package com.fpoly.pro226.music_app.components.services
 
 import android.content.res.AssetManager
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.OptIn
+import androidx.compose.ui.util.fastFilterNotNull
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaItem.SubtitleConfiguration
 import androidx.media3.common.MediaMetadata
@@ -132,7 +134,9 @@ object MediaItemTree {
         treeNodes[ROOT_ID]!!.addChild(ARTIST_ID)
         treeNodes[ROOT_ID]!!.addChild(GENRE_ID)
         // create subfolder with same artist, album, etc.
-        tracks.forEach { track ->
+        tracks.filter { track ->
+            track.album.tracklist.isNotEmpty()
+        }.forEach { track ->
             addNodeToTree(album, track)
         }
 
