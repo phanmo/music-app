@@ -1,5 +1,7 @@
 package com.fpoly.pro226.music_app.ui.screen.game
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,18 +16,20 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,6 +39,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -42,16 +47,36 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fpoly.pro226.music_app.R
+import com.fpoly.pro226.music_app.components.di.AppContainer
+import com.fpoly.pro226.music_app.ui.components.LoadingDialog
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._00C2CB
 import com.fpoly.pro226.music_app.ui.theme._7CEEFF
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GameScreen() {
+fun GameScreen(appContainer: AppContainer) {
+    val extras = MutableCreationExtras().apply {
+        set(GameViewModel.MY_REPOSITORY_KEY, appContainer.fMusicRepository)
+        set(GameViewModel.MY_REPOSITORY_KEY_2, appContainer.deezerRepository)
+    }
+    val vm: GameViewModel = viewModel(
+        factory = GameViewModel.provideFactory(),
+        extras = extras,
+    )
+
+    val uiState = vm.gameUiState
+
     var selectedOption by remember { mutableStateOf("") }
     val interactionSource = remember { MutableInteractionSource() }
+    var startAnimation by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.background(Color.Black)) {
         Image(
@@ -153,28 +178,26 @@ fun GameScreen() {
                             Row(
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 16.dp)
+                                    .clickable {
+                                        vm.nextQuestion()
+                                    }
                             ) {
-                                IconButton(onClick = {
-                                }) {
-                                    Image(
-                                        modifier = Modifier.size(24.dp),
-                                        colorFilter = ColorFilter.tint(_00C2CB),
-                                        painter = painterResource(id = R.drawable.previous),
-                                        contentDescription = "Previous",
-
-                                        )
-                                }
-                                IconButton(onClick = {
-                                }) {
-                                    Image(
-                                        modifier = Modifier.size(24.dp),
-                                        colorFilter = ColorFilter.tint(_00C2CB),
-                                        painter = painterResource(id = R.drawable.next),
-                                        contentDescription = "Next",
-
-                                        )
-                                }
+                                Text(
+                                    text = "Next question",
+                                    color = _00C2CB,
+                                    fontWeight = FontWeight.ExtraLight,
+                                    fontSize = 18.sp
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Image(
+                                    modifier = Modifier.size(24.dp),
+                                    colorFilter = ColorFilter.tint(_00C2CB),
+                                    painter = painterResource(id = R.drawable.arrow_next_question),
+                                    contentDescription = "Next",
+                                )
                             }
                         }
                     }
@@ -220,18 +243,77 @@ fun GameScreen() {
             Spacer(modifier = Modifier.height(32.dp))
 
             // Options
-            val options = listOf("come", "comes", "are coming", "came")
-            options.forEach { option ->
+            val options = vm.gameUiState.tracksQuestion.map { track ->
+                track
+            }
+            options.forEach { track ->
                 OptionButton(
-                    option = option,
-                    isSelected = selectedOption == option,
-                    onClick = { selectedOption = option }
+                    option = track.title,
+                    isSelected = selectedOption == track.title,
+                    onClick = {
+                        selectedOption = track.title
+                        if (vm.selectAnswer(track.id)) {
+                            startAnimation = true
+                        }
+                        // Nếu thời gian kết thúc thì gọi next
+                        vm.nextQuestion()
+                    }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
+
+    val coinCount = 1
+    val showCoins = remember { mutableStateListOf(*Array(coinCount) { false }) }
+
+    val startX = 16.dp
+    val startY = LocalConfiguration.current.screenHeightDp.dp - 100.dp
+    val endX = LocalConfiguration.current.screenWidthDp.dp - 50.dp
+    val endY = 16.dp
+    val coinPositions = remember {
+        List(coinCount) { Animatable(startX.value) to Animatable(startY.value) }
+    }
+
+    LaunchedEffect(startAnimation) {
+        if (startAnimation) {
+            for (i in 0 until coinCount) {
+                showCoins[i] = true
+
+                val (xAnim, yAnim) = coinPositions[i]
+                launch {
+                    xAnim.animateTo(endX.value, animationSpec = tween(durationMillis = 1000))
+                }
+                yAnim.animateTo(endY.value, animationSpec = tween(durationMillis = 1000))
+
+                showCoins[i] = false
+                // Reset position
+                xAnim.snapTo(startX.value)
+                yAnim.snapTo(startY.value)
+
+                delay(100)
+            }
+
+            startAnimation = false
+        }
+    }
+
+    coinPositions.forEachIndexed { index, (xAnim, yAnim) ->
+        if (showCoins[index]) {
+            Image(
+                painter = painterResource(id = R.drawable.coin_3d),
+                contentDescription = "Coin $index",
+                modifier = Modifier
+                    .offset(x = xAnim.value.dp, y = yAnim.value.dp)
+                    .size(50.dp)
+            )
+        }
+    }
+    if (vm.gameUiState.isLoading) {
+        LoadingDialog(onDismiss = { })
+    }
 }
+
 
 @Composable
 fun OptionButton(option: String, isSelected: Boolean, onClick: () -> Unit) {
@@ -245,7 +327,9 @@ fun OptionButton(option: String, isSelected: Boolean, onClick: () -> Unit) {
             .defaultMinSize(minHeight = 56.dp)
             .padding(horizontal = 16.dp)
             .background(backgroundColor, shape = RoundedCornerShape(24.dp))
-            .clickable { onClick() }
+            .clickable {
+                onClick()
+            }
             .border(1.dp, borderColor, RoundedCornerShape(24.dp)),
         contentAlignment = Alignment.Center
     ) {
@@ -254,7 +338,7 @@ fun OptionButton(option: String, isSelected: Boolean, onClick: () -> Unit) {
             color = textColor,
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         )
     }
 }
@@ -264,6 +348,6 @@ fun OptionButton(option: String, isSelected: Boolean, onClick: () -> Unit) {
 @Composable
 fun GameScreenPreview() {
     MusicAppTheme {
-        GameScreen()
+        GameScreen(appContainer = AppContainer(CoroutineScope(Dispatchers.Main)))
     }
 }

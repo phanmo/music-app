@@ -56,7 +56,7 @@ fun FMusicNavGraph(
                     popUpTo(FMusicDestinations.GUIDE_ROUTE) { inclusive = true }
                 }
             }
-//            GameScreen()
+//            GameScreen(appContainer)
         }
 
         composable(FMusicDestinations.LOGIN_ROUTE) {
