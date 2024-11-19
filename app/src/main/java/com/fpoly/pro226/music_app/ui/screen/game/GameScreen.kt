@@ -1,12 +1,12 @@
 package com.fpoly.pro226.music_app.ui.screen.game
 
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,9 +24,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -40,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -49,20 +49,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.fpoly.pro226.music_app.R
 import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.ui.components.LoadingDialog
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._00C2CB
-import com.fpoly.pro226.music_app.ui.theme._7CEEFF
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GameScreen(appContainer: AppContainer) {
+fun GameScreen(appContainer: AppContainer, onBack: () -> Unit) {
     val extras = MutableCreationExtras().apply {
         set(GameViewModel.MY_REPOSITORY_KEY, appContainer.fMusicRepository)
         set(GameViewModel.MY_REPOSITORY_KEY_2, appContainer.deezerRepository)
@@ -73,10 +79,62 @@ fun GameScreen(appContainer: AppContainer) {
     )
 
     val uiState = vm.gameUiState
-
+    var isReady by remember { mutableStateOf(false) }
+    var songDuration by remember { mutableStateOf(0L) }
+    var progress by remember { mutableStateOf(1f) }
+    var currentPosition by remember { mutableStateOf(0L) }
     var selectedOption by remember { mutableStateOf("") }
-    val interactionSource = remember { MutableInteractionSource() }
     var startAnimation by remember { mutableStateOf(false) }
+    var inCorrect by remember { mutableStateOf(false) }
+
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.musiceffect))
+    val progressLottie by animateLottieCompositionAsState(
+        composition,
+        iterations = LottieConstants.IterateForever,
+        isPlaying = isReady,
+    )
+
+    val context = LocalContext.current
+    val exoPlayer = remember {
+        ExoPlayer.Builder(context).build().apply {
+            addListener(object : Player.Listener {
+                override fun onPlaybackStateChanged(state: Int) {
+                    if (state == Player.STATE_READY) {
+                        vm.enableSelectAnswer()
+                        inCorrect = true
+                        songDuration = this@apply.duration
+                    }
+                    isReady = state == Player.STATE_READY
+                    Log.d("TAG", "onPlaybackStateChanged: state = $state")
+                }
+            })
+        }
+    }
+
+    LaunchedEffect(isReady) {
+        while (isReady) {
+            currentPosition = exoPlayer.currentPosition
+            progress = if (songDuration > 0) 1f - (currentPosition.toFloat() / songDuration) else 1f
+            Log.d("TAG", "GameScreen: $currentPosition")
+            delay(100L)
+        }
+    }
+
+    LaunchedEffect(uiState.trackAnswer) {
+        uiState.trackAnswer?.let { track ->
+            Log.d("TAG", "GameScreen: track = ${track.preview}")
+            val mediaItem = MediaItem.fromUri(track.preview)
+            exoPlayer.setMediaItem(mediaItem)
+            exoPlayer.prepare()
+            exoPlayer.play()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            exoPlayer.release()
+        }
+    }
 
     Box(modifier = Modifier.background(Color.Black)) {
         Image(
@@ -103,6 +161,7 @@ fun GameScreen(appContainer: AppContainer) {
                     modifier = Modifier
                         .size(24.dp)
                         .clickable {
+                            onBack()
                         }
                 )
 
@@ -146,52 +205,28 @@ fun GameScreen(appContainer: AppContainer) {
                                 style = TextStyle(color = Color.Black),
                                 modifier = Modifier.fillMaxWidth()
                             )
-                            Spacer(modifier = Modifier.height(30.dp))
-                            androidx.compose.material3.Slider(
-                                value = 0f,
-                                valueRange = 0f..0F,
-                                onValueChange = { newValue ->
-//                            currentPosition.longValue = newValue.toLong()
-                                },
-                                onValueChangeFinished = {
-//                            mediaController.value?.seekTo(currentPosition.longValue)
-                                },
+                            Spacer(modifier = Modifier.height(16.dp))
+                            LottieAnimation(
+                                composition, progressLottie,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(10.dp)
-                                    .padding(horizontal = 16.dp),
-                                thumb = {
-                                    SliderDefaults.Thumb(
-                                        interactionSource = interactionSource,
-                                        modifier = Modifier.size(0.dp),
-                                        colors = SliderDefaults.colors(
-                                            thumbColor = _7CEEFF,
-                                            activeTrackColor = _7CEEFF,
-                                        )
-                                    )
-                                },
-                                colors = SliderDefaults.colors(
-                                    thumbColor = _7CEEFF,
-                                    activeTrackColor = _7CEEFF,
-                                )
+                                    .align(Alignment.CenterHorizontally)
                             )
                             Row(
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = 16.dp)
+                                    .padding(top = 8.dp)
                                     .clickable {
                                         vm.nextQuestion()
                                     }
                             ) {
                                 Text(
-                                    text = "Next question",
-                                    color = _00C2CB,
+                                    text = "Skip",
+                                    color = Color.Black,
                                     fontWeight = FontWeight.ExtraLight,
                                     fontSize = 18.sp
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
                                 Image(
                                     modifier = Modifier.size(24.dp),
                                     colorFilter = ColorFilter.tint(_00C2CB),
@@ -222,18 +257,21 @@ fun GameScreen(appContainer: AppContainer) {
                         contentAlignment = Alignment.Center
 
                     ) {
-                        CircularProgressIndicator(
-                            progress = 0.65f,
-                            modifier = Modifier.size(56.dp),
-                            color = _00C2CB,
-                            strokeWidth = 4.dp
-                        )
-                        Text(
-                            text = "18",
-                            color = _00C2CB,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp
-                        )
+                        if (songDuration > 0) {
+                            CircularProgressIndicator(
+                                progress = progress,
+                                modifier = Modifier.size(56.dp),
+                                color = _00C2CB,
+                                strokeWidth = 4.dp
+                            )
+                            Text(
+                                text = "${((songDuration - currentPosition) / 1000).toInt()}",
+                                color = _00C2CB,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp
+                            )
+                        }
+
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                 }
@@ -246,20 +284,25 @@ fun GameScreen(appContainer: AppContainer) {
             val options = vm.gameUiState.tracksQuestion.map { track ->
                 track
             }
-            options.forEach { track ->
-                OptionButton(
-                    option = track.title,
-                    isSelected = selectedOption == track.title,
-                    onClick = {
-                        selectedOption = track.title
-                        if (vm.selectAnswer(track.id)) {
-                            startAnimation = true
-                        }
-                        // Nếu thời gian kết thúc thì gọi next
-                        vm.nextQuestion()
-                    }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+            Column {
+                options.forEach { track ->
+                    OptionButton(
+                        isCorrect = !inCorrect,
+                        option = track.title,
+                        isSelected = selectedOption == track.title,
+                        onClick = {
+                            selectedOption = track.title
+                            if (vm.selectAnswer(track.id)) {
+                                startAnimation = true
+                                inCorrect = false
+                            } else {
+                                inCorrect = true
+                            }
+                        },
+                        gameViewModel = vm
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
         }
     }
@@ -316,10 +359,22 @@ fun GameScreen(appContainer: AppContainer) {
 
 
 @Composable
-fun OptionButton(option: String, isSelected: Boolean, onClick: () -> Unit) {
+fun OptionButton(
+    option: String,
+    isSelected: Boolean,
+    isCorrect: Boolean,
+    onClick: () -> Unit,
+    gameViewModel: GameViewModel
+) {
     val backgroundColor = if (isSelected) Color.White else _00C2CB
     val textColor = if (isSelected) _00C2CB else Color.White
-    val borderColor = if (isSelected) _00C2CB else Color.White
+    val borderColor = if (isSelected) {
+        if (!isCorrect) {
+            Color.Red
+        } else {
+            _00C2CB
+        }
+    } else Color.White
 
     Box(
         modifier = Modifier
@@ -328,6 +383,9 @@ fun OptionButton(option: String, isSelected: Boolean, onClick: () -> Unit) {
             .padding(horizontal = 16.dp)
             .background(backgroundColor, shape = RoundedCornerShape(24.dp))
             .clickable {
+                if (gameViewModel.disableSelectAnswer) {
+                    return@clickable
+                }
                 onClick()
             }
             .border(1.dp, borderColor, RoundedCornerShape(24.dp)),
@@ -348,6 +406,6 @@ fun OptionButton(option: String, isSelected: Boolean, onClick: () -> Unit) {
 @Composable
 fun GameScreenPreview() {
     MusicAppTheme {
-        GameScreen(appContainer = AppContainer(CoroutineScope(Dispatchers.Main)))
+        GameScreen(appContainer = AppContainer(CoroutineScope(Dispatchers.Main))){}
     }
 }

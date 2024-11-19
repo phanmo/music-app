@@ -69,6 +69,9 @@ dependencies {
     implementation("androidx.compose.material:material:1.7.3")
 
 
+    implementation ("com.airbnb.android:lottie-compose:5.0.3") // Lottie Compose
+
+
     val nav_version = "2.8.0"
 
     implementation("androidx.navigation:navigation-compose:$nav_version")

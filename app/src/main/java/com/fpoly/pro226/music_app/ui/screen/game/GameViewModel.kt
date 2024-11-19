@@ -21,7 +21,7 @@ data class GameUiState(
     val isLoading: Boolean = false,
     val radios: Radios? = null,
     val tracksQuestion: List<Track> = listOf(),
-    val trackAnswer: Track? = null
+    val trackAnswer: Track? = null,
 )
 
 class GameViewModel(
@@ -52,6 +52,9 @@ class GameViewModel(
 
     var gameUiState by mutableStateOf(GameUiState())
         private set
+
+    private var _disableSelectAnswer: Boolean = false
+    val disableSelectAnswer get() = _disableSelectAnswer
 
     init {
         getRadios()
@@ -86,18 +89,20 @@ class GameViewModel(
                 if (response?.isSuccessful == true) {
                     response.body()?.let { tracks ->
                         if (tracks.data.size < 4) {
-                            gameUiState.radios?.let {
-                                val idRadio = it.data.random().id
-                                getTracksByRadioId(idRadio)
-                            }
+                            nextQuestion()
                         } else {
                             val randomPickQuestion = tracks.data.shuffled().take(4)
                             val randomPickAnswer = randomPickQuestion.random()
-                            gameUiState = gameUiState.copy(
-                                tracksQuestion = randomPickQuestion,
-                                isLoading = false,
-                                trackAnswer = randomPickAnswer
-                            )
+                            if (randomPickAnswer.preview.isNotEmpty()) {
+                                gameUiState = gameUiState.copy(
+                                    tracksQuestion = randomPickQuestion,
+                                    isLoading = false,
+                                    trackAnswer = randomPickAnswer
+                                )
+                            } else {
+                                nextQuestion()
+                            }
+
                         }
                     }
                 }
@@ -117,7 +122,12 @@ class GameViewModel(
         }
     }
 
+    fun enableSelectAnswer() {
+        _disableSelectAnswer = false
+    }
+
     fun selectAnswer(idTrack: String): Boolean {
+        _disableSelectAnswer = true
         return idTrack == gameUiState.trackAnswer?.id
     }
 }

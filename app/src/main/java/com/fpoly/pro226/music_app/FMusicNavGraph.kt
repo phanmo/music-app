@@ -51,12 +51,14 @@ fun FMusicNavGraph(
                 onBack = {})
         }
         composable(FMusicDestinations.GUIDE_ROUTE) {
-            GuideScreen {
-                navController.navigate(FMusicDestinations.LOGIN_ROUTE) {
-                    popUpTo(FMusicDestinations.GUIDE_ROUTE) { inclusive = true }
-                }
+//            GuideScreen {
+//                navController.navigate(FMusicDestinations.LOGIN_ROUTE) {
+//                    popUpTo(FMusicDestinations.GUIDE_ROUTE) { inclusive = true }
+//                }
+//            }
+            GameScreen(appContainer) {
+                navController.popBackStack()
             }
-//            GameScreen(appContainer)
         }
 
         composable(FMusicDestinations.LOGIN_ROUTE) {
