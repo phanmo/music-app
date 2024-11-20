@@ -37,6 +37,8 @@ fun MainScreen(
     onBack: () -> Unit,
     onClickRadioItem: (id: String) -> Unit,
     startPlayerActivity: (tracks: List<Track>, startIndex: Int) -> Unit,
+    onPlayGame: () -> Unit,
+    onAddPlaylist: () -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { 3 })
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -75,12 +77,19 @@ fun MainScreen(
                         onLoadTrackList = onLoadTrackList
                     )
 
-                    2 -> LibraryScreen() {
-                        navController.navigate(FMusicDestinations.LOGIN_ROUTE) {
-                            popUpTo(FMusicDestinations.MAIN_ROUTE) { inclusive = true }
+                    2 -> LibraryScreen(
+                        onPlayGame = {
+                            onPlayGame()
+                        },
+                        onLogoutClick = {
+                            navController.navigate(FMusicDestinations.LOGIN_ROUTE) {
+                                popUpTo(FMusicDestinations.MAIN_ROUTE) { inclusive = true }
+                            }
+                        },
+                        onAddPlaylist = {
+                            onAddPlaylist()
                         }
-
-                    }
+                    )
                 }
             }
             FMusicBottomNavigation(

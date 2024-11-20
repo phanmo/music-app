@@ -14,6 +14,7 @@ import com.fpoly.pro226.music_app.ui.screen.game.GameScreen
 import com.fpoly.pro226.music_app.ui.screen.genre.GenreScreen
 import com.fpoly.pro226.music_app.ui.screen.login.LoginScreen
 import com.fpoly.pro226.music_app.ui.screen.main.MainScreen
+import com.fpoly.pro226.music_app.ui.screen.myplaylist.MyPlaylistScreen
 import com.fpoly.pro226.music_app.ui.screen.playlist.PlaylistScreen
 import com.fpoly.pro226.music_app.ui.screen.register.RegisterScreen
 import com.fpoly.pro226.music_app.ui.screen.splash.GuideScreen
@@ -28,9 +29,10 @@ fun FMusicNavGraph(
     startDestination: String,
     appContainer: AppContainer,
     startPlayerActivity: (tracks: List<Track>, startIndex: Int) -> Unit,
-    onLoadTrackList: (track: List<Track>) -> Unit
+    onLoadTrackList: (track: List<Track>) -> Unit,
+    onGaming: () -> Unit,
 
-) {
+    ) {
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -48,14 +50,31 @@ fun FMusicNavGraph(
                 onClickGenreItem = {
                     navController.navigate("${FMusicDestinations.GENRE_ROUTE}/${it.id}")
                 },
-                onBack = {})
+                onBack = {},
+                onPlayGame = {
+                    onGaming()
+                    navController.navigate(FMusicDestinations.GAME_ROUTE)
+                },
+                onAddPlaylist = {
+                    navController.navigate(FMusicDestinations.MY_PLAYLIST_ROUTE)
+                }
+            )
         }
         composable(FMusicDestinations.GUIDE_ROUTE) {
-//            GuideScreen {
-//                navController.navigate(FMusicDestinations.LOGIN_ROUTE) {
-//                    popUpTo(FMusicDestinations.GUIDE_ROUTE) { inclusive = true }
-//                }
-//            }
+            GuideScreen {
+                navController.navigate(FMusicDestinations.LOGIN_ROUTE) {
+                    popUpTo(FMusicDestinations.GUIDE_ROUTE) { inclusive = true }
+                }
+            }
+        }
+
+        composable(FMusicDestinations.MY_PLAYLIST_ROUTE) {
+            MyPlaylistScreen(appContainer.fMusicRepository){
+                navController.popBackStack()
+            }
+        }
+
+        composable(FMusicDestinations.GAME_ROUTE) {
             GameScreen(appContainer) {
                 navController.popBackStack()
             }

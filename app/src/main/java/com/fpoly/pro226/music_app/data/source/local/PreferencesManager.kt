@@ -9,9 +9,18 @@ class PreferencesManager(context: Context) {
         context.getSharedPreferences("user_preferences", Context.MODE_PRIVATE)
 
     private val ACCESS_TOKEN_KEY = "access_token"
+    private val ID_USER_KEY = "id_user"
 
     fun saveAccessToken(token: String) {
         sharedPreferences.edit().putString(ACCESS_TOKEN_KEY, token).apply()
+    }
+
+    fun saveUser(id: String) {
+        sharedPreferences.edit().putString(ID_USER_KEY, id).apply()
+    }
+
+    fun getUserId(): String? {
+        return sharedPreferences.getString(ID_USER_KEY, null)
     }
 
     fun getAccessToken(): String? {

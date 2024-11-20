@@ -41,7 +41,7 @@ import com.fpoly.pro226.music_app.ui.theme._00C2CB
 import com.fpoly.pro226.music_app.ui.theme._A6F3FF
 
 @Composable
-fun LibraryScreen(onLogoutClick: () -> Unit) {
+fun LibraryScreen(onLogoutClick: () -> Unit, onPlayGame: () -> Unit, onAddPlaylist: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -72,7 +72,7 @@ fun LibraryScreen(onLogoutClick: () -> Unit) {
                         )
                     },
                     title = "Add New Playlist",
-                    onClick = {}
+                    onClick = {onAddPlaylist()}
                 )
             }
             item {
@@ -91,6 +91,22 @@ fun LibraryScreen(onLogoutClick: () -> Unit) {
                     },
                     title = "Your Liked Songs",
                     onClick = {}
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+            item {
+                ItemButton(
+                    content = {
+                        Image(
+                            painter = painterResource(R.drawable.game_icon),
+                            contentDescription = "Icon app",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    title = "Play game",
+                    onClick = {onPlayGame()}
                 )
             }
         }
@@ -174,6 +190,6 @@ fun ItemButton(onClick: () -> Unit, content: @Composable () -> Unit, title: Stri
 @Composable
 fun LibraryScreenPreview() {
     MusicAppTheme {
-        LibraryScreen(){}
+//        LibraryScreen() {}
     }
 }

@@ -98,6 +98,7 @@ fun LoginScreen(
             val preferencesManager = PreferencesManager(context)
             uiState.loginRes?.token?.let { accessToken ->
                 preferencesManager.saveAccessToken(accessToken)
+                preferencesManager.saveUser(uiState.loginRes.data._id)
             }
             onLoginSuccess()
         } else if (uiState.isLoginSuccess == false) {
@@ -418,17 +419,11 @@ fun ContinueWith() {
 @Composable
 fun SongContentPreview() {
     MusicAppTheme {
-        LoginScreen(
-            onLoginSuccess = {},
-            onClickRegister = {},
-            fMusicRepository = object : FMusicRepository {
-                override suspend fun getPlaylist(): Response<PlayListResponse> {
-                    TODO("Not yet implemented")
-                }
-
-                override suspend fun login(user: User): Response<LoginResponse> {
-                    TODO("Not yet implemented")
-                }
-            })
+//        LoginScreen(
+//            onLoginSuccess = {},
+//            onClickRegister = {},
+//            fMusicRepository = object : FMusicRepository {
+//
+//            })
     }
 }

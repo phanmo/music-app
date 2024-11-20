@@ -85,6 +85,15 @@ class MainActivity : ComponentActivity() {
                             MediaItemTree.initialize(album, it)
                             displayFolder(album.title)
                         }, ContextCompat.getMainExecutor(this@MainActivity))
+                    },
+                    onGaming = {
+                        run {
+                            val browser = browser ?: return@run
+                            if (browser.isPlaying) {
+                                browser.pause()
+                            }
+                        }
+
                     }
                 )
             }
