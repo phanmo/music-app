@@ -10,6 +10,8 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
+import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.toTrack
 import com.fpoly.pro226.music_app.data.source.network.models.Playlist
 import com.fpoly.pro226.music_app.data.source.network.models.Tracks
 import kotlinx.coroutines.Job
@@ -23,21 +25,29 @@ data class PlaylistUiState(
 
 class PlaylistViewModel(
     private val deezerRepository: DeezerRepository,
-    private val idPlaylist: String
+    private val fMusicRepository: FMusicRepository,
+    private val idPlaylist: String,
+    private val isMyPlaylist: Boolean = false
 ) : ViewModel() {
     companion object {
 
         // Define a custom key for your dependency
-        val MY_REPOSITORY_KEY = object : CreationExtras.Key<DeezerRepository> {}
+        val MY_REPOSITORY_KEY = object : CreationExtras.Key<FMusicRepository> {}
+        val MY_REPOSITORY_KEY_2 = object : CreationExtras.Key<DeezerRepository> {}
 
         fun provideFactory(
-            idPlaylist: String
+            idPlaylist: String,
+            isMyPlaylist: Boolean = false,
         ): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val myRepository = this[MY_REPOSITORY_KEY] as DeezerRepository
+                val fMusicRepo = this[MY_REPOSITORY_KEY] as FMusicRepository
+                val deezerRepo = this[MY_REPOSITORY_KEY_2] as DeezerRepository
+
                 PlaylistViewModel(
-                    deezerRepository = myRepository,
-                    idPlaylist = idPlaylist
+                    deezerRepository = deezerRepo,
+                    idPlaylist = idPlaylist,
+                    fMusicRepository = fMusicRepo,
+                    isMyPlaylist = isMyPlaylist
                 )
             }
         }
@@ -47,9 +57,14 @@ class PlaylistViewModel(
         private set
 
     private var fetchTracks: Job? = null
+    private var fetchMyTracks: Job? = null
 
     init {
-        getPlaylistById(idPlaylist)
+        if (!isMyPlaylist) {
+            getPlaylistById(idPlaylist)
+        } else {
+            getMyPlaylistById(idPlaylist)
+        }
     }
 
     private fun getPlaylistById(id: String) {
@@ -71,6 +86,33 @@ class PlaylistViewModel(
                 playlistUiState = playlistUiState.copy(isLoading = false)
             } finally {
                 fetchTracks = null
+            }
+        }
+    }
+
+
+
+    private fun getMyPlaylistById(id: String) {
+        fetchMyTracks?.cancel()
+        fetchMyTracks = viewModelScope.launch {
+            try {
+                playlistUiState = playlistUiState.copy(isLoading = true)
+                val response = fMusicRepository.getAllTrackByPlaylistId(id)
+                if (response.isSuccessful) {
+                    response.body()?.let { playlist ->
+                        playlistUiState = playlistUiState.copy(
+                            tracks = Tracks(data = playlist.data.map { itemPlaylist ->
+                                itemPlaylist.toTrack()
+                            }),
+                            isLoading = false,
+                            playlist = Playlist(title = "### Playlist Update late")
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                playlistUiState = playlistUiState.copy(isLoading = false)
+            } finally {
+                fetchMyTracks = null
             }
         }
     }

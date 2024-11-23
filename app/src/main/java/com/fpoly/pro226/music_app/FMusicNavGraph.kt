@@ -71,7 +71,9 @@ fun FMusicNavGraph(
         composable(FMusicDestinations.MY_PLAYLIST_ROUTE) {
             MyPlaylistScreen(
                 appContainer.fMusicRepository,
-                onClickItemPlaylist = {},
+                onClickItemPlaylist = {id ->
+                    navController.navigate("${FMusicDestinations.MY_PLAYLIST_DETAIL_ROUTE}/${id}")
+                },
                 onBack = {
                     navController.popBackStack()
 
@@ -168,6 +170,23 @@ fun FMusicNavGraph(
                 onLoadTrackList = {
                     onLoadTrackList(it)
                 }
+            )
+        }
+
+
+        composable("${FMusicDestinations.MY_PLAYLIST_DETAIL_ROUTE}/{idPlaylist}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("idPlaylist") ?: "0"
+            PlaylistScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                startPlayerActivity = startPlayerActivity,
+                appContainer = appContainer,
+                idPlaylist = id,
+                onLoadTrackList = {
+                    onLoadTrackList(it)
+                },
+                isMyPlaylist = true
             )
         }
     }

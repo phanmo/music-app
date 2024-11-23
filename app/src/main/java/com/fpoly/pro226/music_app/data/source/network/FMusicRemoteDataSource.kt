@@ -3,7 +3,7 @@ package com.fpoly.pro226.music_app.data.source.network
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.User
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.coin.CoinResponse
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.AddItemPlaylistResponse
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
@@ -30,9 +30,14 @@ class FMusicRemoteDataSource(
             fMusicApiService.addPlaylist(playlistBody)
         }
 
-    suspend fun addItemToPlaylist(itemPlaylistBody: ItemPlaylistBody): Response<AddItemPlaylistResponse> =
+    suspend fun addItemToPlaylist(itemPlaylistBody: ItemPlaylistBody): Response<ItemPlaylistResponse> =
         withContext(ioDispatcher) {
             fMusicApiService.addItemToPlaylist(itemPlaylistBody)
+        }
+
+    suspend fun getAllTrackByPlaylistId(idPlaylist: String): Response<ItemPlaylistResponse> =
+        withContext(ioDispatcher) {
+            fMusicApiService.getAllTrackByPlaylistId(idPlaylist)
         }
 
     suspend fun addCoin(userBody: PlaylistBody): Response<CoinResponse> =

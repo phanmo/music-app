@@ -135,13 +135,13 @@ object MediaItemTree {
         treeNodes[ROOT_ID]!!.addChild(ALBUM_ID)
         treeNodes[ROOT_ID]!!.addChild(ARTIST_ID)
         treeNodes[ROOT_ID]!!.addChild(GENRE_ID)
-        // create subfolder with same artist, album, etc.
+
         currentTracks = tracks.filter { track ->
-            track.album.tracklist.isNotEmpty()
+            track.album?.tracklist?.isNotEmpty() == true
         }
 
         tracks.filter { track ->
-            track.album.tracklist.isNotEmpty()
+            track.album?.tracklist?.isNotEmpty() == true
         }.forEach { track ->
             addNodeToTree(album, track)
         }
@@ -152,7 +152,7 @@ object MediaItemTree {
         val id = track.id
         val alb = album.title
         val title = track.title
-        val artist = track.artist.name
+        val artist = track.artist?.name
         val genre = "Unknown"
 //        val genre = if (album.genres.data.isEmpty()) {
 //            album.genres.data[0].name
@@ -173,7 +173,7 @@ object MediaItemTree {
 //            }
 //        }
         val sourceUri = Uri.parse(track.preview)
-        val imageUri = Uri.parse(track.album.cover_medium)
+        val imageUri = Uri.parse(track.album?.cover_medium)
 
         // key of such items in tree
         // Track

@@ -75,8 +75,10 @@ class MainActivity : ComponentActivity() {
                     onLoadTrackList = {
                         val album = it[0].album
                         browserFuture.addListener({
-                            MediaItemTree.initialize(album, it)
-                            displayFolder(album.title)
+                           album?.let {al->
+                               MediaItemTree.initialize(al, it)
+                               displayFolder(al.title)
+                           }
                         }, ContextCompat.getMainExecutor(this@MainActivity))
                     },
                     onGaming = {

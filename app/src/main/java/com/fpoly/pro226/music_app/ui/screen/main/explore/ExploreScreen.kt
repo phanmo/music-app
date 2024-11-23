@@ -320,7 +320,7 @@ fun ListTrackSearch(
                         .padding(vertical = 6.dp, horizontal = 8.dp)
                 ) {
                     AsyncImage(
-                        model = tracks[index].album.cover_medium,
+                        model = tracks[index].album?.cover_medium,
                         contentScale = ContentScale.Crop,
                         contentDescription = "Artists avatar",
                         placeholder = painterResource(R.drawable.ic_app),
@@ -343,7 +343,7 @@ fun ListTrackSearch(
                             fontSize = 16.sp
                         )
                         Text(
-                            text = tracks[index].artist.name,
+                            text = tracks[index].artist?.name?:"",
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Cyan,
                             fontSize = 12.sp

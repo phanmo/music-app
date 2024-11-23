@@ -11,7 +11,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
 import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.AddItemPlaylistResponse
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.updateCountPlaylist
@@ -101,7 +101,7 @@ class SongViewModel(
                     response.errorBody()?.let { res ->
                         try {
                             val errorResponse =
-                                Gson().fromJson(res.string(), AddItemPlaylistResponse::class.java)
+                                Gson().fromJson(res.string(), ItemPlaylistResponse::class.java)
                             showToast(errorResponse.message)
                             songUiState = songUiState.copy(
                                 isLoading = false,

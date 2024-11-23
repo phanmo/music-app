@@ -68,7 +68,7 @@ fun TrackScreen(
             TopBar(
                 top = uiState.tracks.size.toString(),
                 title = if (uiState.tracks.isNotEmpty()) {
-                    uiState.tracks[0].artist.name
+                    uiState.tracks[0].artist?.name?:""
                 } else {
                     ""
                 },
@@ -103,7 +103,7 @@ fun TrackScreen(
                         )
                         Spacer(modifier = Modifier.width(18.dp))
                         AsyncImage(
-                            model = uiState.tracks[index].album.cover_medium,
+                            model = uiState.tracks[index].album?.cover_medium,
                             contentScale = ContentScale.Crop,
                             contentDescription = "Artists avatar",
                             placeholder = painterResource(R.drawable.ic_app),
@@ -122,7 +122,7 @@ fun TrackScreen(
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Text(
-                                text = uiState.tracks[index].artist.name,
+                                text = uiState.tracks[index].artist?.name?:"",
                                 fontSize = 14.sp,
                                 color = _8A9A9D,
                                 fontWeight = FontWeight.Bold,

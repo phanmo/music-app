@@ -240,7 +240,7 @@ fun HomeScreen(
                             )
                             Spacer(modifier = Modifier.width(16.dp))
                             AsyncImage(
-                                model = tracks[index].album.cover_medium,
+                                model = tracks[index].album?.cover_medium,
                                 contentScale = ContentScale.Crop,
                                 contentDescription = "Artists avatar",
                                 placeholder = painterResource(R.drawable.ic_app),
@@ -261,7 +261,7 @@ fun HomeScreen(
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                                 Text(
-                                    text = tracks[index].artist.name,
+                                    text = tracks[index].artist?.name?:"",
                                     fontSize = 14.sp,
                                     color = _8A9A9D,
                                     fontWeight = FontWeight.Bold,

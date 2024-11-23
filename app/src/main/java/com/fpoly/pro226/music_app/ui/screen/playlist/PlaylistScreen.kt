@@ -1,6 +1,7 @@
 package com.fpoly.pro226.music_app.ui.screen.playlist
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,7 +48,6 @@ import com.fpoly.pro226.music_app.data.source.network.models.Track
 import com.fpoly.pro226.music_app.ui.theme.Black
 import com.fpoly.pro226.music_app.ui.theme.FFFFFF_70
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
-import com.fpoly.pro226.music_app.ui.theme._1E1E1E_85
 
 @Composable
 fun PlaylistScreen(
@@ -54,14 +55,20 @@ fun PlaylistScreen(
     startPlayerActivity: (tracks: List<Track>, startIndex: Int) -> Unit,
     appContainer: AppContainer,
     idPlaylist: String,
-    onLoadTrackList: (track: List<Track>) -> Unit
+    onLoadTrackList: (track: List<Track>) -> Unit,
+    isMyPlaylist: Boolean = false
 
 ) {
     val extras = MutableCreationExtras().apply {
-        set(PlaylistViewModel.MY_REPOSITORY_KEY, appContainer.deezerRepository)
+        set(PlaylistViewModel.MY_REPOSITORY_KEY_2, appContainer.deezerRepository)
+        set(PlaylistViewModel.MY_REPOSITORY_KEY, appContainer.fMusicRepository)
     }
+
     val vm: PlaylistViewModel = viewModel(
-        factory = PlaylistViewModel.provideFactory(idPlaylist),
+        factory = PlaylistViewModel.provideFactory(
+            idPlaylist = idPlaylist,
+            isMyPlaylist = isMyPlaylist
+        ),
         extras = extras
     )
 
@@ -109,7 +116,7 @@ fun PlaylistScreen(
                                 .padding(vertical = 6.dp, horizontal = 8.dp)
                         ) {
                             AsyncImage(
-                                model = tracks[index].album.cover_medium,
+                                model = tracks[index].album?.cover_medium,
                                 contentScale = ContentScale.Crop,
                                 contentDescription = "Artists avatar",
                                 placeholder = painterResource(R.drawable.ic_app),
@@ -132,7 +139,7 @@ fun PlaylistScreen(
                                     fontSize = 16.sp
                                 )
                                 Text(
-                                    text = tracks[index].artist.name,
+                                    text = tracks[index].artist?.name ?: "",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = Color.Gray,
                                     fontSize = 12.sp
@@ -176,7 +183,14 @@ fun AvatarPlaylist(playlist: Playlist?) {
             fontWeight = FontWeight.Bold,
             fontSize = 34.sp,
             color = Color.White,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .basicMarquee(),
         )
         Text(
             text = playlist?.description ?: "",

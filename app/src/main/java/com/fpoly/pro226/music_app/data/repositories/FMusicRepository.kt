@@ -4,7 +4,7 @@ import com.fpoly.pro226.music_app.data.source.network.FMusicRemoteDataSource
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.User
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.coin.CoinResponse
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.AddItemPlaylistResponse
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
@@ -18,7 +18,8 @@ interface FMusicRepository {
     suspend fun addPlaylist(playlistBody: PlaylistBody): Response<Unit>
     suspend fun addCoin(userBody: PlaylistBody): Response<CoinResponse>
     suspend fun getCoin(idUser: String): Response<CoinResponse>
-    suspend fun addItemToPlaylist(itemPlaylistBody: ItemPlaylistBody): Response<AddItemPlaylistResponse>
+    suspend fun addItemToPlaylist(itemPlaylistBody: ItemPlaylistBody): Response<ItemPlaylistResponse>
+    suspend fun getAllTrackByPlaylistId(idPlaylist: String): Response<ItemPlaylistResponse>
     suspend fun login(user: User): Response<LoginResponse>
 
 }
@@ -55,11 +56,18 @@ class FMusicRepositoryImpl(
     override suspend fun getCoin(idUser: String): Response<CoinResponse> {
         return externalScope.async {
             fMusicRemoteDataSource.getCoin(idUser)
-        }.await()    }
+        }.await()
+    }
 
-    override suspend fun addItemToPlaylist(itemPlaylistBody: ItemPlaylistBody): Response<AddItemPlaylistResponse> {
+    override suspend fun addItemToPlaylist(itemPlaylistBody: ItemPlaylistBody): Response<ItemPlaylistResponse> {
         return externalScope.async {
             fMusicRemoteDataSource.addItemToPlaylist(itemPlaylistBody)
+        }.await()
+    }
+
+    override suspend fun getAllTrackByPlaylistId(idPlaylist: String): Response<ItemPlaylistResponse> {
+        return externalScope.async {
+            fMusicRemoteDataSource.getAllTrackByPlaylistId(idPlaylist)
         }.await()
     }
 

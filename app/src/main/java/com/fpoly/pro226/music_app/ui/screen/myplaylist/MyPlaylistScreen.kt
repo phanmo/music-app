@@ -78,22 +78,18 @@ fun MyPlaylistScreen(
     val extras = MutableCreationExtras().apply {
         set(MyPlaylistViewModel.MY_REPOSITORY_KEY, fMusicRepository)
     }
+    val context = LocalContext.current
+
     val vm: MyPlaylistViewModel = viewModel(
-        factory = MyPlaylistViewModel.provideFactory(),
+        factory = MyPlaylistViewModel.provideFactory(userId = PreferencesManager(context).getUserId()),
         extras = extras
     )
 
     val uiState = vm.myPlaylistUiState
-    val context = LocalContext.current
     LaunchedEffect(Unit) {
         vm.toastEvent.collect { message ->
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
-    }
-    DisposableEffect(Unit) {
-        val sharedPreferences = PreferencesManager(context)
-        sharedPreferences.getUserId()?.let { vm.getAllPlaylist(it) }
-        onDispose { }
     }
     Scaffold(
         floatingActionButton = {
@@ -130,7 +126,7 @@ fun MyPlaylistScreen(
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
                                 .clickable {
-//                                    onClickItemPlaylist()
+                                    onClickItemPlaylist(data[index]._id)
                                 },
                             colors = CardDefaults.cardColors(containerColor = Black)
                         ) {
