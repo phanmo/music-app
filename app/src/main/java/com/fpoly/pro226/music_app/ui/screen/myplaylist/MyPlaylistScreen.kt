@@ -1,5 +1,6 @@
 package com.fpoly.pro226.music_app.ui.screen.myplaylist
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,7 +68,11 @@ import com.fpoly.pro226.music_app.ui.theme._00C2CB
 import com.fpoly.pro226.music_app.ui.theme._8A9A9D
 
 @Composable
-fun MyPlaylistScreen(fMusicRepository: FMusicRepository, onBack: () -> Unit) {
+fun MyPlaylistScreen(
+    fMusicRepository: FMusicRepository,
+    onBack: () -> Unit,
+    onClickItemPlaylist: (String) -> Unit
+) {
     var showDialog by remember { mutableStateOf(false) }
     var playlistName by remember { mutableStateOf("") }
     val extras = MutableCreationExtras().apply {
@@ -79,7 +85,11 @@ fun MyPlaylistScreen(fMusicRepository: FMusicRepository, onBack: () -> Unit) {
 
     val uiState = vm.myPlaylistUiState
     val context = LocalContext.current
-
+    LaunchedEffect(Unit) {
+        vm.toastEvent.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
     DisposableEffect(Unit) {
         val sharedPreferences = PreferencesManager(context)
         sharedPreferences.getUserId()?.let { vm.getAllPlaylist(it) }
@@ -103,7 +113,7 @@ fun MyPlaylistScreen(fMusicRepository: FMusicRepository, onBack: () -> Unit) {
         floatingActionButtonPosition = FabPosition.End,
         isFloatingActionButtonDocked = true,
         backgroundColor = Color.Black,
-        topBar = { TopBar({onBack()}) }
+        topBar = { TopBar({ onBack() }) }
     )
     { innerPadding ->
         Box {
@@ -120,6 +130,7 @@ fun MyPlaylistScreen(fMusicRepository: FMusicRepository, onBack: () -> Unit) {
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
                                 .clickable {
+//                                    onClickItemPlaylist()
                                 },
                             colors = CardDefaults.cardColors(containerColor = Black)
                         ) {
@@ -159,7 +170,7 @@ fun MyPlaylistScreen(fMusicRepository: FMusicRepository, onBack: () -> Unit) {
                                             fontSize = 16.sp
                                         )
                                         Text(
-                                            text = "30 songs",
+                                            text = "${data[index].count} songs",
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = Color.Gray,
                                             fontSize = 12.sp

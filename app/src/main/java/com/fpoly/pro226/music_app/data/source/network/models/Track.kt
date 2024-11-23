@@ -1,5 +1,7 @@
 package com.fpoly.pro226.music_app.data.source.network.models
 
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
+
 data class Track(
     val album: Album,
     val artist: Artist,
@@ -28,3 +30,13 @@ data class Track(
     val track_token: String,
     val type: String
 )
+
+fun Track.toItemPlaylistBody(idPlaylist: String): ItemPlaylistBody {
+    return ItemPlaylistBody(
+        id_playlist = idPlaylist,
+        id_track = this.id,
+        image_url = this.album.cover_medium,
+        name = this.title,
+        preViewUrl = this.preview
+    )
+}

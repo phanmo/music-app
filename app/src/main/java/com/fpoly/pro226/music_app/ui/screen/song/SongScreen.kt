@@ -1,8 +1,11 @@
 package com.fpoly.pro226.music_app.ui.screen.song
 
 import android.content.ComponentName
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -18,13 +21,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,16 +46,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -53,6 +66,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.Player.EVENT_IS_PLAYING_CHANGED
@@ -61,23 +76,46 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import coil.compose.AsyncImage
 import com.fpoly.pro226.music_app.R
+import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.components.services.FMusicPlaybackService
+import com.fpoly.pro226.music_app.components.services.MediaItemTree
+import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
+import com.fpoly.pro226.music_app.data.source.network.models.toItemPlaylistBody
+import com.fpoly.pro226.music_app.ui.screen.game.GameViewModel
+import com.fpoly.pro226.music_app.ui.theme.Black
 import com.fpoly.pro226.music_app.ui.theme.FFFFFF_70
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._00C2CB
 import com.fpoly.pro226.music_app.ui.theme._7CEEFF
 import com.fpoly.pro226.music_app.ui.theme._8A9A9D
 import com.fpoly.pro226.music_app.ui.theme._A6F3FF
+import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 @Composable
 fun SongScreen(
-    viewModel: SongViewModel,
     modifier: Modifier = Modifier,
+    appContainer: AppContainer
 ) {
-    val context = LocalContext.current
 
+    val extras = MutableCreationExtras().apply {
+        set(SongViewModel.MY_REPOSITORY_KEY, appContainer.fMusicRepository)
+        set(SongViewModel.MY_REPOSITORY_KEY_2, appContainer.deezerRepository)
+    }
+    val vm: SongViewModel = viewModel(
+        factory = SongViewModel.provideFactory(),
+        extras = extras,
+    )
+
+    val uiState = vm.songUiState
+    val sheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+    )
+    val scope = rememberCoroutineScope()
+
+    val context = LocalContext.current
     val controllerFuture = remember {
         MediaController.Builder(
             context,
@@ -95,6 +133,12 @@ fun SongScreen(
             isPlaying.value = controllerFuture.get().playWhenReady
 
         }, Runnable::run)
+    }
+
+    LaunchedEffect(Unit) {
+        vm.toastEvent.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     mediaController.value?.let { controller ->
@@ -119,12 +163,114 @@ fun SongScreen(
         },
 
         ) { innerPadding ->
-        SongContent(
-            innerPadding = innerPadding,
-            mediaController,
-            currentMediaMetadata.value,
-            isPlaying.value
-        )
+        ModalBottomSheetLayout(
+            sheetShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp),
+            sheetState = sheetState,
+            sheetContent = {
+                LazyColumn(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp)
+                ) {
+                    item {
+                        Text(
+                            text = "Add to playlist",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.padding(bottom = 8.dp, top = 12.dp)
+                        )
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    uiState.playListResponse?.data?.let { data ->
+                        items(data.size) { index ->
+                            Card(
+                                shape = RectangleShape,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 4.dp)
+                                    .clickable {
+                                        mediaController.value?.currentMediaItemIndex?.let {
+                                            val currentTrack = MediaItemTree.currentTracks[it]
+                                            val itemPlaylistBody = currentTrack.toItemPlaylistBody(data[index]._id)
+                                            vm.addItemToPlaylist(itemPlaylistBody)
+                                        }
+
+                                    },
+                                colors = CardDefaults.cardColors(containerColor = Color.White)
+                            ) {
+                                Column {
+                                    Row(
+                                        horizontalArrangement = Arrangement.Start,
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 6.dp, horizontal = 8.dp)
+                                    ) {
+                                        Image(
+                                            painter = painterResource(R.drawable.logotransparent),
+                                            contentScale = ContentScale.Crop,
+                                            contentDescription = "Artists avatar",
+                                            modifier = Modifier
+                                                .size(52.dp)
+                                                .border(
+                                                    width = 2.dp,
+                                                    color = _00C2CB,
+                                                    shape = RoundedCornerShape(8.dp)
+                                                )
+                                                .clip(RoundedCornerShape(5.dp))
+                                        )
+                                        Spacer(modifier = Modifier.width(12.dp))
+
+                                        Column(
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Text(
+                                                color = _00C2CB,
+                                                text = data[index].name,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 16.sp
+                                            )
+                                            Text(
+                                                text = "${data[index].count} songs",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = Color.Gray,
+                                                fontSize = 12.sp
+
+                                            )
+                                        }
+                                        Image(
+                                            painter = painterResource(id = R.drawable.baseline_playlist_add_24),
+                                            contentDescription = "Add",
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        ) {
+            SongContent(
+                innerPadding = innerPadding,
+                mediaController,
+                currentMediaMetadata.value,
+                isPlaying.value,
+                openBottomSheet = {
+                    scope.launch {
+                        sheetState.show()
+                    }
+                },
+                viewModel = vm
+
+            )
+        }
+
     }
 }
 
@@ -184,13 +330,22 @@ fun SongContent(
     innerPadding: PaddingValues,
     mediaController: MutableState<MediaController?>,
     currentMediaMetadata: MediaMetadata?,
-    isPlaying: Boolean
+    isPlaying: Boolean,
+    openBottomSheet: () -> Unit,
+    viewModel: SongViewModel
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val currentPosition = remember { mutableLongStateOf(0L) }
     val duration = remember { mutableLongStateOf(0L) }
     val handler = remember { android.os.Handler(android.os.Looper.getMainLooper()) }
     val state = rememberScrollState()
+    val context = LocalContext.current
+
+    DisposableEffect(Unit) {
+        val sharedPreferences = PreferencesManager(context)
+        sharedPreferences.getUserId()?.let { viewModel.getAllPlaylist(it) }
+        onDispose { }
+    }
 
     LaunchedEffect(Unit) { state.animateScrollTo(0) }
     val updatePositionRunnable = remember {
@@ -312,11 +467,22 @@ fun SongContent(
 
         // Media Controls
         Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically,
+                .padding(top = 8.dp),
             horizontalArrangement = Arrangement.Center
         ) {
+            IconButton(onClick = {
+//                openBottomSheet()
+            }) {
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_alarm_24),
+                    contentDescription = "Next",
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+
             IconButton(onClick = {
                 mediaController.value?.seekToPrevious()
             }) {
@@ -364,6 +530,16 @@ fun SongContent(
             }) {
                 Image(
                     painter = painterResource(id = R.drawable.next),
+                    contentDescription = "Next",
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+
+            IconButton(onClick = {
+                openBottomSheet()
+            }) {
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_playlist_add_24),
                     contentDescription = "Next",
                 )
             }
@@ -435,8 +611,8 @@ fun SongTopAppBarPreview() {
 @Composable
 fun SongContentPreview() {
     MusicAppTheme {
-        Scaffold { innerPadding ->
-            SongContent(innerPadding, remember { mutableStateOf(null) }, null, false)
-        }
+//        Scaffold { innerPadding ->
+//            SongContent(innerPadding, remember { mutableStateOf(null) }, null, false, {})
+//        }
     }
 }

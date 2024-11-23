@@ -69,9 +69,13 @@ fun FMusicNavGraph(
         }
 
         composable(FMusicDestinations.MY_PLAYLIST_ROUTE) {
-            MyPlaylistScreen(appContainer.fMusicRepository){
-                navController.popBackStack()
-            }
+            MyPlaylistScreen(
+                appContainer.fMusicRepository,
+                onClickItemPlaylist = {},
+                onBack = {
+                    navController.popBackStack()
+
+                })
         }
 
         composable(FMusicDestinations.GAME_ROUTE) {

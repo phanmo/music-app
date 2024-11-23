@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,14 +20,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -56,23 +52,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fpoly.pro226.music_app.R
-import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
 import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.User
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.ui.components.LoadingDialog
-import com.fpoly.pro226.music_app.ui.screen.playlist.PlaylistViewModel
 import com.fpoly.pro226.music_app.ui.theme.FFFFFF_87
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._00C2CB
-import com.fpoly.pro226.music_app.ui.theme._06A0B5
 import com.fpoly.pro226.music_app.ui.theme._121111
 import com.fpoly.pro226.music_app.ui.theme._1E1E1E_85
 import com.fpoly.pro226.music_app.ui.theme._7CEEFF
 import com.fpoly.pro226.music_app.ui.theme._DBE7E8
-import retrofit2.Response
 
 @Composable
 fun LoginScreen(

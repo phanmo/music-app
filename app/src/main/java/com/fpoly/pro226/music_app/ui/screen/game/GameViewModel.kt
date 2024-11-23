@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
 import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
 import com.fpoly.pro226.music_app.data.source.network.models.Radios
 import com.fpoly.pro226.music_app.data.source.network.models.Track
 import kotlinx.coroutines.Job
@@ -22,11 +23,13 @@ data class GameUiState(
     val radios: Radios? = null,
     val tracksQuestion: List<Track> = listOf(),
     val trackAnswer: Track? = null,
+    val coinTotal: Int = 0
 )
 
 class GameViewModel(
     private val fMusicRepository: FMusicRepository,
-    private val deezerRepository: DeezerRepository
+    private val deezerRepository: DeezerRepository,
+    private val currentUserId: String? = null
 ) : ViewModel() {
     companion object {
 
@@ -34,14 +37,15 @@ class GameViewModel(
         val MY_REPOSITORY_KEY = object : CreationExtras.Key<FMusicRepository> {}
         val MY_REPOSITORY_KEY_2 = object : CreationExtras.Key<DeezerRepository> {}
 
-        fun provideFactory(): ViewModelProvider.Factory = viewModelFactory {
+        fun provideFactory(userId: String?): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val fMusicRepo = this[MY_REPOSITORY_KEY] as FMusicRepository
                 val deezerRepo = this[MY_REPOSITORY_KEY_2] as DeezerRepository
 
                 GameViewModel(
                     fMusicRepository = fMusicRepo,
-                    deezerRepository = deezerRepo
+                    deezerRepository = deezerRepo,
+                    currentUserId = userId
                 )
             }
         }
@@ -57,6 +61,7 @@ class GameViewModel(
     val disableSelectAnswer get() = _disableSelectAnswer
 
     init {
+        getCoin()
         getRadios()
     }
 
@@ -76,6 +81,41 @@ class GameViewModel(
                 gameUiState = gameUiState.copy(isLoading = false)
             } finally {
                 fetchRadios = null
+            }
+        }
+    }
+
+    private fun addCoin() {
+        currentUserId?.let { userId ->
+            viewModelScope.launch {
+                try {
+//                    gameUiState = gameUiState.copy(isLoading = true)
+                    val response = fMusicRepository.addCoin(PlaylistBody(id_user = userId))
+                    if (response.isSuccessful) {
+                        response.body()?.let { res ->
+                            gameUiState = gameUiState.copy(isLoading = false, coinTotal = res.data)
+                        }
+                    }
+                } catch (e: Exception) {
+                    gameUiState = gameUiState.copy(isLoading = false)
+                }
+            }
+        }
+    }
+    private fun getCoin() {
+        currentUserId?.let { userId ->
+            viewModelScope.launch {
+                try {
+//                    gameUiState = gameUiState.copy(isLoading = true)
+                    val response = fMusicRepository.getCoin(userId)
+                    if (response.isSuccessful) {
+                        response.body()?.let { res ->
+                            gameUiState = gameUiState.copy(isLoading = false, coinTotal = res.data)
+                        }
+                    }
+                } catch (e: Exception) {
+                    gameUiState = gameUiState.copy(isLoading = false)
+                }
             }
         }
     }
@@ -128,6 +168,10 @@ class GameViewModel(
 
     fun selectAnswer(idTrack: String): Boolean {
         _disableSelectAnswer = true
-        return idTrack == gameUiState.trackAnswer?.id
+        val result = idTrack == gameUiState.trackAnswer?.id
+        if (result) {
+            addCoin()
+        }
+        return result
     }
 }

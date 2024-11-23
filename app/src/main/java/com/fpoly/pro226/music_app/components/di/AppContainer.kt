@@ -1,7 +1,6 @@
 package com.fpoly.pro226.music_app.components.di
 
 import com.fpoly.pro226.music_app.components.factory.GenreViewModelFactory
-import com.fpoly.pro226.music_app.components.factory.SongViewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepositoryImpl
 import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
@@ -53,7 +52,6 @@ class AppContainer(externalScope: CoroutineScope) {
         FMusicRepositoryImpl(fMusicRemoteDataSource, externalScope)
 
 
-    val songViewModelFactory = SongViewModelFactory(deezerRepository)
     val genreViewModelFactory = GenreViewModelFactory(deezerRepository)
 
     private fun provideHttpClient(): OkHttpClient {

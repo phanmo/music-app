@@ -10,9 +10,13 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.AddItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
+import com.google.gson.Gson
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 
@@ -38,6 +42,12 @@ class MyPlaylistViewModel(
                 )
             }
         }
+    }
+    private val _toastEvent = MutableSharedFlow<String>()
+    val toastEvent: SharedFlow<String> = _toastEvent
+
+    suspend fun showToast(message: String) {
+        _toastEvent.emit(message)
     }
 
     var myPlaylistUiState by mutableStateOf(MyPlaylistUiState())
@@ -84,6 +94,18 @@ class MyPlaylistViewModel(
                 val response = fMusicRepository.addPlaylist(playlistBody)
                 if (response.isSuccessful) {
                     getAllPlaylist(_userId)
+                }else if (response.code() == 400) {
+                    response.errorBody()?.let { res ->
+                        try {
+                            val errorResponse = Gson().fromJson(res.string(), PlayListResponse::class.java)
+                            showToast(errorResponse.message)
+                            myPlaylistUiState = myPlaylistUiState.copy(isLoading = false)
+
+                        } catch (e: Exception) {
+                            myPlaylistUiState = myPlaylistUiState.copy(isLoading = false)
+                        }
+
+                    }
                 }
             } catch (e: Exception) {
                 myPlaylistUiState = myPlaylistUiState.copy(isLoading = false)

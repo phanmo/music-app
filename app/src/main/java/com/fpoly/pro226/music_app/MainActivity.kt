@@ -1,14 +1,10 @@
 package com.fpoly.pro226.music_app
 
 import android.Manifest
-import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.ComponentName
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.speech.RecognizerIntent
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -25,7 +21,6 @@ import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.components.services.FMusicPlaybackService
 import com.fpoly.pro226.music_app.components.services.MediaItemTree
 import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
-import com.fpoly.pro226.music_app.ui.screen.song.SongViewModel
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.google.common.util.concurrent.ListenableFuture
 
@@ -44,8 +39,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var browserFuture: ListenableFuture<MediaBrowser>
     private val browser: MediaBrowser?
         get() = if (browserFuture.isDone && !browserFuture.isCancelled) browserFuture.get() else null
-
-    private var songViewModel: SongViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -123,8 +116,6 @@ class MainActivity : ComponentActivity() {
                 0
             )
         }
-        songViewModel = appContainer.songViewModelFactory.create()
-
 
     }
 

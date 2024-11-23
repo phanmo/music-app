@@ -10,11 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.media3.session.MediaController
 import com.fpoly.pro226.music_app.components.FMusicApplication
 import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
-import com.google.common.util.concurrent.ListenableFuture
 
 
 class PlayerActivity : ComponentActivity() {
@@ -34,7 +32,7 @@ class PlayerActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SongScreen(appContainer.songViewModelFactory.create())
+                    SongScreen(appContainer = appContainer)
                 }
             }
         }

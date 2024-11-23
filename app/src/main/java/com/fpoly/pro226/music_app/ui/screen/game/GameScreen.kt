@@ -59,6 +59,7 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.fpoly.pro226.music_app.R
 import com.fpoly.pro226.music_app.components.di.AppContainer
+import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
 import com.fpoly.pro226.music_app.ui.components.LoadingDialog
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._00C2CB
@@ -73,8 +74,10 @@ fun GameScreen(appContainer: AppContainer, onBack: () -> Unit) {
         set(GameViewModel.MY_REPOSITORY_KEY, appContainer.fMusicRepository)
         set(GameViewModel.MY_REPOSITORY_KEY_2, appContainer.deezerRepository)
     }
+    val context = LocalContext.current
+
     val vm: GameViewModel = viewModel(
-        factory = GameViewModel.provideFactory(),
+        factory = GameViewModel.provideFactory(PreferencesManager(context).getUserId()),
         extras = extras,
     )
 
@@ -94,7 +97,6 @@ fun GameScreen(appContainer: AppContainer, onBack: () -> Unit) {
         isPlaying = isReady,
     )
 
-    val context = LocalContext.current
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
             addListener(object : Player.Listener {
@@ -167,7 +169,7 @@ fun GameScreen(appContainer: AppContainer, onBack: () -> Unit) {
 
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    text = "10",
+                    text = "${uiState.coinTotal}",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
@@ -406,6 +408,6 @@ fun OptionButton(
 @Composable
 fun GameScreenPreview() {
     MusicAppTheme {
-        GameScreen(appContainer = AppContainer(CoroutineScope(Dispatchers.Main))){}
+        GameScreen(appContainer = AppContainer(CoroutineScope(Dispatchers.Main))) {}
     }
 }

@@ -27,6 +27,8 @@ object MediaItemTree {
     private const val ARTIST_PREFIX = "[artist]"
     private const val ITEM_PREFIX = "[item]"
 
+    var currentTracks: List<Track> = listOf()
+
     private class MediaItemNode(val item: MediaItem) {
         val searchTitle = normalizeSearchText(item.mediaMetadata.title)
         val searchText =
@@ -134,6 +136,10 @@ object MediaItemTree {
         treeNodes[ROOT_ID]!!.addChild(ARTIST_ID)
         treeNodes[ROOT_ID]!!.addChild(GENRE_ID)
         // create subfolder with same artist, album, etc.
+        currentTracks = tracks.filter { track ->
+            track.album.tracklist.isNotEmpty()
+        }
+
         tracks.filter { track ->
             track.album.tracklist.isNotEmpty()
         }.forEach { track ->
