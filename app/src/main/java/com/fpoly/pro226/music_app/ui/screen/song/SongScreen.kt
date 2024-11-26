@@ -1,10 +1,10 @@
 package com.fpoly.pro226.music_app.ui.screen.song
 
 import android.content.ComponentName
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -27,7 +27,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -63,6 +62,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -80,10 +80,7 @@ import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.components.services.FMusicPlaybackService
 import com.fpoly.pro226.music_app.components.services.MediaItemTree
 import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
 import com.fpoly.pro226.music_app.data.source.network.models.toItemPlaylistBody
-import com.fpoly.pro226.music_app.ui.screen.game.GameViewModel
-import com.fpoly.pro226.music_app.ui.theme.Black
 import com.fpoly.pro226.music_app.ui.theme.FFFFFF_70
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._00C2CB
@@ -195,7 +192,8 @@ fun SongScreen(
                                     .clickable {
                                         mediaController.value?.currentMediaItemIndex?.let {
                                             val currentTrack = MediaItemTree.currentTracks[it]
-                                            val itemPlaylistBody = currentTrack.toItemPlaylistBody(data[index]._id)
+                                            val itemPlaylistBody =
+                                                currentTrack.toItemPlaylistBody(data[index]._id)
                                             vm.addItemToPlaylist(itemPlaylistBody)
                                         }
 
@@ -393,9 +391,12 @@ fun SongContent(
             fontWeight = FontWeight.Bold,
             fontSize = 24.sp,
             color = Color.White,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .padding(top = 27.dp, start = 24.dp)
+                .padding(top = 27.dp, start = 24.dp, end = 24.dp)
                 .align(alignment = Alignment.Start)
+                .basicMarquee()
         )
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -413,13 +414,15 @@ fun SongContent(
                 )
             Row {
                 Image(
-                    modifier = Modifier.size(17.dp),
+                    modifier = Modifier
+                        .size(20.dp)
+                        .align(Alignment.CenterVertically),
                     painter = painterResource(R.drawable.share),
                     contentDescription = "null" // decorative element
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Image(
-                    modifier = Modifier.size(17.dp),
+                    modifier = Modifier.size(24.dp),
                     painter = painterResource(R.drawable.love),
                     contentDescription = "null" // decorative element
                 )
@@ -539,6 +542,7 @@ fun SongContent(
                 openBottomSheet()
             }) {
                 Image(
+                    modifier = Modifier.size(28.dp),
                     painter = painterResource(id = R.drawable.baseline_playlist_add_24),
                     contentDescription = "Next",
                 )

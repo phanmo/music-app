@@ -30,6 +30,12 @@ interface FMusicApiService {
     @GET("/api/get-list-playlist-item/{idPlaylist}")
     suspend fun getAllTrackByPlaylistId(@Path("idPlaylist")idPlaylist: String): Response<ItemPlaylistResponse>
 
+    @GET("/api/delete-playlist-item/{idTrack}")
+    suspend fun deleteItemInPlaylist(@Path("idTrack")idTrack: String): Response<ItemPlaylistResponse>
+
+    @GET("/api/delete-playlist/{idPlaylist}")
+    suspend fun deletePlaylistById(@Path("idPlaylist")idPlaylist: String): Response<PlayListResponse>
+
     @POST("/api/add-coin")
     suspend fun addCoin(@Body playlistBody: PlaylistBody): Response<CoinResponse>
 

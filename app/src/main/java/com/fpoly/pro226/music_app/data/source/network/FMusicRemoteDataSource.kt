@@ -49,4 +49,14 @@ class FMusicRemoteDataSource(
         withContext(ioDispatcher) {
             fMusicApiService.getCoin(idUser)
         }
+
+    suspend fun deleteItemInPlaylist(idTrack: String): Response<ItemPlaylistResponse> =
+        withContext(ioDispatcher) {
+            fMusicApiService.deleteItemInPlaylist(idTrack)
+        }
+
+    suspend fun deletePlaylistById(idPlaylist: String): Response<PlayListResponse> =
+        withContext(ioDispatcher) {
+            fMusicApiService.deletePlaylistById(idPlaylist)
+        }
 }
