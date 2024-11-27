@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
@@ -35,9 +36,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -56,11 +57,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.Popup
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fpoly.pro226.music_app.R
 import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
 import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.MyPlaylist
 import com.fpoly.pro226.music_app.ui.components.LoadingDialog
 import com.fpoly.pro226.music_app.ui.theme.Black
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
@@ -73,11 +76,16 @@ fun MyPlaylistScreen(
     onBack: () -> Unit,
     onClickItemPlaylist: (String) -> Unit
 ) {
+    val menuStates = remember { mutableStateMapOf<String, Boolean>() }
+
+    var showDialogConfirm by remember { mutableStateOf<MyPlaylist?>(null) }
+
     var showDialog by remember { mutableStateOf(false) }
     var playlistName by remember { mutableStateOf("") }
     val extras = MutableCreationExtras().apply {
         set(MyPlaylistViewModel.MY_REPOSITORY_KEY, fMusicRepository)
     }
+
     val context = LocalContext.current
 
     val vm: MyPlaylistViewModel = viewModel(
@@ -130,67 +138,183 @@ fun MyPlaylistScreen(
                                 },
                             colors = CardDefaults.cardColors(containerColor = Black)
                         ) {
-                            Column {
-                                Row(
-                                    horizontalArrangement = Arrangement.Start,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 6.dp, horizontal = 8.dp)
-                                ) {
-                                    Image(
-                                        painter = painterResource(R.drawable.ic_app),
-                                        contentScale = ContentScale.Crop,
-                                        contentDescription = "Artists avatar",
+                            Box {
+                                Column {
+                                    Row(
+                                        horizontalArrangement = Arrangement.Start,
+                                        verticalAlignment = Alignment.CenterVertically,
                                         modifier = Modifier
-                                            .size(52.dp)
-                                            .border(
-                                                width = 2.dp,
-                                                color = _00C2CB,
-                                                shape = RoundedCornerShape(8.dp)
-                                            )
-                                            .clip(RoundedCornerShape(5.dp))
-
-                                    )
-
-                                    Spacer(modifier = Modifier.width(12.dp))
-
-                                    Column(
-                                        modifier = Modifier.weight(1f)
+                                            .fillMaxWidth()
+                                            .padding(vertical = 6.dp, horizontal = 8.dp)
                                     ) {
-                                        Text(
-                                            color = Color.White,
-                                            text = data[index].name,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 16.sp
-                                        )
-                                        Text(
-                                            text = "${data[index].count} songs",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = Color.Gray,
-                                            fontSize = 12.sp
+                                        Image(
+                                            painter = painterResource(R.drawable.ic_app),
+                                            contentScale = ContentScale.Crop,
+                                            contentDescription = "Artists avatar",
+                                            modifier = Modifier
+                                                .size(52.dp)
+                                                .border(
+                                                    width = 2.dp,
+                                                    color = _00C2CB,
+                                                    shape = RoundedCornerShape(8.dp)
+                                                )
+                                                .clip(RoundedCornerShape(5.dp))
 
                                         )
+
+                                        Spacer(modifier = Modifier.width(12.dp))
+
+                                        Column(
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Text(
+                                                color = Color.White,
+                                                text = data[index].name,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 16.sp
+                                            )
+                                            Text(
+                                                text = "${data[index].count} songs",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = Color.Gray,
+                                                fontSize = 12.sp
+
+                                            )
+                                        }
+                                        IconButton(onClick = {
+                                            menuStates[data[index]._id] =
+                                                !(menuStates[data[index]._id] ?: false)
+                                        }) {
+                                            androidx.compose.material.Icon(
+                                                imageVector = Icons.Default.MoreVert,
+                                                contentDescription = "More options",
+                                                tint = Color.White
+                                            )
+                                        }
+
                                     }
-                                    androidx.compose.material.Icon(
-                                        imageVector = Icons.Default.MoreVert,
-                                        contentDescription = "More options",
-                                        tint = Color.White
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(0.5.dp)
+                                            .background(color = Color.Gray)
                                     )
+
                                 }
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(0.5.dp)
-                                        .background(color = Color.Gray)
-                                )
+                                if (menuStates[data[index]._id] == true) {
+                                    Popup(
+                                        alignment = Alignment.CenterEnd,
+                                        onDismissRequest = { menuStates[data[index]._id] = false }
+                                    ) {
+                                        Box(modifier = Modifier.padding(end = 40.dp)) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .background(
+                                                        Color.White,
+                                                        shape = RoundedCornerShape(8.dp)
+                                                    )
+                                                    .padding(4.dp)
+                                                    .clickable {
+                                                        menuStates[data[index]._id] = false
+                                                        showDialogConfirm = data[index]
+                                                    }
+                                            ) {
+                                                Text(
+                                                    style = MaterialTheme.typography.titleSmall,
+                                                    text = "Delete",
+                                                    modifier = Modifier
+                                                        .padding(
+                                                            horizontal = 16.dp,
+                                                            vertical = 4.dp
+                                                        ),
+                                                    color = _00C2CB
+                                                )
+                                            }
+                                        }
+
+                                    }
+                                }
                             }
                         }
                     }
                 }
 
 
+            }
+        }
+        if (showDialogConfirm != null) {
+            Dialog(onDismissRequest = {
+            }) {
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    elevation = 8.dp,
+                    modifier = Modifier
+                        .padding(2.dp)
+                        .fillMaxWidth()
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            color = _00C2CB,
+                            text = "${showDialogConfirm?.name}",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .padding(bottom = 24.dp)
+                                .align(Alignment.CenterHorizontally)
+                        )
+                        Text(
+                            "Do you want to delete this playlist ?",
+                            color = _8A9A9D,
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .padding(bottom = 8.dp)
+                                .align(Alignment.CenterHorizontally)
+                        )
+
+                        androidx.compose.material3.Button(
+                            onClick = {
+                                showDialogConfirm?.let {
+                                    vm.deletePlaylist(it._id)
+                                }
+                                showDialogConfirm = null
+                            },
+                            shape = RoundedCornerShape(50.dp),
+                            colors = ButtonDefaults.buttonColors(_00C2CB),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .height(40.dp),
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 10.dp,
+                                pressedElevation = 15.dp,
+                                disabledElevation = 0.dp,
+                            )
+
+                        ) {
+                            Text(
+                                text = "DELETE PLAYLIST",
+                                color = Color.White,
+                                fontSize = 14.sp,
+                                textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        TextButton(
+                            onClick = { showDialogConfirm = null }
+                        ) {
+                            Text(
+                                "CANCEL", fontSize = 14.sp,
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -244,7 +368,7 @@ fun MyPlaylistScreen(
                         ) {
                             TextButton(onClick = { showDialog = false }) {
                                 Text(
-                                    "Cancel", fontSize = 14.sp,
+                                    "CANCEL", fontSize = 14.sp,
                                 )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
@@ -267,7 +391,7 @@ fun MyPlaylistScreen(
 
                             ) {
                                 Text(
-                                    text = "Create",
+                                    text = "CREATE",
                                     color = Color.White,
                                     fontSize = 14.sp,
                                     textAlign = TextAlign.Center,

@@ -48,6 +48,7 @@ class MyPlaylistViewModel(
 
     private var fetchPlaylists: Job? = null
     private var addPlaylistJob: Job? = null
+    private var deletePlaylistJob: Job? = null
 
     private val _toastEvent = MutableSharedFlow<String>()
     val toastEvent: SharedFlow<String> = _toastEvent
@@ -78,6 +79,8 @@ class MyPlaylistViewModel(
                                 isLoading = false,
                             )
                         }
+                    } else {
+                        myPlaylistUiState = myPlaylistUiState.copy(isLoading = false)
                     }
                 } catch (e: Exception) {
                     myPlaylistUiState = myPlaylistUiState.copy(isLoading = false)
@@ -89,6 +92,31 @@ class MyPlaylistViewModel(
 
     }
 
+    fun deletePlaylist(idPlaylist: String) {
+        deletePlaylistJob?.cancel()
+        deletePlaylistJob = viewModelScope.launch {
+            try {
+                myPlaylistUiState = myPlaylistUiState.copy(isLoading = true)
+                val response = fMusicRepository.deletePlaylist(idPlaylist)
+                if (response.isSuccessful) {
+                    response.body()?.let { res ->
+                        myPlaylistUiState = myPlaylistUiState.copy(
+                            playListResponse = res,
+                            isLoading = false,
+                        )
+                    }
+                } else {
+                    myPlaylistUiState = myPlaylistUiState.copy(isLoading = false)
+                }
+            } catch (e: Exception) {
+                myPlaylistUiState = myPlaylistUiState.copy(isLoading = false)
+            } finally {
+                deletePlaylistJob = null
+            }
+        }
+
+
+    }
 
     fun addPlaylist(name: String) {
         userId?.let { id ->

@@ -30,6 +30,11 @@ class FMusicRemoteDataSource(
             fMusicApiService.addPlaylist(playlistBody)
         }
 
+    suspend fun deletePlaylist(playlistId: String): Response<PlayListResponse> =
+        withContext(ioDispatcher) {
+            fMusicApiService.deletePlaylist(playlistId)
+        }
+
     suspend fun addItemToPlaylist(itemPlaylistBody: ItemPlaylistBody): Response<ItemPlaylistResponse> =
         withContext(ioDispatcher) {
             fMusicApiService.addItemToPlaylist(itemPlaylistBody)
@@ -55,8 +60,4 @@ class FMusicRemoteDataSource(
             fMusicApiService.deleteItemInPlaylist(idTrack)
         }
 
-    suspend fun deletePlaylistById(idPlaylist: String): Response<PlayListResponse> =
-        withContext(ioDispatcher) {
-            fMusicApiService.deletePlaylistById(idPlaylist)
-        }
 }
