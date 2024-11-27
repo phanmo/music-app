@@ -25,6 +25,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -249,7 +250,8 @@ fun TextField(
     label: String,
     isPassword: Boolean,
     onValueChange: (String) -> Unit,
-    leadingIcon: @Composable (() -> Unit),
+    leadingIcon: @Composable() (() -> Unit)? = null,
+    enable: Boolean? = null,
 ) {
     val textValue = remember { mutableStateOf(TextFieldValue("")) }
     val passwordVisible = remember { mutableStateOf(false) }
@@ -265,6 +267,7 @@ fun TextField(
     }
 
     OutlinedTextField(
+        enabled = enable ?: true,
         value = textValue.value,
         onValueChange = {
             textValue.value = it
@@ -296,23 +299,23 @@ fun TextField(
             .fillMaxWidth()
             .padding(bottom = 10.dp),
         leadingIcon = leadingIcon,
-//        trailingIcon = {
-//            if (isPassword) {
-//                val image = if (passwordVisible.value)
-//                    painterResource(id = R.drawable.eye_off)
-//                else painterResource(id = R.drawable.eye_off)
-//                IconButton(onClick = {
-//                    passwordVisible.value = !passwordVisible.value
-//                }) {
-//                    Icon(
-//                        painter = image,
-//                        contentDescription = "",
-//                        tint = FFFFFF_87,
-//                        modifier = Modifier.size(16.dp),
-//                    )
-//                }
-//            }
-//        },
+        trailingIcon = {
+            if (isPassword) {
+                val image = if (passwordVisible.value)
+                    painterResource(id = R.drawable.eye)
+                else painterResource(id = R.drawable.eye_off)
+                IconButton(onClick = {
+                    passwordVisible.value = !passwordVisible.value
+                }) {
+                    Icon(
+                        painter = image,
+                        contentDescription = "",
+                        tint = FFFFFF_87,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+        },
         shape = RoundedCornerShape(10.dp)
     )
 }
@@ -354,7 +357,7 @@ fun ButtonWithElevation(label: String, onclick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(0.dp, 10.dp)
-            .height(58.dp),
+            .height(48.dp),
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = 10.dp,
             pressedElevation = 15.dp,

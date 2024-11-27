@@ -50,20 +50,20 @@ fun RegisterScreen(
             .padding(16.dp)
             .fillMaxHeight()
     ) {
-        Image(
-            painterResource(
-                id = R.drawable.back
-            ),
-            contentDescription = "Logo",
-            modifier = Modifier
-                .width(24.dp)
-                .height(24.dp)
-                .fillMaxWidth()
-                .clickable {
-                    onBack()
-                }
-                .align(alignment = Alignment.Start)
-        )
+//        Image(
+//            painterResource(
+//                id = R.drawable.back
+//            ),
+//            contentDescription = "Logo",
+//            modifier = Modifier
+//                .width(24.dp)
+//                .height(24.dp)
+//                .fillMaxWidth()
+//                .clickable {
+//                    onBack()
+//                }
+//                .align(alignment = Alignment.Start)
+//        )
         Image(
             painterResource(
                 id = R.drawable.ic_app

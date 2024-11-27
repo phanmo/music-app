@@ -16,6 +16,9 @@ import com.fpoly.pro226.music_app.ui.screen.login.LoginScreen
 import com.fpoly.pro226.music_app.ui.screen.main.MainScreen
 import com.fpoly.pro226.music_app.ui.screen.myplaylist.MyPlaylistScreen
 import com.fpoly.pro226.music_app.ui.screen.playlist.PlaylistScreen
+import com.fpoly.pro226.music_app.ui.screen.profile.ChangePasswordScreen
+import com.fpoly.pro226.music_app.ui.screen.profile.EditProfileScreen
+import com.fpoly.pro226.music_app.ui.screen.profile.SettingScreen
 import com.fpoly.pro226.music_app.ui.screen.register.RegisterScreen
 import com.fpoly.pro226.music_app.ui.screen.splash.GuideScreen
 import com.fpoly.pro226.music_app.ui.screen.track.TrackScreen
