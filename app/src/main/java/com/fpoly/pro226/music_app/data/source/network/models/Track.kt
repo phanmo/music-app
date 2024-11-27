@@ -37,6 +37,8 @@ fun Track.toItemPlaylistBody(idPlaylist: String): ItemPlaylistBody {
         id_track = this.id,
         image_url = this.album?.cover_medium ?: "",
         name = this.title,
-        preViewUrl = this.preview
+        preViewUrl = this.preview,
+        artist = this.artist?.name?:"",
+        album = this.album?.title?:""
     )
 }

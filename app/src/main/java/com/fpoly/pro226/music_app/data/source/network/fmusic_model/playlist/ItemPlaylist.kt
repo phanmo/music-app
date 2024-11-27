@@ -14,8 +14,8 @@ data class ItemPlaylist(
     val name: String,
     val preViewUrl: String,
     val updatedAt: String,
-    val artistName: String? = null,
-    val albumName: String? = null
+    val artist: String? = null,
+    val album: String? = null
 )
 
 fun ItemPlaylist.toTrack(): Track {
@@ -25,9 +25,9 @@ fun ItemPlaylist.toTrack(): Track {
         title = name,
         album = Album(
             cover_medium = image_url,
-            title = albumName ?: "### ALBUM Update late",
+            title = album ?: "My playlist",
             tracklist = "REQUIRED NOT EMPTY"
         ),
-        artist = Artist(name = artistName ?: "### ARTIST Update late")
+        artist = Artist(name = artist ?: "### ARTIST Update late")
     )
 }

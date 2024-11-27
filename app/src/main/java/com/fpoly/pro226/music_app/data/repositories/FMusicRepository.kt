@@ -16,6 +16,7 @@ import retrofit2.Response
 interface FMusicRepository {
     suspend fun getPlaylist(idUser: String): Response<PlayListResponse>
     suspend fun addPlaylist(playlistBody: PlaylistBody): Response<Unit>
+    suspend fun deletePlaylist(playlistId: String): Response<PlayListResponse>
     suspend fun addCoin(userBody: PlaylistBody): Response<CoinResponse>
     suspend fun getCoin(idUser: String): Response<CoinResponse>
     suspend fun addItemToPlaylist(itemPlaylistBody: ItemPlaylistBody): Response<ItemPlaylistResponse>
@@ -44,6 +45,12 @@ class FMusicRepositoryImpl(
     override suspend fun addPlaylist(playlistBody: PlaylistBody): Response<Unit> {
         return externalScope.async {
             fMusicRemoteDataSource.addPlaylist(playlistBody)
+        }.await()
+    }
+
+    override suspend fun deletePlaylist(playlistId: String): Response<PlayListResponse> {
+        return externalScope.async {
+            fMusicRemoteDataSource.deletePlaylist(playlistId)
         }.await()
     }
 

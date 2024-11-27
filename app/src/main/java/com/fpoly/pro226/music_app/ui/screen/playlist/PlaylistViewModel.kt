@@ -91,7 +91,6 @@ class PlaylistViewModel(
     }
 
 
-
     private fun getMyPlaylistById(id: String) {
         fetchMyTracks?.cancel()
         fetchMyTracks = viewModelScope.launch {
@@ -105,7 +104,10 @@ class PlaylistViewModel(
                                 itemPlaylist.toTrack()
                             }),
                             isLoading = false,
-                            playlist = Playlist(title = "### Playlist Update late")
+                            playlist = Playlist(
+                                title = playlist.playlistName ?: "",
+                                description = "${playlist.data.size} Songs"
+                            )
                         )
                     }
                 }

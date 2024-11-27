@@ -6,4 +6,6 @@ data class ItemPlaylistBody(
     val name: String,
     val image_url: String,
     val preViewUrl: String,
+    val artist: String,
+    val album: String
 )
