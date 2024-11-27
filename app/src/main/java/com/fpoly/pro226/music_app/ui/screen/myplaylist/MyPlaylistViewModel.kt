@@ -1,5 +1,6 @@
 package com.fpoly.pro226.music_app.ui.screen.myplaylist
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -57,6 +58,7 @@ class MyPlaylistViewModel(
         private set
 
     init {
+        Log.d("TAG", "init: ")
         getAllPlaylist()
     }
 
