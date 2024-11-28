@@ -11,8 +11,10 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
 import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.updateCountPlaylist
 import com.fpoly.pro226.music_app.data.source.network.models.Album
@@ -30,7 +32,8 @@ data class SongUiState(
     val isPlaying: Boolean = false,
     val currentSong: Track? = null,
     val album: Album? = null,
-    val playListResponse: PlayListResponse? = null
+    val playListResponse: PlayListResponse? = null,
+    val commentResponse: CommentResponse? = null
 )
 
 class SongViewModel(
@@ -58,6 +61,7 @@ class SongViewModel(
     }
 
     private var fetchSong: Job? = null
+    private var fetchComment: Job? = null
     private var fetchAlbum: Job? = null
     private var fetchPlaylists: Job? = null
 
@@ -142,4 +146,83 @@ class SongViewModel(
         }
     }
 
+    fun getAllComment(trackId: String) {
+        fetchComment?.cancel()
+        fetchComment = viewModelScope.launch {
+            try {
+                songUiState = songUiState.copy(isLoading = true)
+                val response = fMusicRepository.getComments(trackId)
+                if (response.isSuccessful) {
+                    response.body()?.let { res ->
+                        songUiState = songUiState.copy(
+                            isLoading = false,
+                            commentResponse = res
+                        )
+                    }
+                } else {
+                    songUiState = songUiState.copy(
+                        isLoading = false,
+                        commentResponse = songUiState.commentResponse?.copy(data = listOf())
+                    )
+                }
+            } catch (e: Exception) {
+                songUiState = songUiState.copy(isLoading = false)
+            } finally {
+                fetchComment = null
+            }
+        }
+    }
+
+    fun addComment(commentBody: CommentBody) {
+        viewModelScope.launch {
+            try {
+                songUiState = songUiState.copy(isLoading = true)
+                val response = fMusicRepository.addComment(commentBody.copy(id_user = _userId))
+                if (response.isSuccessful) {
+                    response.body()?.let { res ->
+                        songUiState = songUiState.copy(
+                            isLoading = false,
+                            commentResponse = res
+                        )
+                    }
+                } else if (response.code() == 400) {
+                    response.errorBody()?.let { res ->
+                        try {
+                            val errorResponse =
+                                Gson().fromJson(res.string(), CommentResponse::class.java)
+                            showToast(errorResponse.message)
+                        } catch (e: Exception) {
+                            songUiState = songUiState.copy(isLoading = false)
+                        }
+
+                    }
+                } else {
+                    songUiState = songUiState.copy(isLoading = false)
+                }
+            } catch (e: Exception) {
+                songUiState = songUiState.copy(isLoading = false)
+            }
+        }
+    }
+
+    fun deleteComment(commentId: String) {
+        viewModelScope.launch {
+            try {
+                songUiState = songUiState.copy(isLoading = true)
+                val response = fMusicRepository.deleteComment(commentId)
+                if (response.isSuccessful) {
+                    response.body()?.let { res ->
+                        songUiState = songUiState.copy(
+                            isLoading = false,
+                            commentResponse = res
+                        )
+                    }
+                } else {
+                    songUiState = songUiState.copy(isLoading = false)
+                }
+            } catch (e: Exception) {
+                songUiState = songUiState.copy(isLoading = false)
+            }
+        }
+    }
 }

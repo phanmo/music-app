@@ -1,6 +1,8 @@
 package com.fpoly.pro226.music_app.data.source.network
 
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.coin.CoinResponse
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.User
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
@@ -20,7 +22,6 @@ interface FMusicApiService {
 
     @GET("/api/get-playlist/{idUser}")
     suspend fun getAllPlaylist(@Path("idUser") idUser: String): Response<PlayListResponse>
-
 
     @POST("/api/login")
     suspend fun login(@Body user: User): Response<LoginResponse>
@@ -46,4 +47,12 @@ interface FMusicApiService {
     @POST("/api/add-playlist-item")
     suspend fun addItemToPlaylist(@Body itemPlaylistBody: ItemPlaylistBody): Response<ItemPlaylistResponse>
 
+    @POST("/api/add-comment")
+    suspend fun addComment(@Body comment: CommentBody): Response<CommentResponse>
+
+    @GET("/api/get-comment-by-track-id/{trackId}")
+    suspend fun getComments(@Path("trackId") trackId: String): Response<CommentResponse>
+
+    @DELETE("/api/delete-comment/{commentId}")
+    suspend fun deleteComment(@Path("commentId") commentId: String): Response<CommentResponse>
 }

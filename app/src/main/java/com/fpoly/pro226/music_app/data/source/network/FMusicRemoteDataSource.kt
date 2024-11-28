@@ -1,10 +1,12 @@
 package com.fpoly.pro226.music_app.data.source.network
 
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.coin.CoinResponse
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.User
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.coin.CoinResponse
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
 import kotlinx.coroutines.CoroutineDispatcher
@@ -58,6 +60,22 @@ class FMusicRemoteDataSource(
     suspend fun deleteItemInPlaylist(idTrack: String): Response<ItemPlaylistResponse> =
         withContext(ioDispatcher) {
             fMusicApiService.deleteItemInPlaylist(idTrack)
+        }
+
+    suspend fun addComment(commentBody: CommentBody): Response<CommentResponse> =
+        withContext(ioDispatcher) {
+            fMusicApiService.addComment(commentBody)
+        }
+
+
+    suspend fun getComments(trackId: String): Response<CommentResponse> =
+        withContext(ioDispatcher) {
+            fMusicApiService.getComments(trackId)
+        }
+
+    suspend fun deleteComment(commentId: String): Response<CommentResponse> =
+        withContext(ioDispatcher) {
+            fMusicApiService.deleteComment(commentId)
         }
 
 }

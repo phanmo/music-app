@@ -1,11 +1,13 @@
 package com.fpoly.pro226.music_app.data.repositories
 
 import com.fpoly.pro226.music_app.data.source.network.FMusicRemoteDataSource
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.coin.CoinResponse
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.User
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.coin.CoinResponse
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +24,9 @@ interface FMusicRepository {
     suspend fun addItemToPlaylist(itemPlaylistBody: ItemPlaylistBody): Response<ItemPlaylistResponse>
     suspend fun getAllTrackByPlaylistId(idPlaylist: String): Response<ItemPlaylistResponse>
     suspend fun login(user: User): Response<LoginResponse>
+    suspend fun deleteComment(commentId: String): Response<CommentResponse>
+    suspend fun getComments(trackId: String): Response<CommentResponse>
+    suspend fun addComment(commentBody: CommentBody): Response<CommentResponse>
 
 }
 
@@ -39,6 +44,24 @@ class FMusicRepositoryImpl(
     override suspend fun login(user: User): Response<LoginResponse> {
         return externalScope.async {
             fMusicRemoteDataSource.login(user)
+        }.await()
+    }
+
+    override suspend fun deleteComment(commentId: String): Response<CommentResponse> {
+        return externalScope.async {
+            fMusicRemoteDataSource.deleteComment(commentId)
+        }.await()
+    }
+
+    override suspend fun getComments(trackId: String): Response<CommentResponse> {
+        return externalScope.async {
+            fMusicRemoteDataSource.getComments(trackId)
+        }.await()
+    }
+
+    override suspend fun addComment(commentBody: CommentBody): Response<CommentResponse> {
+        return externalScope.async {
+            fMusicRemoteDataSource.addComment(commentBody)
         }.await()
     }
 

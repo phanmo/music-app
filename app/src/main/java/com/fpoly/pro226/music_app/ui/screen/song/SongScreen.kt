@@ -1,6 +1,7 @@
 package com.fpoly.pro226.music_app.ui.screen.song
 
 import android.content.ComponentName
+import android.os.Build
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -87,6 +87,7 @@ import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.components.services.FMusicPlaybackService
 import com.fpoly.pro226.music_app.components.services.MediaItemTree
 import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentBody
 import com.fpoly.pro226.music_app.data.source.network.models.toItemPlaylistBody
 import com.fpoly.pro226.music_app.ui.components.InputTextField
 import com.fpoly.pro226.music_app.ui.theme.D9D9D9
@@ -99,6 +100,7 @@ import com.fpoly.pro226.music_app.ui.theme._8A9A9D
 import com.fpoly.pro226.music_app.ui.theme._A6F3FF
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -144,6 +146,10 @@ fun SongScreen(
             mediaController.value = controllerFuture.get()
             currentMediaMetadata.value = controllerFuture.get().mediaMetadata
             isPlaying.value = controllerFuture.get().playWhenReady
+            controllerFuture.get()?.currentMediaItemIndex?.let {
+                val currentTrack = MediaItemTree.currentTracks[it]
+                vm.getAllComment(currentTrack.id)
+            }
 
         }, Runnable::run)
     }
@@ -153,6 +159,8 @@ fun SongScreen(
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
+
+    var lastMetadata by remember { mutableStateOf<MediaMetadata?>(null) }
 
     mediaController.value?.let { controller ->
         controller.addListener(
@@ -165,8 +173,19 @@ fun SongScreen(
                         isPlaying.value = player.playWhenReady
                     }
                 }
+
+                override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
+                    super.onMediaMetadataChanged(mediaMetadata)
+                    if (mediaMetadata != lastMetadata) {
+                        lastMetadata = mediaMetadata
+                        val currentTrack =
+                            MediaItemTree.currentTracks[controller.currentMediaItemIndex]
+                        vm.getAllComment(currentTrack.id)
+                    }
+                }
             }
         )
+
     }
 
     Scaffold(
@@ -290,57 +309,63 @@ fun SongScreen(
                                 )
                             }
                             LazyColumn {
-                                items(1) {
-                                    Row(
-                                        modifier = modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 12.dp, horizontal = 16.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        // Avatar
-                                        Image(
-                                            painter = painterResource(id = R.drawable.ic_app),
-                                            contentDescription = "Avatar",
-                                            modifier = Modifier
-                                                .size(42.dp)
-                                                .clip(CircleShape)
-                                                .border(1.dp, Color.Gray, CircleShape)
-                                        )
-                                        Spacer(modifier = Modifier.width(12.dp))
-                                        Column(
-                                            modifier = Modifier.weight(1f)
+                                vm.songUiState.commentResponse?.data?.let { comments ->
+                                    items(comments.size) { index ->
+                                        Row(
+                                            modifier = modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 12.dp, horizontal = 16.dp),
+                                            verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.Start,
+                                            // Avatar
+                                            AsyncImage(
+                                                model = comments[index].avatar,
+                                                contentScale = ContentScale.Crop,
+                                                contentDescription = "Avatar",
+                                                modifier = Modifier
+                                                    .size(42.dp)
+                                                    .clip(RoundedCornerShape(10.dp)),
+                                                placeholder = painterResource(R.drawable.ic_app),
+                                                error = painterResource(R.drawable.ic_app)
+                                            )
+                                            Spacer(modifier = Modifier.width(12.dp))
+                                            Column(
+                                                modifier = Modifier.weight(1f)
                                             ) {
-                                                Text(
-                                                    color = _1E1E1E_85,
-                                                    text = "#anonymous",
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    fontWeight = FontWeight.Bold,
-                                                    fontSize = 14.sp
-                                                )
-                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.Start,
+                                                ) {
+                                                    Text(
+                                                        color = _1E1E1E_85,
+                                                        text = "${comments[index].username ?: "#anonymous"}",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 14.sp
+                                                    )
+                                                    Spacer(modifier = Modifier.width(8.dp))
+
+                                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                                        Text(
+                                                            text = comments[index].getFormatDate(),
+                                                            style = MaterialTheme.typography.bodyMedium,
+                                                            color = Color.Gray,
+                                                            fontSize = 10.sp
+
+                                                        )
+                                                    }
+                                                }
+                                                Spacer(modifier = Modifier.height(4.dp))
 
                                                 Text(
-                                                    text = "20/10/2024",
+                                                    text = comments[index].content,
                                                     style = MaterialTheme.typography.bodyMedium,
-                                                    color = Color.Gray,
-                                                    fontSize = 10.sp
+                                                    color = _00C2CB,
+                                                    fontSize = 12.sp
 
                                                 )
                                             }
-                                            Spacer(modifier = Modifier.height(4.dp))
-
-                                            Text(
-                                                text = "Bai hat nay qua te",
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = Color.Gray,
-                                                fontSize = 12.sp
-
-                                            )
                                         }
                                     }
                                 }
@@ -350,7 +375,18 @@ fun SongScreen(
                             }
 
                         }
-                        CommentSection(Modifier.align(Alignment.BottomCenter))
+                        CommentSection(Modifier.align(Alignment.BottomCenter)) { content ->
+                            mediaController.value?.currentMediaItemIndex?.let {
+                                val currentTrack = MediaItemTree.currentTracks[it]
+                                vm.addComment(
+                                    commentBody = CommentBody(
+                                        content = content,
+                                        id_track = currentTrack.id,
+                                    )
+                                )
+
+                            }
+                        }
 
                     }
                 }
@@ -380,6 +416,7 @@ fun SongScreen(
         }
 
     }
+
 
 }
 
@@ -435,7 +472,7 @@ fun SongTopAppBar(albumName: String?) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CommentSection(modifier: Modifier) {
+fun CommentSection(modifier: Modifier, onSend: (String) -> Unit) {
     var comment by remember { mutableStateOf("") }
     val textFieldColors = TextFieldDefaults.outlinedTextFieldColors(
         focusedBorderColor = Color.Transparent,
@@ -476,7 +513,10 @@ fun CommentSection(modifier: Modifier) {
         )
 
         IconButton(
-            onClick = { /* Xử lý gửi comment */ },
+            onClick = {
+                onSend(comment)
+                comment = ""
+            },
             enabled = comment.isNotBlank()
         ) {
             Icon(
@@ -501,7 +541,6 @@ fun SongContent(
     viewModel: SongViewModel
 ) {
     var comment by remember { mutableStateOf(TextFieldValue("")) }
-    var bottomSheetVisible by remember { mutableStateOf(false) }
 
     val interactionSource = remember { MutableInteractionSource() }
     val currentPosition = remember { mutableLongStateOf(0L) }
@@ -533,6 +572,8 @@ fun SongContent(
         }
     }
     LaunchedEffect(mediaController) {
+
+        //Ngan
         handler.post(updatePositionRunnable)
     }
 
@@ -743,12 +784,12 @@ fun SongContent(
                     modifier = Modifier
                         .size(24.dp),
                     painter = painterResource(id = R.drawable.baseline_comment_24),
-                    contentDescription = "Comment (8)",
+                    contentDescription = "Comment (${viewModel.songUiState.commentResponse?.data?.size ?: 0})",
                 )
                 Spacer(modifier = Modifier.width(width = 4.dp))
 
                 Text(
-                    text = "Comment (8)",
+                    text = "Comment (${viewModel.songUiState.commentResponse?.data?.size ?: 0})",
                     color = Color.Gray,
                     fontSize = 12.sp
                 )
