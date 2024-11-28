@@ -16,9 +16,7 @@ import com.fpoly.pro226.music_app.ui.screen.login.LoginScreen
 import com.fpoly.pro226.music_app.ui.screen.main.MainScreen
 import com.fpoly.pro226.music_app.ui.screen.myplaylist.MyPlaylistScreen
 import com.fpoly.pro226.music_app.ui.screen.playlist.PlaylistScreen
-import com.fpoly.pro226.music_app.ui.screen.profile.ChangePasswordScreen
-import com.fpoly.pro226.music_app.ui.screen.profile.EditProfileScreen
-import com.fpoly.pro226.music_app.ui.screen.profile.SettingScreen
+import com.fpoly.pro226.music_app.ui.screen.ranking.RankingScreen
 import com.fpoly.pro226.music_app.ui.screen.register.RegisterScreen
 import com.fpoly.pro226.music_app.ui.screen.splash.GuideScreen
 import com.fpoly.pro226.music_app.ui.screen.track.TrackScreen
@@ -56,13 +54,23 @@ fun FMusicNavGraph(
                 onBack = {},
                 onPlayGame = {
                     onGaming()
-                    navController.navigate(FMusicDestinations.GAME_ROUTE)
+                    navController.navigate(FMusicDestinations.RAKING_ROUTE)
                 },
                 onAddPlaylist = {
                     navController.navigate(FMusicDestinations.MY_PLAYLIST_ROUTE)
                 }
             )
         }
+        composable(FMusicDestinations.RAKING_ROUTE) {
+            RankingScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                onStart = {
+                    navController.navigate(FMusicDestinations.GAME_ROUTE)
+                })
+        }
+
         composable(FMusicDestinations.GUIDE_ROUTE) {
             GuideScreen {
                 navController.navigate(FMusicDestinations.LOGIN_ROUTE) {
@@ -74,7 +82,7 @@ fun FMusicNavGraph(
         composable(FMusicDestinations.MY_PLAYLIST_ROUTE) {
             MyPlaylistScreen(
                 appContainer.fMusicRepository,
-                onClickItemPlaylist = {id ->
+                onClickItemPlaylist = { id ->
                     navController.navigate("${FMusicDestinations.MY_PLAYLIST_DETAIL_ROUTE}/${id}")
                 },
                 onBack = {

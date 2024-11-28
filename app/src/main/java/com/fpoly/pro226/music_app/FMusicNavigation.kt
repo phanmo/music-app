@@ -13,6 +13,7 @@ private object FMusicScreens {
     const val PLAYLIST_SCREEN = "playlist"
     const val MY_PLAYLIST_DETAIL_SCREEN = "my_playlist_detail"
     const val GAME_SCREEN = "game"
+    const val RANKING_SCREEN = "ranking"
     const val MY_PLAYLIST_SCREEN = "my_playlist"
 
 }
@@ -30,5 +31,6 @@ object FMusicDestinations {
     const val PLAYLIST_ROUTE = FMusicScreens.PLAYLIST_SCREEN
     const val MY_PLAYLIST_DETAIL_ROUTE = FMusicScreens.MY_PLAYLIST_DETAIL_SCREEN
     const val GAME_ROUTE = FMusicScreens.GAME_SCREEN
+    const val RAKING_ROUTE = FMusicScreens.RANKING_SCREEN
     const val MY_PLAYLIST_ROUTE = FMusicScreens.MY_PLAYLIST_SCREEN
 }

@@ -23,6 +23,7 @@ val _1DB1B7 = Color(0xFF1DB1B7)
 val _44D7DD = Color.Cyan
 val _00C2CB = Color(0xFF00C2CB)
 val _A6F3FF = Color(0xFFA6F3FF)
+val _00C2CB_80 = Color(0xCC00C2CB)
 val _446266 = Color(0xFF446266)
 val _DBE7E8 = Color(0xFFDBE7E8)
 val _121111 = Color(0xFF121111)
