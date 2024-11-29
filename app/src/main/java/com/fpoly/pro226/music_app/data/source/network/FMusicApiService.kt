@@ -9,6 +9,7 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.Item
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.ranking.RankingResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -52,6 +53,10 @@ interface FMusicApiService {
 
     @GET("/api/get-comment-by-track-id/{trackId}")
     suspend fun getComments(@Path("trackId") trackId: String): Response<CommentResponse>
+
+    @GET("/api/get-users-order-by-coin")
+    suspend fun getRanking(): Response<RankingResponse>
+
 
     @DELETE("/api/delete-comment/{commentId}")
     suspend fun deleteComment(@Path("commentId") commentId: String): Response<CommentResponse>

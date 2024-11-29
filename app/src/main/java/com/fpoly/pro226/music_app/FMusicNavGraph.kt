@@ -63,6 +63,7 @@ fun FMusicNavGraph(
         }
         composable(FMusicDestinations.RAKING_ROUTE) {
             RankingScreen(
+                appContainer = appContainer,
                 onBack = {
                     navController.popBackStack()
                 },

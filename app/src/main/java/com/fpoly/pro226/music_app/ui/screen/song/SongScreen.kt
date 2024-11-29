@@ -2,6 +2,7 @@ package com.fpoly.pro226.music_app.ui.screen.song
 
 import android.content.ComponentName
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -100,7 +101,6 @@ import com.fpoly.pro226.music_app.ui.theme._8A9A9D
 import com.fpoly.pro226.music_app.ui.theme._A6F3FF
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -177,10 +177,18 @@ fun SongScreen(
                 override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
                     super.onMediaMetadataChanged(mediaMetadata)
                     if (mediaMetadata != lastMetadata) {
-                        lastMetadata = mediaMetadata
-                        val currentTrack =
-                            MediaItemTree.currentTracks[controller.currentMediaItemIndex]
-                        vm.getAllComment(currentTrack.id)
+                        try {
+                            lastMetadata = mediaMetadata
+                            val currentTrack =
+                                MediaItemTree.currentTracks[controller.currentMediaItemIndex]
+                            vm.getAllComment(currentTrack.id)
+                        } catch (e: Exception) {
+                            Log.d(
+                                "TAG",
+                                "onMediaMetadataChanged: Exception =${e.printStackTrace()}"
+                            )
+                        }
+
                     }
                 }
             }

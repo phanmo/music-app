@@ -40,18 +40,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.fpoly.pro226.music_app.R
+import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._00C2CB
 import com.fpoly.pro226.music_app.ui.theme._00C2CB_80
 import com.fpoly.pro226.music_app.ui.theme._7CEEFF
 import com.fpoly.pro226.music_app.ui.theme._A6F3FF
-
 import kotlinx.coroutines.launch
 
 @Composable
-fun RankingScreen(onBack: () -> Unit, onStart: () -> Unit) {
+fun RankingScreen(onBack: () -> Unit, onStart: () -> Unit, appContainer: AppContainer) {
+    val extras = MutableCreationExtras().apply {
+        set(RankingViewModel.MY_REPOSITORY_KEY, appContainer.fMusicRepository)
+    }
+    val vm: RankingViewModel = viewModel(
+        factory = RankingViewModel.provideFactory(),
+        extras = extras,
+    )
+
+    val uiState = vm.rankingUiState
+
     Scaffold { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             Image(
@@ -341,6 +353,6 @@ fun CircularButton(modifier: Modifier, onStart: () -> Unit) {
 @Composable
 fun RankingScreenPreview() {
     MusicAppTheme {
-        RankingScreen({},{})
+        RankingScreen({}, {}, appContainer = AppContainer(rememberCoroutineScope()))
     }
 }

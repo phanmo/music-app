@@ -9,6 +9,7 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.Item
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.ranking.RankingResponse
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import retrofit2.Response
@@ -71,6 +72,11 @@ class FMusicRemoteDataSource(
     suspend fun getComments(trackId: String): Response<CommentResponse> =
         withContext(ioDispatcher) {
             fMusicApiService.getComments(trackId)
+        }
+
+    suspend fun getRanking(): Response<RankingResponse> =
+        withContext(ioDispatcher) {
+            fMusicApiService.getRanking()
         }
 
     suspend fun deleteComment(commentId: String): Response<CommentResponse> =
