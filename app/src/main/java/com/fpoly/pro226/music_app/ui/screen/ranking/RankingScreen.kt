@@ -22,8 +22,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,8 +36,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,230 +50,313 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.fpoly.pro226.music_app.R
 import com.fpoly.pro226.music_app.components.di.AppContainer
+import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.ranking.RankingUser
+import com.fpoly.pro226.music_app.ui.components.LoadingDialog
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._00C2CB
 import com.fpoly.pro226.music_app.ui.theme._00C2CB_80
 import com.fpoly.pro226.music_app.ui.theme._7CEEFF
 import com.fpoly.pro226.music_app.ui.theme._A6F3FF
-import kotlinx.coroutines.launch
 
 @Composable
 fun RankingScreen(onBack: () -> Unit, onStart: () -> Unit, appContainer: AppContainer) {
     val extras = MutableCreationExtras().apply {
         set(RankingViewModel.MY_REPOSITORY_KEY, appContainer.fMusicRepository)
     }
+    val context = LocalContext.current
     val vm: RankingViewModel = viewModel(
-        factory = RankingViewModel.provideFactory(),
+        factory = RankingViewModel.provideFactory(PreferencesManager(context).getUserId()),
         extras = extras,
     )
 
-    val uiState = vm.rankingUiState
+    DisposableEffect(Unit) {
+        vm.getRanking()
+        vm.getCoin()
+        onDispose {
 
-    Scaffold { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            Image(
-                painter = painterResource(R.drawable.background_ranking),
-                contentDescription = "header game",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                TopAppBar {
-                    onBack()
-                }
-                Spacer(modifier = Modifier.height(56.dp))
-                Box(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(end = 196.dp)
-                            .fillMaxHeight()
-
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.rank_2),
-                            contentDescription = "2",
-                            contentScale = ContentScale.None,
-                            modifier = Modifier.padding(top = 100.dp)
-                        )
-                        Text(
-                            text = "442pt",
-                            color = Color.White,
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 16.sp,
-                            modifier = Modifier
-                                .align(Alignment.TopCenter)
-                                .padding(top = 196.dp)
-                        )
-                        AsyncImage(
-                            model = "https://example.com/your-image.jpg",
-                            contentDescription = "Profile Picture",
-                            placeholder = painterResource(R.drawable.cuteboy),
-                            error = painterResource(R.drawable.cuteboy),
-                            modifier = Modifier
-                                .padding(top = 50.dp, end = 24.dp)
-                                .size(56.dp)
-                                .background(Color.Gray, shape = CircleShape)
-                                .align(Alignment.TopCenter)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .fillMaxHeight()
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.rank_1),
-                            contentDescription = "1",
-                            contentScale = ContentScale.None,
-                            modifier = Modifier.padding(top = 62.dp)
-
-                        )
-                        Text(
-                            text = "442pt",
-                            color = Color.White,
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 16.sp,
-                            modifier = Modifier
-                                .align(Alignment.TopCenter)
-                                .padding(top = 196.dp)
-                        )
-                        AsyncImage(
-                            model = "https://example.com/your-image.jpg",
-                            contentDescription = "Profile Picture",
-                            placeholder = painterResource(R.drawable.cuteboy),
-                            error = painterResource(R.drawable.cuteboy),
-                            modifier = Modifier
-                                .padding(bottom = 50.dp, end = 24.dp)
-                                .size(56.dp)
-                                .background(Color.Gray, shape = CircleShape)
-                                .align(Alignment.TopCenter)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(start = 180.dp)
-                            .fillMaxHeight()
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.rank_3),
-                            contentDescription = "3",
-                            contentScale = ContentScale.None,
-                            modifier = Modifier.padding(top = 100.dp)
-                        )
-                        Text(
-                            text = "442pt",
-                            color = Color.White,
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 16.sp,
-                            modifier = Modifier
-                                .align(Alignment.TopCenter)
-                                .padding(top = 196.dp)
-                        )
-                        AsyncImage(
-                            model = "https://example.com/your-image.jpg",
-                            contentDescription = "Profile Picture",
-                            placeholder = painterResource(R.drawable.cuteboy),
-                            error = painterResource(R.drawable.cuteboy),
-                            modifier = Modifier
-                                .padding(top = 50.dp, start = 24.dp)
-                                .size(56.dp)
-                                .background(Color.Gray, shape = CircleShape)
-                                .align(Alignment.TopCenter)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                }
-
-            }
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                    .background(Color.White)
-                    .padding(16.dp)
-                    .height(
-                        LocalConfiguration.current.screenHeightDp.dp / 1.9f
-                    )
-                    .align(Alignment.BottomCenter)
-            ) {
-                items(5) { ranking ->
-                    RankingItem(ranking)
-                }
-            }
-            CircularButton(Modifier.align(Alignment.BottomCenter), onStart = onStart)
         }
 
     }
-}
 
-@Composable
-fun RankingItem(index: Int) {
-    Row(
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp),
-    ) {
-        Text(
-            text = "$index",
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Medium,
-            style = MaterialTheme.typography.body1
-        )
-        Spacer(modifier = Modifier.width(22.dp))
-        AsyncImage(
-            model = "https://example.com/your-image.jpg",
-            contentDescription = "Profile Picture",
-            placeholder = painterResource(R.drawable.cuteboy),
-            error = painterResource(R.drawable.cuteboy),
-            modifier = Modifier
-                .size(48.dp)
-                .background(Color.Gray, shape = CircleShape)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop
-        )
-        Spacer(modifier = Modifier.width(30.dp))
-        Text(
-            text = "Monitoring",
-            fontWeight = FontWeight.Normal,
-            fontSize = 15.sp,
-            style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Text(
-            text = "15",
-            color = Color.Black,
-            style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Normal,
-            fontSize = 15.sp
-        )
-        Image(
-            painter = painterResource(id = R.drawable.coin_3d),
-            contentDescription = "Coin",
-            modifier = Modifier
-                .size(36.dp)
+    val uiState = vm.rankingUiState
 
-        )
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 0.dp,
+                    pressedElevation = 0.dp,
+                    hoveredElevation = 0.dp,
+                    focusedElevation = 0.dp
+                ),
+                modifier = Modifier
+                    .padding(end = 16.dp, bottom = 24.dp)
+                    .clip(CircleShape),
+                containerColor = Color.Transparent,
+                onClick = { onStart() },
+            ) {
+                CircularButton(modifier = Modifier)
 
+            }
+
+        }) { innerPadding ->
+        if (vm.rankingUiState.isLoading) {
+            LoadingDialog(onDismiss = { })
+        }
+        uiState.rankingResponse?.data?.let { ranking ->
+            Box(modifier = Modifier.padding(innerPadding)) {
+                Image(
+                    painter = painterResource(R.drawable.background_ranking),
+                    contentDescription = "header game",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    TopAppBar(total = "${uiState.coinTotal}") {
+                        onBack()
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(end = 196.dp)
+                                .fillMaxHeight()
+
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.rank_2),
+                                contentDescription = "2",
+                                contentScale = ContentScale.None,
+                                modifier = Modifier.padding(top = 100.dp)
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .align(Alignment.TopCenter)
+                                    .padding(top = 196.dp)
+                            ) {
+                                Text(
+                                    text = "${ranking[1].coin}",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 16.sp,
+
+                                    )
+                                Image(
+                                    painter = painterResource(id = R.drawable.coin_3d),
+                                    contentDescription = "Coin",
+                                    modifier = Modifier
+                                        .size(24.dp)
+
+                                )
+                            }
+                            AsyncImage(
+                                model = ranking[1].avatar,
+                                contentDescription = "Profile Picture",
+                                placeholder = painterResource(R.drawable.cuteboy),
+                                error = painterResource(R.drawable.cuteboy),
+                                modifier = Modifier
+                                    .padding(top = 50.dp, end = 24.dp)
+                                    .size(56.dp)
+                                    .background(Color.Gray, shape = CircleShape)
+                                    .align(Alignment.TopCenter)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .fillMaxHeight()
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.rank_1),
+                                contentDescription = "1",
+                                contentScale = ContentScale.None,
+                                modifier = Modifier.padding(top = 62.dp)
+
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .align(Alignment.TopCenter)
+                                    .padding(top = 196.dp)
+                            ) {
+                                Text(
+                                    text = "${ranking[0].coin}",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 16.sp,
+
+                                    )
+                                Image(
+                                    painter = painterResource(id = R.drawable.coin_3d),
+                                    contentDescription = "Coin",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                            AsyncImage(
+                                model = ranking[0].avatar,
+                                contentDescription = "Profile Picture",
+                                placeholder = painterResource(R.drawable.cuteboy),
+                                error = painterResource(R.drawable.cuteboy),
+                                modifier = Modifier
+                                    .padding(bottom = 50.dp, end = 24.dp)
+                                    .size(56.dp)
+                                    .background(Color.Gray, shape = CircleShape)
+                                    .align(Alignment.TopCenter)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(start = 180.dp)
+                                .fillMaxHeight()
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.rank_3),
+                                contentDescription = "3",
+                                contentScale = ContentScale.None,
+                                modifier = Modifier.padding(top = 100.dp)
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .align(Alignment.TopCenter)
+                                    .padding(top = 196.dp)
+                            ) {
+                                Text(
+                                    text = "${ranking[2].coin}",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 16.sp,
+
+                                    )
+                                Image(
+                                    painter = painterResource(id = R.drawable.coin_3d),
+                                    contentDescription = "Coin",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                            AsyncImage(
+                                model = ranking[2].avatar,
+                                contentDescription = "Profile Picture",
+                                placeholder = painterResource(R.drawable.cuteboy),
+                                error = painterResource(R.drawable.cuteboy),
+                                modifier = Modifier
+                                    .padding(top = 50.dp, start = 24.dp)
+                                    .size(56.dp)
+                                    .background(Color.Gray, shape = CircleShape)
+                                    .align(Alignment.TopCenter)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
+
+                }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                        .background(Color.White)
+                        .padding(vertical = 8.dp)
+                        .height(
+                            LocalConfiguration.current.screenHeightDp.dp / 1.8f
+                        )
+                        .align(Alignment.BottomCenter)
+                ) {
+                    ranking.let {
+                        items(it.size) { index ->
+                            if (index >= 3) {
+                                RankingItem(index + 1, it[index])
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
     }
 }
 
 @Composable
-fun TopAppBar(onBack: () -> Unit) {
+fun RankingItem(index: Int, rankingUser: RankingUser) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp, start = 16.dp, end = 16.dp),
+    ) {
+        Text(
+            text = "$index",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.body1,
+            modifier = Modifier.align(Alignment.CenterStart)
+        )
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp),
+        ) {
+            Spacer(modifier = Modifier.width(20.dp))
+            AsyncImage(
+                model = rankingUser.avatar,
+                contentDescription = "Profile Picture",
+                placeholder = painterResource(R.drawable.cuteboy),
+                error = painterResource(R.drawable.cuteboy),
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(Color.Gray, shape = CircleShape)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.width(30.dp))
+            Text(
+                text = rankingUser.name,
+                fontWeight = FontWeight.Normal,
+                fontSize = 15.sp,
+                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Text(
+                text = "${rankingUser.coin}",
+                color = Color.Black,
+                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Normal,
+                fontSize = 15.sp
+            )
+            Image(
+                painter = painterResource(id = R.drawable.coin_3d),
+                contentDescription = "Coin",
+                modifier = Modifier
+                    .size(24.dp)
+
+            )
+
+        }
+    }
+
+}
+
+@Composable
+fun TopAppBar(total: String?, onBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -287,7 +375,7 @@ fun TopAppBar(onBack: () -> Unit) {
 
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            text = "15",
+            text = "$total",
             color = Color.White,
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp
@@ -303,7 +391,7 @@ fun TopAppBar(onBack: () -> Unit) {
 }
 
 @Composable
-fun CircularButton(modifier: Modifier, onStart: () -> Unit) {
+fun CircularButton(modifier: Modifier) {
     var isPressed by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val outerCircleColor by animateColorAsState(
@@ -312,38 +400,29 @@ fun CircularButton(modifier: Modifier, onStart: () -> Unit) {
     )
     Box(
         modifier = modifier
-            .size(120.dp)
-            .background(outerCircleColor, shape = CircleShape)
-            .clickable(
-                onClick = {
-                    isPressed = true
-                    scope.launch {
-                        kotlinx.coroutines.delay(200)
-                        isPressed = false
-                    }
-                    onStart()
-                }
-            ),
+            .size(80.dp)
+            .background(outerCircleColor, shape = CircleShape),
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .size(90.dp)
+                .size(50.dp)
                 .background(_A6F3FF, shape = CircleShape)
         )
         Box(
             modifier = Modifier
-                .size(60.dp)
+                .size(30.dp)
                 .background(Color.White, shape = CircleShape),
             contentAlignment = Alignment.Center
         ) {
             // Text "Start"
-            Text(
-                text = "START",
-                color = _00C2CB,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp,
-                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+            Image(
+                colorFilter = ColorFilter.tint(_00C2CB),
+                painter = painterResource(id = R.drawable.baseline_play_arrow_24),
+                contentDescription = "Coin",
+                modifier = Modifier
+                    .size(20.dp)
+
             )
         }
     }
