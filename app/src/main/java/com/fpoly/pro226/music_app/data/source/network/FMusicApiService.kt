@@ -3,6 +3,8 @@ package com.fpoly.pro226.music_app.data.source.network
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.coin.CoinResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentResponse
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.User
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
@@ -60,4 +62,13 @@ interface FMusicApiService {
 
     @DELETE("/api/delete-comment/{commentId}")
     suspend fun deleteComment(@Path("commentId") commentId: String): Response<CommentResponse>
+
+    @POST("/api/add-favorite")
+    suspend fun addFavorite(@Body favoriteBody: FavoriteBody): Response<Unit>
+
+    @GET("/api/get-favorite/{userId}")
+    suspend fun getFavorite(@Path("userId") userId: String): Response<FavoriteResponse>
+
+    @DELETE("/api/delele-favorite/{id}")
+    suspend fun deleteFavorite(@Path("id") id: String): Response<Unit>
 }
