@@ -13,6 +13,8 @@ import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
 import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentResponse
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
@@ -33,12 +35,15 @@ data class SongUiState(
     val currentSong: Track? = null,
     val album: Album? = null,
     val playListResponse: PlayListResponse? = null,
-    val commentResponse: CommentResponse? = null
+    val commentResponse: CommentResponse? = null,
+    val isFavorite: Boolean = false,
+    val favoriteResponse: FavoriteResponse? = null
 )
 
 class SongViewModel(
     private val deezerRepository: DeezerRepository,
-    private val fMusicRepository: FMusicRepository
+    private val fMusicRepository: FMusicRepository,
+    private val userId: String = "",
 ) : ViewModel() {
 
     companion object {
@@ -47,25 +52,24 @@ class SongViewModel(
         val MY_REPOSITORY_KEY = object : CreationExtras.Key<FMusicRepository> {}
         val MY_REPOSITORY_KEY_2 = object : CreationExtras.Key<DeezerRepository> {}
 
-        fun provideFactory(): ViewModelProvider.Factory = viewModelFactory {
+        fun provideFactory(userId: String): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val fMusicRepo = this[MY_REPOSITORY_KEY] as FMusicRepository
                 val deezerRepo = this[MY_REPOSITORY_KEY_2] as DeezerRepository
 
                 SongViewModel(
                     fMusicRepository = fMusicRepo,
-                    deezerRepository = deezerRepo
+                    deezerRepository = deezerRepo,
+                    userId = userId
                 )
             }
         }
     }
 
-    private var fetchSong: Job? = null
+    private var fetchFav: Job? = null
     private var fetchComment: Job? = null
-    private var fetchAlbum: Job? = null
+    private var addFavJob: Job? = null
     private var fetchPlaylists: Job? = null
-
-    private var _userId: String = ""
 
     var songUiState by mutableStateOf(SongUiState())
         private set
@@ -75,13 +79,12 @@ class SongViewModel(
     private val _toastEvent = MutableSharedFlow<String>()
     val toastEvent: SharedFlow<String> = _toastEvent
 
-    suspend fun showToast(message: String) {
-        _toastEvent.emit(message)
+    init {
+        getFavorites()
     }
 
-
-    private fun setCurrentUserId(id: String) {
-        _userId = id
+    suspend fun showToast(message: String) {
+        _toastEvent.emit(message)
     }
 
 
@@ -123,13 +126,12 @@ class SongViewModel(
         }
     }
 
-    fun getAllPlaylist(idUser: String) {
-        setCurrentUserId(idUser)
+    fun getAllPlaylist() {
         fetchPlaylists?.cancel()
         fetchPlaylists = viewModelScope.launch {
             try {
                 songUiState = songUiState.copy(isLoading = true)
-                val response = fMusicRepository.getPlaylist(idUser)
+                val response = fMusicRepository.getPlaylist(userId)
                 if (response.isSuccessful) {
                     response.body()?.let { res ->
                         songUiState = songUiState.copy(
@@ -177,7 +179,7 @@ class SongViewModel(
         viewModelScope.launch {
             try {
                 songUiState = songUiState.copy(isLoading = true)
-                val response = fMusicRepository.addComment(commentBody.copy(id_user = _userId))
+                val response = fMusicRepository.addComment(commentBody.copy(id_user = userId))
                 if (response.isSuccessful) {
                     response.body()?.let { res ->
                         songUiState = songUiState.copy(
@@ -199,6 +201,79 @@ class SongViewModel(
                 } else {
                     songUiState = songUiState.copy(isLoading = false)
                 }
+            } catch (e: Exception) {
+                songUiState = songUiState.copy(isLoading = false)
+            }
+        }
+    }
+
+    fun addFavorite(favoriteBody: FavoriteBody) {
+        viewModelScope.launch {
+            try {
+                songUiState = songUiState.copy(isLoading = true, isFavorite = true)
+                val response = fMusicRepository.addFavorite(favoriteBody.copy(id_user = userId))
+                if (response.isSuccessful) {
+                    response.body()?.let { res ->
+                        songUiState = songUiState.copy(
+                            isLoading = false,
+                            isFavorite = true
+                        )
+                    }
+                } else {
+                    songUiState = songUiState.copy(isLoading = false)
+                }
+            } catch (e: Exception) {
+                songUiState = songUiState.copy(isLoading = false)
+            }
+        }
+    }
+
+    private fun getFavorites() {
+        fetchFav?.cancel()
+        fetchFav = viewModelScope.launch {
+            try {
+                songUiState = songUiState.copy(isLoading = true)
+                val response = fMusicRepository.getFavorite(userId)
+                if (response.isSuccessful) {
+                    response.body()?.let { res ->
+                        songUiState = songUiState.copy(favoriteResponse = res, isLoading = false)
+                    }
+                }
+            } catch (e: Exception) {
+                songUiState = songUiState.copy(isLoading = false)
+            } finally {
+                fetchFav = null
+            }
+        }
+    }
+
+    fun updateFavorite(trackId: String) {
+        val favorites = fMusicRepository.currentFavorites
+        val value = favorites.firstOrNull { it.id_track == trackId } != null
+        songUiState = songUiState.copy(isFavorite = value)
+    }
+
+    fun deleteFavorite(trackId: String) {
+        viewModelScope.launch {
+            try {
+                songUiState = songUiState.copy(isLoading = true, isFavorite = false)
+                val favorites = fMusicRepository.currentFavorites
+                val favorite = favorites.firstOrNull { it.id_track == trackId }
+                favorite?.let { fv ->
+                    val response = fMusicRepository.deleteFavorite(fv._id)
+                    if (response.isSuccessful) {
+                        response.body()?.let { res ->
+                            fMusicRepository.removeFavoriteLocal(fv.id_track)
+                            songUiState = songUiState.copy(
+                                isLoading = false,
+                                isFavorite = false
+                            )
+                        }
+                    } else {
+                        songUiState = songUiState.copy(isLoading = false)
+                    }
+                }
+
             } catch (e: Exception) {
                 songUiState = songUiState.copy(isLoading = false)
             }

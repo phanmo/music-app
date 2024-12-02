@@ -20,6 +20,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +33,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
@@ -59,7 +63,25 @@ fun FavoriteScreen(
         factory = FavoriteViewModel.provideFactory(PreferencesManager(context).getUserId()),
         extras = extras,
     )
-    val uiState = vm.tracksUiState
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(Unit) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                vm.reloadDataLocal()
+
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    val uiState = vm.favoriteUiState
 
     LaunchedEffect(uiState) {
         if (uiState.tracks.isNotEmpty()) {
@@ -73,11 +95,7 @@ fun FavoriteScreen(
         topBar = {
             TopBar(
                 top = uiState.tracks.size.toString(),
-                title = if (uiState.tracks.isNotEmpty()) {
-                    uiState.tracks[0].artist?.name ?: ""
-                } else {
-                    ""
-                },
+                title = "Your Liked Songs",
                 onBack = onBack
             )
         }
@@ -179,13 +197,13 @@ fun TopBar(
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.Cyan
                 )
-                Text(
-                    text = "Top $top songs",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Thin,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.LightGray
-                )
+//                Text(
+//                    text = "$top songs",
+//                    fontSize = 14.sp,
+//                    fontWeight = FontWeight.Thin,
+//                    style = MaterialTheme.typography.bodySmall,
+//                    color = Color.LightGray
+//                )
             }
         }
     }

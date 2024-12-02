@@ -63,6 +63,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -89,6 +90,7 @@ import com.fpoly.pro226.music_app.components.services.FMusicPlaybackService
 import com.fpoly.pro226.music_app.components.services.MediaItemTree
 import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentBody
+import com.fpoly.pro226.music_app.data.source.network.models.toFavoriteBody
 import com.fpoly.pro226.music_app.data.source.network.models.toItemPlaylistBody
 import com.fpoly.pro226.music_app.ui.components.InputTextField
 import com.fpoly.pro226.music_app.ui.theme.D9D9D9
@@ -115,8 +117,9 @@ fun SongScreen(
         set(SongViewModel.MY_REPOSITORY_KEY, appContainer.fMusicRepository)
         set(SongViewModel.MY_REPOSITORY_KEY_2, appContainer.deezerRepository)
     }
+    val context = LocalContext.current
     val vm: SongViewModel = viewModel(
-        factory = SongViewModel.provideFactory(),
+        factory = SongViewModel.provideFactory(PreferencesManager(context).getUserId() ?: ""),
         extras = extras,
     )
 
@@ -130,7 +133,6 @@ fun SongScreen(
 
     val scope = rememberCoroutineScope()
 
-    val context = LocalContext.current
     val controllerFuture = remember {
         MediaController.Builder(
             context,
@@ -148,6 +150,7 @@ fun SongScreen(
             isPlaying.value = controllerFuture.get().playWhenReady
             controllerFuture.get()?.currentMediaItemIndex?.let {
                 val currentTrack = MediaItemTree.currentTracks[it]
+                vm.updateFavorite(currentTrack.id)
                 vm.getAllComment(currentTrack.id)
             }
 
@@ -181,6 +184,7 @@ fun SongScreen(
                             lastMetadata = mediaMetadata
                             val currentTrack =
                                 MediaItemTree.currentTracks[controller.currentMediaItemIndex]
+                            vm.updateFavorite(currentTrack.id)
                             vm.getAllComment(currentTrack.id)
                         } catch (e: Exception) {
                             Log.d(
@@ -558,8 +562,7 @@ fun SongContent(
     val context = LocalContext.current
 
     DisposableEffect(Unit) {
-        val sharedPreferences = PreferencesManager(context)
-        sharedPreferences.getUserId()?.let { viewModel.getAllPlaylist(it) }
+        viewModel.getAllPlaylist()
         onDispose { }
     }
 
@@ -580,8 +583,6 @@ fun SongContent(
         }
     }
     LaunchedEffect(mediaController) {
-
-        //Ngan
         handler.post(updatePositionRunnable)
     }
 
@@ -643,9 +644,27 @@ fun SongContent(
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Image(
-                        modifier = Modifier.size(24.dp),
-                        painter = painterResource(R.drawable.love),
-                        contentDescription = "null" // decorative element
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable {
+                                mediaController.value?.currentMediaItemIndex?.let {
+                                    val currentTrack = MediaItemTree.currentTracks[it]
+                                    val favoriteBody = currentTrack.toFavoriteBody()
+                                    if (viewModel.songUiState.isFavorite) {
+                                        viewModel.deleteFavorite(currentTrack.id)
+                                    } else {
+                                        viewModel.addFavorite(favoriteBody)
+                                    }
+                                }
+
+                            },
+                        painter = if (viewModel.songUiState.isFavorite) {
+                            painterResource(R.drawable.baseline_favorite_24)
+                        } else {
+                            painterResource(R.drawable.baseline_favorite_border_24)
+                        },
+                        contentDescription = "Favorite"
+
                     )
                 }
             }
@@ -739,8 +758,9 @@ fun SongContent(
                         )
                     } else {
                         Image(
-                            painter = painterResource(id = R.drawable.play),
+                            painter = painterResource(id = R.drawable.baseline_play_arrow_24),
                             contentDescription = "Play",
+                            colorFilter = ColorFilter.tint(Color.White),
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -851,7 +871,7 @@ fun SongContentPreview() {
         )
     }
     val vm: SongViewModel = viewModel(
-        factory = SongViewModel.provideFactory(),
+        factory = SongViewModel.provideFactory(""),
         extras = extras,
     )
     MusicAppTheme {

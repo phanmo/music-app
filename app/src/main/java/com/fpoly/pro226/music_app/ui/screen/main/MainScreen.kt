@@ -38,7 +38,8 @@ fun MainScreen(
     onClickRadioItem: (id: String) -> Unit,
     startPlayerActivity: (tracks: List<Track>, startIndex: Int) -> Unit,
     onPlayGame: () -> Unit,
-    onAddPlaylist: () -> Unit
+    onAddPlaylist: () -> Unit,
+    onFavorite: () -> Unit,
 ) {
     val pagerState = rememberPagerState(pageCount = { 3 })
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -78,6 +79,9 @@ fun MainScreen(
                     )
 
                     2 -> LibraryScreen(
+                        onFavorite = {
+                            onFavorite()
+                        },
                         onPlayGame = {
                             onPlayGame()
                         },

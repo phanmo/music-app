@@ -3,6 +3,8 @@ package com.fpoly.pro226.music_app.data.source.network
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.coin.CoinResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentResponse
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.User
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
@@ -84,4 +86,17 @@ class FMusicRemoteDataSource(
             fMusicApiService.deleteComment(commentId)
         }
 
+    suspend fun getFavorite(userId: String): Response<FavoriteResponse> =
+        withContext(ioDispatcher) {
+            fMusicApiService.getFavorite(userId)
+        }
+
+    suspend fun addFavorite(favoriteBody: FavoriteBody): Response<Unit> =
+        withContext(ioDispatcher) {
+            fMusicApiService.addFavorite(favoriteBody)
+        }
+    suspend fun deleteFavorite(id: String): Response<Unit> =
+        withContext(ioDispatcher) {
+            fMusicApiService.deleteFavorite(id)
+        }
 }

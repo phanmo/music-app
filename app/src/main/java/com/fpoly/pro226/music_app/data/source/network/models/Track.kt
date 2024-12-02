@@ -1,5 +1,6 @@
 package com.fpoly.pro226.music_app.data.source.network.models
 
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
 
 data class Track(
@@ -24,7 +25,7 @@ data class Track(
     val release_date: String = "",
     val share: String = "",
     val title: String = "",
-    val title_short: String ="",
+    val title_short: String = "",
     val title_version: String = "",
     val track_position: Int = 0,
     val track_token: String = "",
@@ -38,7 +39,19 @@ fun Track.toItemPlaylistBody(idPlaylist: String): ItemPlaylistBody {
         image_url = this.album?.cover_medium ?: "",
         name = this.title,
         preViewUrl = this.preview,
-        artist = this.artist?.name?:"",
-        album = this.album?.title?:""
+        artist = this.artist?.name ?: "",
+        album = this.album?.title ?: ""
     )
+}
+
+fun Track.toFavoriteBody(): FavoriteBody {
+    return FavoriteBody(
+        id_track = this.id,
+        name = this.title,
+        image_url = this.album?.cover_medium ?: "",
+        preViewUrl = this.preview,
+        artist = this.artist?.name ?: "",
+        album = this.album?.title ?: ""
+    )
+
 }

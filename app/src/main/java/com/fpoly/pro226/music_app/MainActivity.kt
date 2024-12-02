@@ -12,6 +12,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaBrowser
@@ -23,6 +24,7 @@ import com.fpoly.pro226.music_app.components.services.MediaItemTree
 import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -55,31 +57,41 @@ class MainActivity : ComponentActivity() {
                     startDestination = startDestination,
                     appContainer = appContainer,
                     startPlayerActivity = { tracks, startIndex ->
-                        run {
-                            Log.d("TAG", "onCreate: browser = ${tracks[startIndex].title} ")
-                            // Start the session activity that shows the playback activity. The System UI uses the same
-                            // intent in the same way to start the activity from the notification.
-                            // browser?.sessionActivity?.send()
-                            val browser = browser ?: return@run
-                            browser.setMediaItems(
-                                subItemMediaList,
-                                /* startIndex= */ startIndex,
-                                /* startPositionMs= */ C.TIME_UNSET
-                            )
-                            browser.shuffleModeEnabled = false
-                            browser.prepare()
-                            browser.play()
-                            browser.sessionActivity?.send()
-                        }
+                        Log.d("TAG", "onCreate: browser = ${tracks[startIndex].title} ")
+                        // Start the session activity that shows the playback activity. The System UI uses the same
+                        // intent in the same way to start the activity from the notification.
+                        // browser?.sessionActivity?.send()
+                        val album = tracks[0].album
+                        browserFuture.addListener({
+                            album?.let { al ->
+                                MediaItemTree.initialize(al, tracks)
+                                displayFolder(al.title) {
+                                    lifecycleScope.launch {
+                                        val browser = browser
+                                        if (browser != null) {
+                                            browser.setMediaItems(
+                                                subItemMediaList,
+                                                /* startIndex= */ startIndex,
+                                                /* startPositionMs= */ C.TIME_UNSET
+                                            )
+                                            browser.shuffleModeEnabled = false
+                                            browser.prepare()
+                                            browser.play()
+                                            browser.sessionActivity?.send()
+                                        }
+                                    }
+                                }
+                            }
+                        }, ContextCompat.getMainExecutor(this@MainActivity))
                     },
                     onLoadTrackList = {
-                        val album = it[0].album
-                        browserFuture.addListener({
-                           album?.let {al->
-                               MediaItemTree.initialize(al, it)
-                               displayFolder(al.title)
-                           }
-                        }, ContextCompat.getMainExecutor(this@MainActivity))
+//                        val album = it[0].album
+//                        browserFuture.addListener({
+//                           album?.let {al->
+//                               MediaItemTree.initialize(al, it)
+//                               displayFolder(al.title)
+//                           }
+//                        }, ContextCompat.getMainExecutor(this@MainActivity))
                     },
                     onGaming = {
                         run {
@@ -122,7 +134,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    private fun displayFolder(title: String?) {
+    private fun displayFolder(title: String?, onSuccess: () -> Unit) {
         val browser = this.browser ?: return
         val id = "[album]$title"
         val mediaItemFuture = browser.getItem(id)
@@ -149,6 +161,7 @@ class MainActivity : ComponentActivity() {
                         subItemMediaList.clear()
                         subItemMediaList.addAll(it)
                     }
+                    onSuccess()
                 }
 
             },

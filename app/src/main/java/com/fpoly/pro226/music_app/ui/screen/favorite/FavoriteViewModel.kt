@@ -9,11 +9,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.fpoly.pro226.music_app.data.models.TrackDestination
-import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
 import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.toTrack
 import com.fpoly.pro226.music_app.data.source.network.models.Track
-import com.fpoly.pro226.music_app.ui.screen.game.GameViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -25,6 +23,7 @@ data class FavoriteUiState(
 
 class FavoriteViewModel(
     private val fMusicRepository: FMusicRepository,
+    private val userId: String = ""
 ) : ViewModel() {
 
     companion object {
@@ -36,55 +35,45 @@ class FavoriteViewModel(
                 val fMusicRepo = this[MY_REPOSITORY_KEY] as FMusicRepository
                 FavoriteViewModel(
                     fMusicRepository = fMusicRepo,
+                    userId = userId ?: ""
                 )
             }
         }
     }
 
-    private var fetchTracks: Job? = null
+    private var fetchFav: Job? = null
 
-    var tracksUiState by mutableStateOf(FavoriteUiState())
+    var favoriteUiState by mutableStateOf(FavoriteUiState())
         private set
 
     init {
-
+        getFavorites()
     }
 
-    private fun getTracks(artistId: String) {
-//        fetchTracks?.cancel()
-//        fetchTracks = viewModelScope.launch {
-//            try {
-//                tracksUiState = tracksUiState.copy(isLoading = true)
-//                val response = deezerRepository.getTracks(artistId)
-//                if (response?.isSuccessful == true) {
-//                    response.body()?.let { tracks ->
-//                        tracksUiState = tracksUiState.copy(tracks = tracks.data, isLoading = false)
-//                    }
-//                }
-//            } catch (e: Exception) {
-//                tracksUiState = tracksUiState.copy(isLoading = false)
-//            } finally {
-//                fetchTracks = null
-//            }
-//        }
+    private fun getFavorites() {
+        fetchFav?.cancel()
+        fetchFav = viewModelScope.launch {
+            try {
+                favoriteUiState = favoriteUiState.copy(isLoading = true)
+                val response = fMusicRepository.getFavorite(userId)
+                if (response.isSuccessful) {
+                    response.body()?.let { res ->
+                        favoriteUiState = favoriteUiState.copy(
+                            tracks = res.data.map { it.toTrack() },
+                            isLoading = false
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                favoriteUiState = favoriteUiState.copy(isLoading = false)
+            } finally {
+                fetchFav = null
+            }
+        }
     }
 
-    private fun getTracksByRadioId(radioId: String) {
-        fetchTracks?.cancel()
-//        fetchTracks = viewModelScope.launch {
-//            try {
-//                tracksUiState = tracksUiState.copy(isLoading = true)
-//                val response = deezerRepository.getTracksByRadioId(radioId)
-//                if (response?.isSuccessful == true) {
-//                    response.body()?.let { tracks ->
-//                        tracksUiState = tracksUiState.copy(tracks = tracks.data, isLoading = false)
-//                    }
-//                }
-//            } catch (e: Exception) {
-//                tracksUiState = tracksUiState.copy(isLoading = false)
-//            } finally {
-//                fetchTracks = null
-//            }
-//        }
+    fun reloadDataLocal() {
+        favoriteUiState =
+            favoriteUiState.copy(tracks = fMusicRepository.currentFavorites.map { it.toTrack() })
     }
 }

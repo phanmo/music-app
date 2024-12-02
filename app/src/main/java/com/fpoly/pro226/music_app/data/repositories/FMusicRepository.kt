@@ -1,9 +1,13 @@
 package com.fpoly.pro226.music_app.data.repositories
 
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.fpoly.pro226.music_app.data.source.network.FMusicRemoteDataSource
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.coin.CoinResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentResponse
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.User
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
@@ -30,12 +34,23 @@ interface FMusicRepository {
     suspend fun getRanking(): Response<RankingResponse>
     suspend fun addComment(commentBody: CommentBody): Response<CommentResponse>
 
+    suspend fun deleteFavorite(id: String): Response<Unit>
+    suspend fun addFavorite(favoriteBody: FavoriteBody): Response<Unit>
+    suspend fun getFavorite(userId: String): Response<FavoriteResponse>
+
+    val currentFavorites: SnapshotStateList<FavoriteBody>
+
+    fun removeFavoriteLocal(trackId: String)
+
 }
 
 class FMusicRepositoryImpl(
     private val fMusicRemoteDataSource: FMusicRemoteDataSource,
     private val externalScope: CoroutineScope,
 ) : FMusicRepository {
+
+    private val _currentFavorites = mutableStateListOf<FavoriteBody>()
+
 
     override suspend fun getPlaylist(idUser: String): Response<PlayListResponse> {
         return externalScope.async {
@@ -71,6 +86,38 @@ class FMusicRepositoryImpl(
         return externalScope.async {
             fMusicRemoteDataSource.addComment(commentBody)
         }.await()
+    }
+
+    override suspend fun deleteFavorite(id: String): Response<Unit> {
+        return externalScope.async {
+            fMusicRemoteDataSource.deleteFavorite(id)
+        }.await()
+    }
+
+    override suspend fun addFavorite(favoriteBody: FavoriteBody): Response<Unit> {
+        return externalScope.async {
+            fMusicRemoteDataSource.addFavorite(favoriteBody)
+        }.await()
+    }
+
+    override suspend fun getFavorite(userId: String): Response<FavoriteResponse> {
+        val response = externalScope.async {
+            fMusicRemoteDataSource.getFavorite(userId)
+        }.await()
+        if (response.isSuccessful) {
+            response.body()?.let {
+                _currentFavorites.clear()
+                _currentFavorites.addAll(it.data)
+            }
+        }
+        return response
+    }
+
+    override val currentFavorites: SnapshotStateList<FavoriteBody>
+        get() = _currentFavorites
+
+    override fun removeFavoriteLocal(trackId: String) {
+        _currentFavorites.removeIf { it.id_track == trackId }
     }
 
     override suspend fun addPlaylist(playlistBody: PlaylistBody): Response<Unit> {

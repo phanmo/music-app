@@ -41,7 +41,12 @@ import com.fpoly.pro226.music_app.ui.theme._00C2CB
 import com.fpoly.pro226.music_app.ui.theme._A6F3FF
 
 @Composable
-fun LibraryScreen(onLogoutClick: () -> Unit, onPlayGame: () -> Unit, onAddPlaylist: () -> Unit) {
+fun LibraryScreen(
+    onFavorite: () -> Unit,
+    onLogoutClick: () -> Unit,
+    onPlayGame: () -> Unit,
+    onAddPlaylist: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -72,7 +77,7 @@ fun LibraryScreen(onLogoutClick: () -> Unit, onPlayGame: () -> Unit, onAddPlayli
                         )
                     },
                     title = "Add New Playlist",
-                    onClick = {onAddPlaylist()}
+                    onClick = { onAddPlaylist() }
                 )
             }
             item {
@@ -90,7 +95,9 @@ fun LibraryScreen(onLogoutClick: () -> Unit, onPlayGame: () -> Unit, onAddPlayli
                         )
                     },
                     title = "Your Liked Songs",
-                    onClick = {}
+                    onClick = {
+                        onFavorite()
+                    }
                 )
             }
             item {
@@ -106,7 +113,7 @@ fun LibraryScreen(onLogoutClick: () -> Unit, onPlayGame: () -> Unit, onAddPlayli
                         )
                     },
                     title = "Play game",
-                    onClick = {onPlayGame()}
+                    onClick = { onPlayGame() }
                 )
             }
         }
