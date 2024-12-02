@@ -1,6 +1,9 @@
 package com.fpoly.pro226.music_app
 
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -35,6 +38,8 @@ fun FMusicNavGraph(
     onGaming: () -> Unit,
 
     ) {
+    val pagerState = rememberPagerState(pageCount = { 3 })
+    val selectedItem = remember { mutableIntStateOf(0) }
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -63,6 +68,8 @@ fun FMusicNavGraph(
                 onFavorite = {
                     navController.navigate(FMusicDestinations.FAVORITE_ROUTE)
                 },
+                pagerState = pagerState,
+                selectedItem = selectedItem
             )
         }
         composable(FMusicDestinations.RAKING_ROUTE) {

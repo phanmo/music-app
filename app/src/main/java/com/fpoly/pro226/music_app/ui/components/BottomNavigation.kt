@@ -9,6 +9,7 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -26,9 +27,9 @@ import com.fpoly.pro226.music_app.ui.theme._44D7DD
 fun FMusicBottomNavigation(
     modifier: Modifier,
     onItemSelected: (Int) -> Unit,
+    selectedItem: MutableIntState
 ) {
     val items = listOf("Home", "Explore", "Library")
-    val selectedItem = remember { mutableIntStateOf(0) }
 
     BottomAppBar(
         modifier = modifier.background(
@@ -107,6 +108,6 @@ fun getIconForItem(item: String): Int {
 @Preview(showBackground = true)
 @Composable
 fun BottomNavigationPreview() {
-    FMusicBottomNavigation(modifier = Modifier, onItemSelected = {})
+//    FMusicBottomNavigation(modifier = Modifier, onItemSelected = {})
 
 }

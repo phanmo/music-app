@@ -1,13 +1,16 @@
 package com.fpoly.pro226.music_app.ui.screen.main
 
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -22,8 +25,8 @@ import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.data.source.network.models.Genre
 import com.fpoly.pro226.music_app.data.source.network.models.Track
 import com.fpoly.pro226.music_app.ui.components.FMusicBottomNavigation
-import com.fpoly.pro226.music_app.ui.screen.main.home.HomeScreen
 import com.fpoly.pro226.music_app.ui.screen.main.explore.ExploreScreen
+import com.fpoly.pro226.music_app.ui.screen.main.home.HomeScreen
 import com.fpoly.pro226.music_app.ui.screen.main.library.LibraryScreen
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import kotlinx.coroutines.launch
@@ -40,9 +43,10 @@ fun MainScreen(
     onPlayGame: () -> Unit,
     onAddPlaylist: () -> Unit,
     onFavorite: () -> Unit,
+    pagerState: PagerState,
+    selectedItem: MutableIntState
+
 ) {
-    val pagerState = rememberPagerState(pageCount = { 3 })
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold { innerPadding ->
@@ -55,7 +59,6 @@ fun MainScreen(
                 state = pagerState,
                 userScrollEnabled = false
             ) { page ->
-                selectedTabIndex = page
                 when (page) {
                     0 -> HomeScreen(
                         appContainer = appContainer,
@@ -97,11 +100,11 @@ fun MainScreen(
                 }
             }
             FMusicBottomNavigation(
+                selectedItem = selectedItem,
                 modifier = Modifier.align(Alignment.BottomCenter),
                 onItemSelected = { index ->
-                    coroutineScope.launch {
-                        pagerState.animateScrollToPage(index, animationSpec = tween())
-                    }
+                    pagerState.requestScrollToPage(index)
+
                 })
         }
     }
