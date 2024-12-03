@@ -436,10 +436,10 @@ fun TopBar(onBack: () -> Unit) {
             ) {
                 Text(
                     text = "MY PLAYLIST",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.ExtraLight,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.White
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Cyan
                 )
             }
         }

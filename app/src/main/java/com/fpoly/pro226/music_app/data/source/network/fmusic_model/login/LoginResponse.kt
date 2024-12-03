@@ -5,5 +5,5 @@ data class LoginResponse(
     val refreshToken: String,
     val status: Int,
     val token: String,
-    val data: UserResponse
+    val data: UserInfo
 )

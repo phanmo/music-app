@@ -12,7 +12,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.User
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.UserBody
 import kotlinx.coroutines.launch
 
 
@@ -40,7 +40,7 @@ class LoginViewModel(private val fMusicRepository: FMusicRepository) : ViewModel
     var loginUiState by mutableStateOf(LoginUiState())
         private set
 
-    var user = User("", "")
+    var user = UserBody("", "")
 
     fun login() {
         Log.d("TAG", "login: called")

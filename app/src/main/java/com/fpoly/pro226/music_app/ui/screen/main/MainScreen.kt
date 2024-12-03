@@ -1,21 +1,14 @@
 package com.fpoly.pro226.music_app.ui.screen.main
 
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,7 +22,6 @@ import com.fpoly.pro226.music_app.ui.screen.main.explore.ExploreScreen
 import com.fpoly.pro226.music_app.ui.screen.main.home.HomeScreen
 import com.fpoly.pro226.music_app.ui.screen.main.library.LibraryScreen
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
-import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
@@ -44,7 +36,8 @@ fun MainScreen(
     onAddPlaylist: () -> Unit,
     onFavorite: () -> Unit,
     pagerState: PagerState,
-    selectedItem: MutableIntState
+    selectedItem: MutableIntState,
+    onClickProfile: () -> Unit
 
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -69,7 +62,8 @@ fun MainScreen(
                         onLoadTrackList = onLoadTrackList,
                         onClickItemPlaylist = { id ->
                             navController.navigate("${FMusicDestinations.PLAYLIST_ROUTE}/${id}")
-                        }
+                        },
+                        onClickProfile = onClickProfile
                     )
 
                     1 -> ExploreScreen(
@@ -88,10 +82,8 @@ fun MainScreen(
                         onPlayGame = {
                             onPlayGame()
                         },
-                        onLogoutClick = {
-                            navController.navigate(FMusicDestinations.LOGIN_ROUTE) {
-                                popUpTo(FMusicDestinations.MAIN_ROUTE) { inclusive = true }
-                            }
+                        onSettingClick = {
+                            navController.navigate(FMusicDestinations.SETTING_ROUTE)
                         },
                         onAddPlaylist = {
                             onAddPlaylist()

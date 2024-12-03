@@ -6,7 +6,7 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.Comme
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.User
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.UserBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
@@ -25,7 +25,7 @@ class FMusicRemoteDataSource(
             fMusicApiService.getAllPlaylist(idUser)
         }
 
-    suspend fun login(user: User): Response<LoginResponse> =
+    suspend fun login(user: UserBody): Response<LoginResponse> =
         withContext(ioDispatcher) {
             fMusicApiService.login(user)
         }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,7 +16,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,7 +41,7 @@ import com.fpoly.pro226.music_app.ui.theme._A6F3FF
 @Composable
 fun LibraryScreen(
     onFavorite: () -> Unit,
-    onLogoutClick: () -> Unit,
+    onSettingClick: () -> Unit,
     onPlayGame: () -> Unit,
     onAddPlaylist: () -> Unit
 ) {
@@ -60,7 +58,7 @@ fun LibraryScreen(
                 )
             )
     ) {
-        CustomTopAppBar(onLogoutClick)
+        CustomTopAppBar(onSettingClick)
         LazyColumn(
             modifier = Modifier
                 .padding(top = 68.dp, start = 16.dp, end = 16.dp)
@@ -121,8 +119,7 @@ fun LibraryScreen(
 }
 
 @Composable
-fun CustomTopAppBar(onLogoutClick: () -> Unit) {
-    val context = LocalContext.current
+fun CustomTopAppBar(onSettings: () -> Unit) {
     TopAppBar(
         backgroundColor = Color.Transparent,
         elevation = 0.dp,
@@ -147,12 +144,10 @@ fun CustomTopAppBar(onLogoutClick: () -> Unit) {
         actions = {
             IconButton(
                 onClick = {
-                    val preferencesManager = PreferencesManager(context)
-                    preferencesManager.clearAccessToken()
-                    onLogoutClick()
+                    onSettings()
                 }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.baseline_logout_24),
+                    painter = painterResource(id = R.drawable.settings),
                     contentDescription = "Notification",
                     tint = Color.White
                 )

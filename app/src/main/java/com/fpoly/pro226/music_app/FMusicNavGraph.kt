@@ -20,6 +20,9 @@ import com.fpoly.pro226.music_app.ui.screen.login.LoginScreen
 import com.fpoly.pro226.music_app.ui.screen.main.MainScreen
 import com.fpoly.pro226.music_app.ui.screen.myplaylist.MyPlaylistScreen
 import com.fpoly.pro226.music_app.ui.screen.playlist.PlaylistScreen
+import com.fpoly.pro226.music_app.ui.screen.profile.ChangePasswordScreen
+import com.fpoly.pro226.music_app.ui.screen.profile.EditProfileScreen
+import com.fpoly.pro226.music_app.ui.screen.profile.SettingScreen
 import com.fpoly.pro226.music_app.ui.screen.ranking.RankingScreen
 import com.fpoly.pro226.music_app.ui.screen.register.RegisterScreen
 import com.fpoly.pro226.music_app.ui.screen.splash.GuideScreen
@@ -69,7 +72,10 @@ fun FMusicNavGraph(
                     navController.navigate(FMusicDestinations.FAVORITE_ROUTE)
                 },
                 pagerState = pagerState,
-                selectedItem = selectedItem
+                selectedItem = selectedItem,
+                onClickProfile = {
+
+                }
             )
         }
         composable(FMusicDestinations.RAKING_ROUTE) {
@@ -143,6 +149,43 @@ fun FMusicNavGraph(
                 onRegisterSuccess = {
                     navController.popBackStack()
                 })
+        }
+
+        composable(FMusicDestinations.CHANGE_PASSWORD_ROUTE) {
+            ChangePasswordScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(FMusicDestinations.SETTING_ROUTE) {
+            SettingScreen(
+                onLogoutClick = {
+                    navController.navigate(FMusicDestinations.LOGIN_ROUTE) {
+                        popUpTo(FMusicDestinations.SETTING_ROUTE) { inclusive = true }
+                        popUpTo(FMusicDestinations.MAIN_ROUTE) { inclusive = true }
+                    }
+                },
+                onChangePassword = {
+                    navController.navigate(FMusicDestinations.CHANGE_PASSWORD_ROUTE)
+
+                },
+                onEditProfile = {
+                    navController.navigate(FMusicDestinations.EDIT_PROFILE_ROUTE)
+                },
+                onBack = {
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(FMusicDestinations.EDIT_PROFILE_ROUTE) {
+            EditProfileScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+            )
         }
 
         composable("${FMusicDestinations.GENRE_ROUTE}/{id}") { backStackEntry ->

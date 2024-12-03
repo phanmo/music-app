@@ -19,31 +19,50 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fpoly.pro226.music_app.R
-import com.fpoly.pro226.music_app.ui.theme._121111
+import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
+import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 
 @Composable
-fun SettingScreen() {
+fun SettingScreen(
+    onLogoutClick: () -> Unit,
+    onBack: () -> Unit,
+    onEditProfile: () -> Unit,
+    onChangePassword: () -> Unit
+) {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
-            .background(_121111)
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF102B2D),
+                        Color(0xFF000000),
+                        Color(0xFF000000),
+                    )
+                )
+            )
             .fillMaxHeight()
             .padding(16.dp)
     ) {
@@ -60,15 +79,17 @@ fun SettingScreen() {
                 modifier = Modifier
                     .size(24.dp)
                     .align(Alignment.CenterVertically)
+                    .clickable {
+                        onBack()
+                    }
             )
             Text(
-                text = "Setting",
-                style = TextStyle(
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight(600),
-                    textAlign = TextAlign.Center
-                ),
+                text = "Settings",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White,
                 modifier = Modifier
                     .weight(1f)
                     .align(Alignment.CenterVertically)
@@ -77,7 +98,7 @@ fun SettingScreen() {
         Row {
             Box(
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(64.dp)
                     .border(BorderStroke(2.dp, Color.Black), shape = CircleShape)
                     .clip(CircleShape)
             ) {
@@ -91,15 +112,18 @@ fun SettingScreen() {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.Start
+                    .height(64.dp)
+                    .padding(horizontal = 12.dp),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Center,
             ) {
                 Text(
+                    style = MaterialTheme.typography.labelMedium,
                     text = "Mo Phan",
-                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold,
-                        color = Color.White)
+                    fontSize = 20.sp, fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "moptkpd08532@fpt.edu.vn",
                     style = TextStyle(fontSize = 14.sp, color = Color.Gray)
@@ -112,39 +136,50 @@ fun SettingScreen() {
         // Settings List
         Column(modifier = Modifier.fillMaxWidth()) {
             SettingsItem(
-                icon = R.drawable.profile,
-                text = "Cập nhật thông tin cá nhân",
-                onClick = { /* TODO: Handle Notification Click */ }
+                icon = R.drawable.baseline_person_24,
+                text = "Edit profile",
+                onClick = {
+                    onEditProfile()
+                }
             )
-            Divider()
+            Divider(modifier = Modifier.height(0.5.dp))
             SettingsItem(
-                icon = R.drawable.change_password,
-                text = "Đổi mật khẩu",
-                onClick = { /* TODO: Handle Delete Account Click */ }
+                icon = R.drawable.baseline_lock_outline_24,
+                text = "Change password",
+                onClick = {
+                    onChangePassword()
+                }
             )
-            Divider()
+            Divider(modifier = Modifier.height(0.5.dp))
             SettingsItem(
-                icon = R.drawable.information,
-                text = "Giới thiệu",
-                onClick = { /* TODO: Handle About Click */ }
+                icon = R.drawable.outline_info_24,
+                text = "About us",
+                onClick = {
+
+                }
             )
-            Divider()
+            Divider(modifier = Modifier.height(0.5.dp))
             SettingsItem(
                 icon = R.drawable.baseline_logout_24,
-                text = "Đăng xuất",
-                onClick = { /* TODO: Handle Logout Click */ }
+                text = "Logout",
+                onClick = {
+                    val preferencesManager = PreferencesManager(context)
+                    preferencesManager.clearAccessToken()
+                    onLogoutClick()
+                }
             )
         }
 
     }
 }
+
 @Composable
 fun SettingsItem(icon: Int, text: String, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 12.dp, horizontal = 16.dp),
+            .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -153,10 +188,13 @@ fun SettingsItem(icon: Int, text: String, onClick: () -> Unit) {
             tint = Color.White,
             modifier = Modifier.size(24.dp)
         )
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = text,
-            style = TextStyle(fontSize = 16.sp, color = Color.White),
+            style = MaterialTheme.typography.labelMedium,
+            fontSize = 18.sp,
+            color = Color.White,
+            fontWeight = FontWeight.Normal,
             modifier = Modifier.weight(1f)
         )
         Icon(
@@ -165,5 +203,13 @@ fun SettingsItem(icon: Int, text: String, onClick: () -> Unit) {
             tint = Color.Gray,
             modifier = Modifier.size(24.dp)
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SettingScreenPreview() {
+    MusicAppTheme {
+        SettingScreen({}, {}, {}, {})
     }
 }

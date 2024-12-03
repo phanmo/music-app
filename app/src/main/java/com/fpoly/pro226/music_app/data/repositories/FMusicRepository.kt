@@ -9,7 +9,7 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.Comme
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.User
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.UserBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
@@ -28,7 +28,7 @@ interface FMusicRepository {
     suspend fun getCoin(idUser: String): Response<CoinResponse>
     suspend fun addItemToPlaylist(itemPlaylistBody: ItemPlaylistBody): Response<ItemPlaylistResponse>
     suspend fun getAllTrackByPlaylistId(idPlaylist: String): Response<ItemPlaylistResponse>
-    suspend fun login(user: User): Response<LoginResponse>
+    suspend fun login(user: UserBody): Response<LoginResponse>
     suspend fun deleteComment(commentId: String): Response<CommentResponse>
     suspend fun getComments(trackId: String): Response<CommentResponse>
     suspend fun getRanking(): Response<RankingResponse>
@@ -58,7 +58,7 @@ class FMusicRepositoryImpl(
         }.await()
     }
 
-    override suspend fun login(user: User): Response<LoginResponse> {
+    override suspend fun login(user: UserBody): Response<LoginResponse> {
         return externalScope.async {
             fMusicRemoteDataSource.login(user)
         }.await()

@@ -1,31 +1,26 @@
 package com.fpoly.pro226.music_app.ui.screen.profile
 
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,13 +31,20 @@ import com.fpoly.pro226.music_app.ui.screen.login.ButtonWithElevation
 import com.fpoly.pro226.music_app.ui.screen.login.TextField
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._00C2CB
-import com.fpoly.pro226.music_app.ui.theme._121111
 
 @Composable
-fun ChangePasswordScreen() {
+fun ChangePasswordScreen(onBack: () -> Unit) {
     Column(
         modifier = Modifier
-            .background(_121111)
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF102B2D),
+                        Color(0xFF000000),
+                        Color(0xFF000000),
+                    )
+                )
+            )
             .fillMaxHeight()
             .padding(16.dp)
     ) {
@@ -59,15 +61,17 @@ fun ChangePasswordScreen() {
                 modifier = Modifier
                     .size(24.dp)
                     .align(Alignment.CenterVertically)
+                    .clickable {
+                        onBack()
+                    }
             )
             Text(
                 text = "Change password",
-                style = TextStyle(
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight(600),
-                    textAlign = TextAlign.Center
-                ),
+                color = _00C2CB,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Normal,
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .weight(1f)
                     .align(Alignment.CenterVertically)
@@ -94,10 +98,11 @@ fun ChangePasswordScreen() {
         })
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun SongContentPreview() {
     MusicAppTheme {
-        ChangePasswordScreen()
+        ChangePasswordScreen() {}
     }
 }

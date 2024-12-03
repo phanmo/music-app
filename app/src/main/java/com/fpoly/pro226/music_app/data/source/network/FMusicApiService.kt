@@ -6,17 +6,23 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.Comme
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
-import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.User
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.UserBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.ProfileResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.ranking.RankingResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 const val F_MUSIC_BASE_URL = "https://music-app-be-p3hr.onrender.com"
@@ -27,7 +33,7 @@ interface FMusicApiService {
     suspend fun getAllPlaylist(@Path("idUser") idUser: String): Response<PlayListResponse>
 
     @POST("/api/login")
-    suspend fun login(@Body user: User): Response<LoginResponse>
+    suspend fun login(@Body user: UserBody): Response<LoginResponse>
 
     @POST("/api/add-playlist")
     suspend fun addPlaylist(@Body playlistBody: PlaylistBody): Response<Unit>
@@ -71,4 +77,12 @@ interface FMusicApiService {
 
     @DELETE("/api/delele-favorite/{id}")
     suspend fun deleteFavorite(@Path("id") id: String): Response<Unit>
+
+    @Multipart
+    @PUT("/api/edit-user-profile/{userId}")
+    suspend fun updateProfile(
+        @Path("userId") userId: String,
+        @Part image: MultipartBody.Part,
+        @Part("data") data: RequestBody
+    ): Response<ProfileResponse>
 }

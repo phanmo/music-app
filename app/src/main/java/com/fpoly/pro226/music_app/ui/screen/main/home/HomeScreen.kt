@@ -1,6 +1,7 @@
 package com.fpoly.pro226.music_app.ui.screen.main.home
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,7 +55,6 @@ import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._1E1E1E_85
 import com.fpoly.pro226.music_app.ui.theme._436369
 import com.fpoly.pro226.music_app.ui.theme._8A9A9D
-import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
@@ -63,7 +62,8 @@ fun HomeScreen(
     appContainer: AppContainer,
     onClickItemArtist: (String) -> Unit,
     onClickItemTrack: (tracks: List<Track>, startIndex: Int) -> Unit,
-    onClickItemPlaylist: (String) -> Unit
+    onClickItemPlaylist: (String) -> Unit,
+    onClickProfile: () -> Unit
 ) {
     val extras = MutableCreationExtras().apply {
         set(HomeViewModel.MY_REPOSITORY_KEY, appContainer.deezerRepository)
@@ -93,7 +93,7 @@ fun HomeScreen(
                 )
             )
     ) {
-        CustomTopAppBar()
+        CustomTopAppBar(onClickProfile)
         LazyColumn(modifier = Modifier.padding(top = 68.dp, start = 16.dp, end = 16.dp)) {
             item {
                 Text(
@@ -261,7 +261,7 @@ fun HomeScreen(
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                                 Text(
-                                    text = tracks[index].artist?.name?:"",
+                                    text = tracks[index].artist?.name ?: "",
                                     fontSize = 14.sp,
                                     color = _8A9A9D,
                                     fontWeight = FontWeight.Bold,
@@ -284,7 +284,7 @@ fun HomeScreen(
 
 
 @Composable
-fun CustomTopAppBar() {
+fun CustomTopAppBar(onClickProfile: () -> Unit) {
     TopAppBar(
         backgroundColor = Color.Transparent,
         elevation = 0.dp,
@@ -299,7 +299,10 @@ fun CustomTopAppBar() {
                     error = painterResource(R.drawable.ic_app),
                     modifier = Modifier
                         .size(40.dp)
-                        .background(Color.Gray, shape = CircleShape),
+                        .background(Color.Gray, shape = CircleShape)
+                        .clickable {
+                            onClickProfile()
+                        },
                     contentScale = ContentScale.Crop
                 )
 
@@ -322,15 +325,11 @@ fun CustomTopAppBar() {
             }
         },
         actions = {
-            IconButton(onClick = {
-
-            }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.bell),
-                    contentDescription = "Notification",
-                    tint = Color.White
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.coin_3d),
+                contentDescription = "Notification",
+                modifier = Modifier.size(28.dp)
+            )
         },
         modifier = Modifier
             .fillMaxWidth()
@@ -342,7 +341,7 @@ fun CustomTopAppBar() {
 @Composable
 fun CustomTopAppBarPreview() {
     MusicAppTheme {
-        CustomTopAppBar()
+        CustomTopAppBar() {}
     }
 }
 
