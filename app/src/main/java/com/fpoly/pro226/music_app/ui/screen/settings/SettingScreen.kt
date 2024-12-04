@@ -1,9 +1,7 @@
-package com.fpoly.pro226.music_app.ui.screen.profile
+package com.fpoly.pro226.music_app.ui.screen.settings
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,9 +37,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.fpoly.pro226.music_app.R
 import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
+import com.fpoly.pro226.music_app.ui.theme._00C2CB
 
 @Composable
 fun SettingScreen(
@@ -51,7 +51,7 @@ fun SettingScreen(
     onChangePassword: () -> Unit
 ) {
     val context = LocalContext.current
-
+    val userInfo = PreferencesManager(context).getUser()
     Column(
         modifier = Modifier
             .background(
@@ -97,16 +97,17 @@ fun SettingScreen(
         }
         Row {
             Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .border(BorderStroke(2.dp, Color.Black), shape = CircleShape)
-                    .clip(CircleShape)
+                modifier = Modifier.size(64.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.matcha),
+                AsyncImage(
+                    model = "${userInfo?.avatar}",
                     contentDescription = "Avatar",
+                    placeholder = painterResource(R.drawable.ic_app),
+                    error = painterResource(R.drawable.ic_app),
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
                 )
             }
             Column(
@@ -125,13 +126,15 @@ fun SettingScreen(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "moptkpd08532@fpt.edu.vn",
-                    style = TextStyle(fontSize = 14.sp, color = Color.Gray)
+                    text = "${userInfo?.email}",
+                    style = TextStyle(fontSize = 14.sp, color = _00C2CB)
                 )
             }
         }
-
         Spacer(modifier = Modifier.height(16.dp))
+
+        Divider(color = _00C2CB, thickness = 0.25.dp)
+
 
         // Settings List
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -142,7 +145,7 @@ fun SettingScreen(
                     onEditProfile()
                 }
             )
-            Divider(modifier = Modifier.height(0.5.dp))
+
             SettingsItem(
                 icon = R.drawable.baseline_lock_outline_24,
                 text = "Change password",
@@ -150,7 +153,7 @@ fun SettingScreen(
                     onChangePassword()
                 }
             )
-            Divider(modifier = Modifier.height(0.5.dp))
+
             SettingsItem(
                 icon = R.drawable.outline_info_24,
                 text = "About us",
@@ -158,13 +161,12 @@ fun SettingScreen(
 
                 }
             )
-            Divider(modifier = Modifier.height(0.5.dp))
             SettingsItem(
                 icon = R.drawable.baseline_logout_24,
                 text = "Logout",
                 onClick = {
                     val preferencesManager = PreferencesManager(context)
-                    preferencesManager.clearAccessToken()
+                    preferencesManager.clearUserInfo()
                     onLogoutClick()
                 }
             )
@@ -188,7 +190,7 @@ fun SettingsItem(icon: Int, text: String, onClick: () -> Unit) {
             tint = Color.White,
             modifier = Modifier.size(24.dp)
         )
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = text,
             style = MaterialTheme.typography.labelMedium,

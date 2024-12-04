@@ -11,9 +11,12 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.Item
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.ProfileResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.ranking.RankingResponse
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 
 class FMusicRemoteDataSource(
@@ -95,8 +98,31 @@ class FMusicRemoteDataSource(
         withContext(ioDispatcher) {
             fMusicApiService.addFavorite(favoriteBody)
         }
+
     suspend fun deleteFavorite(id: String): Response<Unit> =
         withContext(ioDispatcher) {
             fMusicApiService.deleteFavorite(id)
+        }
+
+    suspend fun getProfile(id: String): Response<ProfileResponse> =
+        withContext(ioDispatcher) {
+            fMusicApiService.getProfile(id)
+        }
+
+    suspend fun updateProfileAll(
+        userId: String,
+        data: Map<String, @JvmSuppressWildcards RequestBody>,
+        avatar: MultipartBody.Part?
+    ): Response<ProfileResponse> =
+        withContext(ioDispatcher) {
+            fMusicApiService.updateProfileAll(userId = userId, data = data, avatar = avatar)
+        }
+
+    suspend fun updateProfile(
+        userId: String,
+        data: Map<String, @JvmSuppressWildcards RequestBody>,
+    ): Response<ProfileResponse> =
+        withContext(ioDispatcher) {
+            fMusicApiService.updateProfile(userId = userId, data = data)
         }
 }

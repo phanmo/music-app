@@ -23,6 +23,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
+import retrofit2.http.PartMap
 import retrofit2.http.Path
 
 const val F_MUSIC_BASE_URL = "https://music-app-be-p3hr.onrender.com"
@@ -80,9 +81,19 @@ interface FMusicApiService {
 
     @Multipart
     @PUT("/api/edit-user-profile/{userId}")
+    suspend fun updateProfileAll(
+        @Path("userId") userId: String,
+        @PartMap data: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part avatar: MultipartBody.Part?
+    ): Response<ProfileResponse>
+
+    @Multipart
+    @PUT("/api/edit-user-profile/{userId}")
     suspend fun updateProfile(
         @Path("userId") userId: String,
-        @Part image: MultipartBody.Part,
-        @Part("data") data: RequestBody
+        @PartMap data: Map<String, @JvmSuppressWildcards RequestBody>,
     ): Response<ProfileResponse>
+
+    @GET("/api/get-user/{userId}")
+    suspend fun getProfile(@Path("userId") userId: String): Response<ProfileResponse>
 }

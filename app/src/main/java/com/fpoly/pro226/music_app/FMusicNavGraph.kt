@@ -22,7 +22,7 @@ import com.fpoly.pro226.music_app.ui.screen.myplaylist.MyPlaylistScreen
 import com.fpoly.pro226.music_app.ui.screen.playlist.PlaylistScreen
 import com.fpoly.pro226.music_app.ui.screen.profile.ChangePasswordScreen
 import com.fpoly.pro226.music_app.ui.screen.profile.EditProfileScreen
-import com.fpoly.pro226.music_app.ui.screen.profile.SettingScreen
+import com.fpoly.pro226.music_app.ui.screen.settings.SettingScreen
 import com.fpoly.pro226.music_app.ui.screen.ranking.RankingScreen
 import com.fpoly.pro226.music_app.ui.screen.register.RegisterScreen
 import com.fpoly.pro226.music_app.ui.screen.splash.GuideScreen
@@ -182,6 +182,7 @@ fun FMusicNavGraph(
 
         composable(FMusicDestinations.EDIT_PROFILE_ROUTE) {
             EditProfileScreen(
+                appContainer = appContainer,
                 onBack = {
                     navController.popBackStack()
                 },

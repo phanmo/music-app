@@ -1,9 +1,7 @@
 package com.fpoly.pro226.music_app.data.source.network.fmusic_model.login
 
-import com.google.gson.Gson
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 data class UserInfo(
     val __v: Int,
@@ -18,4 +16,15 @@ data class UserInfo(
     val avatar: String,
     val password: String,
     val updatedAt: String
-)
+) {
+    fun getBirthdayByString(): String {
+        return try {
+            val zonedDateTime =
+                ZonedDateTime.parse(birthday).withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
+            "${zonedDateTime.dayOfMonth}-${zonedDateTime.month.value}-${zonedDateTime.year}"
+        } catch (e: Exception) {
+            birthday
+        }
+
+    }
+}

@@ -26,6 +26,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -61,6 +62,7 @@ import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._00C2CB
 import com.fpoly.pro226.music_app.ui.theme._121111
 import com.fpoly.pro226.music_app.ui.theme._1E1E1E_85
+import com.fpoly.pro226.music_app.ui.theme._446266
 import com.fpoly.pro226.music_app.ui.theme._7CEEFF
 import com.fpoly.pro226.music_app.ui.theme._DBE7E8
 
@@ -87,6 +89,7 @@ fun LoginScreen(
         if (uiState.isLoginSuccess == true) {
             val preferencesManager = PreferencesManager(context)
             uiState.loginRes?.token?.let { accessToken ->
+                preferencesManager.saveUser(uiState.loginRes.data)
                 preferencesManager.saveAccessToken(accessToken)
                 preferencesManager.saveUser(uiState.loginRes.data._id)
             }
@@ -251,9 +254,10 @@ fun TextField(
     isPassword: Boolean,
     onValueChange: (String) -> Unit,
     leadingIcon: @Composable() (() -> Unit)? = null,
-    enable: Boolean? = null,
+    enable: Boolean? = true,
+    value: String = ""
 ) {
-    val textValue = remember { mutableStateOf(TextFieldValue("")) }
+    val textValue = remember { mutableStateOf(TextFieldValue(value)) }
     val passwordVisible = remember { mutableStateOf(false) }
     val visualTransformation = if (isPassword && !passwordVisible.value) {
         PasswordVisualTransformation()
@@ -277,8 +281,8 @@ fun TextField(
         label = {
             Text(
                 text = label, style = TextStyle(
-                    fontWeight = FontWeight(400),
-                    color = Color.White,
+                    fontWeight = FontWeight.SemiBold,
+                    color = _00C2CB,
                     fontSize = 16.sp,
                 )
             )
@@ -291,8 +295,16 @@ fun TextField(
             focusedIndicatorColor = _DBE7E8,
             unfocusedLabelColor = Color.White,
             focusedLabelColor = Color.White,
+            disabledContainerColor = _1E1E1E_85,
         ),
-        textStyle = TextStyle(color = Color.White),
+        textStyle = MaterialTheme.typography.bodyMedium.copy(
+            color = if (enable == true) {
+                Color.White
+            } else {
+                _446266
+            },
+            fontWeight = FontWeight.SemiBold
+        ),
         visualTransformation = visualTransformation,
         keyboardOptions = keyboardOptions,
         modifier = Modifier

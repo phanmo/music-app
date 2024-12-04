@@ -18,7 +18,7 @@ private object FMusicScreens {
     const val FAVORITE_SCREEN = "favorite"
     const val SETTINGS_SCREEN = "settings"
     const val EDIT_PROFILE_SCREEN = "edit_profile"
-    const val CHANGE_PASSWORD_SCREEN = "edit_profile"
+    const val CHANGE_PASSWORD_SCREEN = "change_password"
 
 }
 

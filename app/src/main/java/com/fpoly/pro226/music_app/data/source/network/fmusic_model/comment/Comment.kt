@@ -19,7 +19,6 @@ data class Comment(
     val updatedAt: String,
     val username: String?
 ) {
-    @RequiresApi(Build.VERSION_CODES.O)
     fun getFormatDate(): String {
         val zonedDateTime = ZonedDateTime.parse(createdAt).withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
         val formatter = DateTimeFormatter.ofPattern("dd MMMM, HH:mm", Locale("vi", "VN"))

@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.UserInfo
 import com.fpoly.pro226.music_app.data.source.network.models.Artists
 import com.fpoly.pro226.music_app.data.source.network.models.Playlists
 import com.fpoly.pro226.music_app.data.source.network.models.Tracks
@@ -22,6 +23,7 @@ data class HomeUiState(
     val artists: Artists? = null,
     val tracks: Tracks? = null,
     val playlists: Playlists? = null,
+    val userInfo: UserInfo? = null,
 )
 
 class HomeViewModel(private val deezerRepository: DeezerRepository) : ViewModel() {
@@ -52,6 +54,11 @@ class HomeViewModel(private val deezerRepository: DeezerRepository) : ViewModel(
         getArtistsChart()
         getTrackCharts()
         getPlaylistsChart()
+    }
+
+    fun setCurrentUser(userInfo: UserInfo) {
+        homeUiState = homeUiState.copy(userInfo = userInfo)
+
     }
 
 

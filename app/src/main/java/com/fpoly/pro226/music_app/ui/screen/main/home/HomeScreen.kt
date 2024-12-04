@@ -25,11 +25,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +37,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -49,9 +49,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.fpoly.pro226.music_app.R
 import com.fpoly.pro226.music_app.components.di.AppContainer
+import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.UserInfo
 import com.fpoly.pro226.music_app.data.source.network.models.Track
 import com.fpoly.pro226.music_app.ui.theme.FFFFFF94
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
+import com.fpoly.pro226.music_app.ui.theme._00C2CB
 import com.fpoly.pro226.music_app.ui.theme._1E1E1E_85
 import com.fpoly.pro226.music_app.ui.theme._436369
 import com.fpoly.pro226.music_app.ui.theme._8A9A9D
@@ -73,6 +76,14 @@ fun HomeScreen(
         extras = extras,
     )
     val uiState = vm.homeUiState
+    val context = LocalContext.current
+
+    DisposableEffect(Unit) {
+        PreferencesManager(context).getUser()?.let { user ->
+            vm.setCurrentUser(user)
+        }
+        onDispose { }
+    }
 
     LaunchedEffect(uiState) {
         if (uiState.tracks?.data?.isNotEmpty() == true) {
@@ -93,7 +104,7 @@ fun HomeScreen(
                 )
             )
     ) {
-        CustomTopAppBar(onClickProfile)
+        CustomTopAppBar(onClickProfile, uiState.userInfo)
         LazyColumn(modifier = Modifier.padding(top = 68.dp, start = 16.dp, end = 16.dp)) {
             item {
                 Text(
@@ -284,7 +295,7 @@ fun HomeScreen(
 
 
 @Composable
-fun CustomTopAppBar(onClickProfile: () -> Unit) {
+fun CustomTopAppBar(onClickProfile: () -> Unit, userInfo: UserInfo?) {
     TopAppBar(
         backgroundColor = Color.Transparent,
         elevation = 0.dp,
@@ -293,13 +304,13 @@ fun CustomTopAppBar(onClickProfile: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AsyncImage(
-                    model = "https://example.com/your-image.jpg",
+                    model = "${userInfo?.avatar}",
                     contentDescription = "Profile Picture",
                     placeholder = painterResource(R.drawable.ic_app),
                     error = painterResource(R.drawable.ic_app),
                     modifier = Modifier
                         .size(40.dp)
-                        .background(Color.Gray, shape = CircleShape)
+                        .clip(CircleShape)
                         .clickable {
                             onClickProfile()
                         },
@@ -317,9 +328,9 @@ fun CustomTopAppBar(onClickProfile: () -> Unit) {
                         style = MaterialTheme.typography.bodyLarge
                     )
                     Text(
-                        text = "chandrama",
+                        text = "${userInfo?.name}",
                         fontSize = 12.sp,
-                        color = FFFFFF94,
+                        color = _00C2CB,
                     )
                 }
             }
@@ -341,7 +352,7 @@ fun CustomTopAppBar(onClickProfile: () -> Unit) {
 @Composable
 fun CustomTopAppBarPreview() {
     MusicAppTheme {
-        CustomTopAppBar() {}
+        CustomTopAppBar({}, null)
     }
 }
 

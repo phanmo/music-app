@@ -14,9 +14,12 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.Item
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.ProfileResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.ranking.RankingResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 
 
@@ -37,6 +40,17 @@ interface FMusicRepository {
     suspend fun deleteFavorite(id: String): Response<Unit>
     suspend fun addFavorite(favoriteBody: FavoriteBody): Response<Unit>
     suspend fun getFavorite(userId: String): Response<FavoriteResponse>
+    suspend fun getProfile(id: String): Response<ProfileResponse>
+    suspend fun updateProfileAll(
+        userId: String,
+        data: Map<String, @JvmSuppressWildcards RequestBody>,
+        avatar: MultipartBody.Part?
+    ): Response<ProfileResponse>
+
+    suspend fun updateProfile(
+        userId: String,
+        data: Map<String, @JvmSuppressWildcards RequestBody>,
+    ): Response<ProfileResponse>
 
     val currentFavorites: SnapshotStateList<FavoriteBody>
 
@@ -111,6 +125,31 @@ class FMusicRepositoryImpl(
             }
         }
         return response
+    }
+
+    override suspend fun getProfile(id: String): Response<ProfileResponse> {
+        return externalScope.async {
+            fMusicRemoteDataSource.getProfile(id)
+        }.await()
+    }
+
+    override suspend fun updateProfileAll(
+        userId: String,
+        data: Map<String, @JvmSuppressWildcards RequestBody>,
+        avatar: MultipartBody.Part?
+    ): Response<ProfileResponse> {
+        return externalScope.async {
+            fMusicRemoteDataSource.updateProfileAll(userId, data, avatar)
+        }.await()
+    }
+
+    override suspend fun updateProfile(
+        userId: String,
+        data: Map<String, @JvmSuppressWildcards RequestBody>,
+    ): Response<ProfileResponse> {
+        return externalScope.async {
+            fMusicRemoteDataSource.updateProfile(userId, data)
+        }.await()
     }
 
     override val currentFavorites: SnapshotStateList<FavoriteBody>
