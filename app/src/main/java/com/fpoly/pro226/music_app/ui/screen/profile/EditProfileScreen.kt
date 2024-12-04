@@ -229,11 +229,14 @@ fun EditProfileScreen(onBack: () -> Unit, appContainer: AppContainer) {
 }
 
 fun uriToFile(context: Context, uri: Uri?): File? {
+    if (uri == null) {
+        return null
+    }
     val fileName = "${System.currentTimeMillis()}.jpg"
     val file = File(context.cacheDir, fileName)
 
     try {
-        val inputStream = uri?.let { context.contentResolver.openInputStream(it) }
+        val inputStream = uri.let { context.contentResolver.openInputStream(it) }
         val outputStream = file.outputStream()
 
         inputStream?.use { input ->

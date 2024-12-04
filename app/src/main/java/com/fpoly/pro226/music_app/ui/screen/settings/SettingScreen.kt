@@ -120,7 +120,7 @@ fun SettingScreen(
             ) {
                 Text(
                     style = MaterialTheme.typography.labelMedium,
-                    text = "Mo Phan",
+                    text = "${userInfo?.name}",
                     fontSize = 20.sp, fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
