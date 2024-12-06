@@ -11,6 +11,7 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.Item
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.PasswordBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.ProfileResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.ranking.RankingResponse
 import kotlinx.coroutines.CoroutineDispatcher
@@ -107,6 +108,11 @@ class FMusicRemoteDataSource(
     suspend fun getProfile(id: String): Response<ProfileResponse> =
         withContext(ioDispatcher) {
             fMusicApiService.getProfile(id)
+        }
+
+    suspend fun changePassword(userId: String, passwordBody: PasswordBody): Response<Unit> =
+        withContext(ioDispatcher) {
+            fMusicApiService.changePassword(userId, passwordBody)
         }
 
     suspend fun updateProfileAll(

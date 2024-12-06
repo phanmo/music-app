@@ -52,7 +52,7 @@ import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.UserInfo
 import com.fpoly.pro226.music_app.data.source.network.models.Track
-import com.fpoly.pro226.music_app.ui.theme.FFFFFF94
+import com.fpoly.pro226.music_app.ui.components.LoadingDialog
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
 import com.fpoly.pro226.music_app.ui.theme._00C2CB
 import com.fpoly.pro226.music_app.ui.theme._1E1E1E_85
@@ -70,6 +70,7 @@ fun HomeScreen(
 ) {
     val extras = MutableCreationExtras().apply {
         set(HomeViewModel.MY_REPOSITORY_KEY, appContainer.deezerRepository)
+        set(HomeViewModel.MY_REPOSITORY_KEY_2, appContainer.fMusicRepository)
     }
     val vm: HomeViewModel = viewModel(
         factory = HomeViewModel.Factory,
@@ -104,7 +105,7 @@ fun HomeScreen(
                 )
             )
     ) {
-        CustomTopAppBar(onClickProfile, uiState.userInfo)
+        CustomTopAppBar(onClickProfile, uiState.userInfo, uiState.coinTotal)
         LazyColumn(modifier = Modifier.padding(top = 68.dp, start = 16.dp, end = 16.dp)) {
             item {
                 Text(
@@ -288,14 +289,16 @@ fun HomeScreen(
             }
 
         }
-
+        if (uiState.isLoading) {
+            LoadingDialog(onDismiss = { })
+        }
     }
 
 }
 
 
 @Composable
-fun CustomTopAppBar(onClickProfile: () -> Unit, userInfo: UserInfo?) {
+fun CustomTopAppBar(onClickProfile: () -> Unit, userInfo: UserInfo?, coinTotal: String) {
     TopAppBar(
         backgroundColor = Color.Transparent,
         elevation = 0.dp,
@@ -336,11 +339,23 @@ fun CustomTopAppBar(onClickProfile: () -> Unit, userInfo: UserInfo?) {
             }
         },
         actions = {
-            Image(
-                painter = painterResource(id = R.drawable.coin_3d),
-                contentDescription = "Notification",
-                modifier = Modifier.size(28.dp)
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = coinTotal,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.coin_3d),
+                    contentDescription = "Notification",
+                    modifier = Modifier.size(28.dp)
+                )
+            }
         },
         modifier = Modifier
             .fillMaxWidth()
@@ -352,7 +367,7 @@ fun CustomTopAppBar(onClickProfile: () -> Unit, userInfo: UserInfo?) {
 @Composable
 fun CustomTopAppBarPreview() {
     MusicAppTheme {
-        CustomTopAppBar({}, null)
+        CustomTopAppBar({}, null, "3")
     }
 }
 

@@ -11,6 +11,7 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.Item
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.PasswordBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.ProfileResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.ranking.RankingResponse
 import okhttp3.MultipartBody
@@ -96,4 +97,11 @@ interface FMusicApiService {
 
     @GET("/api/get-user/{userId}")
     suspend fun getProfile(@Path("userId") userId: String): Response<ProfileResponse>
+
+
+    @PUT("/api/change-password/{userId}")
+    suspend fun changePassword(
+        @Path("userId") userId: String,
+        @Body passwordBody: PasswordBody
+    ): Response<Unit>
 }

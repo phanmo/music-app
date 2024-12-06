@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
+import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.UserInfo
 import com.fpoly.pro226.music_app.data.source.network.models.Artists
 import com.fpoly.pro226.music_app.data.source.network.models.Playlists
@@ -24,20 +25,27 @@ data class HomeUiState(
     val tracks: Tracks? = null,
     val playlists: Playlists? = null,
     val userInfo: UserInfo? = null,
+    val coinTotal: String = "",
 )
 
-class HomeViewModel(private val deezerRepository: DeezerRepository) : ViewModel() {
+class HomeViewModel(
+    private val deezerRepository: DeezerRepository,
+    private val fMusicRepository: FMusicRepository
+) : ViewModel() {
     companion object {
 
         // Define a custom key for your dependency
         val MY_REPOSITORY_KEY = object : CreationExtras.Key<DeezerRepository> {}
+        val MY_REPOSITORY_KEY_2 = object : CreationExtras.Key<FMusicRepository> {}
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 // Get the dependency in your factory
                 val myRepository = this[MY_REPOSITORY_KEY] as DeezerRepository
+                val myRepository2 = this[MY_REPOSITORY_KEY_2] as FMusicRepository
                 HomeViewModel(
                     deezerRepository = myRepository,
+                    fMusicRepository = myRepository2
                 )
             }
         }
@@ -58,7 +66,27 @@ class HomeViewModel(private val deezerRepository: DeezerRepository) : ViewModel(
 
     fun setCurrentUser(userInfo: UserInfo) {
         homeUiState = homeUiState.copy(userInfo = userInfo)
+        getCoin()
 
+    }
+
+    private fun getCoin() {
+        homeUiState.userInfo?._id?.let { userId ->
+            viewModelScope.launch {
+                try {
+//                    gameUiState = gameUiState.copy(isLoading = true)
+                    val response = fMusicRepository.getCoin(userId)
+                    if (response.isSuccessful) {
+                        response.body()?.let { res ->
+                            homeUiState =
+                                homeUiState.copy(isLoading = false, coinTotal = res.data.toString())
+                        }
+                    }
+                } catch (e: Exception) {
+                    homeUiState = homeUiState.copy(isLoading = false)
+                }
+            }
+        }
     }
 
 

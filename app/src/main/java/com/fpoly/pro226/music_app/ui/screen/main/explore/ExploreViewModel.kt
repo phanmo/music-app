@@ -104,7 +104,7 @@ class ExploreViewModel(private val deezerRepository: DeezerRepository) : ViewMod
         fetchTrack?.cancel()
         fetchTrack = viewModelScope.launch {
             try {
-                exploreUiState = exploreUiState.copy(isLoading = true)
+//                exploreUiState = exploreUiState.copy(isLoading = true)
                 val response = deezerRepository.searchTrack(query)
                 if (response.isSuccessful) {
                     response.body()?.let { tracks ->

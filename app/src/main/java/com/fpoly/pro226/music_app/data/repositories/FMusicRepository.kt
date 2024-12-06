@@ -14,6 +14,7 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.Item
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.PasswordBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.ProfileResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.ranking.RankingResponse
 import kotlinx.coroutines.CoroutineScope
@@ -41,6 +42,7 @@ interface FMusicRepository {
     suspend fun addFavorite(favoriteBody: FavoriteBody): Response<Unit>
     suspend fun getFavorite(userId: String): Response<FavoriteResponse>
     suspend fun getProfile(id: String): Response<ProfileResponse>
+    suspend fun changePassword(userId: String, passwordBody: PasswordBody): Response<Unit>
     suspend fun updateProfileAll(
         userId: String,
         data: Map<String, @JvmSuppressWildcards RequestBody>,
@@ -130,6 +132,15 @@ class FMusicRepositoryImpl(
     override suspend fun getProfile(id: String): Response<ProfileResponse> {
         return externalScope.async {
             fMusicRemoteDataSource.getProfile(id)
+        }.await()
+    }
+
+    override suspend fun changePassword(
+        userId: String,
+        passwordBody: PasswordBody
+    ): Response<Unit> {
+        return externalScope.async {
+            fMusicRemoteDataSource.changePassword(userId, passwordBody)
         }.await()
     }
 

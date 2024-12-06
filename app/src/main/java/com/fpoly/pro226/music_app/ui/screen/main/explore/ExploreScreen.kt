@@ -70,6 +70,7 @@ import com.fpoly.pro226.music_app.data.source.network.models.Genre
 import com.fpoly.pro226.music_app.data.source.network.models.Genres
 import com.fpoly.pro226.music_app.data.source.network.models.Radios
 import com.fpoly.pro226.music_app.data.source.network.models.Track
+import com.fpoly.pro226.music_app.ui.components.LoadingDialog
 import com.fpoly.pro226.music_app.ui.theme.D9D9D9
 import com.fpoly.pro226.music_app.ui.theme._00C2CB
 import com.fpoly.pro226.music_app.ui.theme.black85
@@ -172,6 +173,9 @@ fun ExploreScreen(
         }
         uiState.resulTrack?.data?.let { tracks ->
             ListTrackSearch(tracks, startPlayerActivity)
+        }
+        if (uiState.isLoading) {
+            LoadingDialog(onDismiss = { })
         }
     }
 }

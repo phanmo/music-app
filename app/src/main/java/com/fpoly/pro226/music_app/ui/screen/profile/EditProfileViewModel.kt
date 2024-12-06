@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.UserInfo
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.PasswordBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.ProfileBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.ProfileResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.toAvatarPart
@@ -55,6 +56,8 @@ class EditProfileViewModel(
 
     val profileBody = ProfileBody("", "", "", "")
 
+    val passwordBody = PasswordBody("", "", "")
+
     private var fetchProfile: Job? = null
     var editProfileUiState by mutableStateOf(EditProfileUiState())
         private set
@@ -68,6 +71,40 @@ class EditProfileViewModel(
 
     suspend fun showToast(message: String) {
         _toastEvent.emit(message)
+    }
+
+    fun changePassword() {
+        if (passwordBody.isEmptyPassword()) {
+            viewModelScope.launch {
+                showToast("Password cannot be empty")
+            }
+            return
+        }
+        if (passwordBody.confirmNewPassword()) {
+            viewModelScope.launch {
+                try {
+                    editProfileUiState = editProfileUiState.copy(isLoading = true)
+                    val response = fMusicRepository.changePassword("$userId", passwordBody)
+                    if (response.isSuccessful) {
+                        response.body()?.let { res ->
+                            editProfileUiState = editProfileUiState.copy(isLoading = false)
+                            showToast("Change password successfully")
+                        }
+                    } else {
+                        response.errorBody()?.let { res ->
+                            editProfileUiState = editProfileUiState.copy(isLoading = false)
+                            showToast("Current password incorrect")
+                        }
+                    }
+                } catch (e: Exception) {
+                    editProfileUiState = editProfileUiState.copy(isLoading = false)
+                }
+            }
+        } else {
+            viewModelScope.launch {
+                showToast("Password do not match !")
+            }
+        }
     }
 
     private fun getProfile(id: String) {

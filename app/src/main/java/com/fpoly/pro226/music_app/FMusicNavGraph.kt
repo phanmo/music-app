@@ -22,9 +22,9 @@ import com.fpoly.pro226.music_app.ui.screen.myplaylist.MyPlaylistScreen
 import com.fpoly.pro226.music_app.ui.screen.playlist.PlaylistScreen
 import com.fpoly.pro226.music_app.ui.screen.profile.ChangePasswordScreen
 import com.fpoly.pro226.music_app.ui.screen.profile.EditProfileScreen
-import com.fpoly.pro226.music_app.ui.screen.settings.SettingScreen
 import com.fpoly.pro226.music_app.ui.screen.ranking.RankingScreen
 import com.fpoly.pro226.music_app.ui.screen.register.RegisterScreen
+import com.fpoly.pro226.music_app.ui.screen.settings.SettingScreen
 import com.fpoly.pro226.music_app.ui.screen.splash.GuideScreen
 import com.fpoly.pro226.music_app.ui.screen.track.TrackScreen
 import kotlinx.coroutines.CoroutineScope
@@ -153,6 +153,7 @@ fun FMusicNavGraph(
 
         composable(FMusicDestinations.CHANGE_PASSWORD_ROUTE) {
             ChangePasswordScreen(
+                appContainer = appContainer,
                 onBack = {
                     navController.popBackStack()
                 },
