@@ -13,6 +13,8 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.Play
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlaylistBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.ProfileResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.ranking.RankingResponse
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.register.RegisterBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.register.RegisterResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -35,7 +37,8 @@ interface FMusicApiService {
 
     @POST("/api/login")
     suspend fun login(@Body user: UserBody): Response<LoginResponse>
-
+    @POST("/api/register")
+    suspend fun register(@Body user: RegisterBody): Response<RegisterResponse>
     @POST("/api/add-playlist")
     suspend fun addPlaylist(@Body playlistBody: PlaylistBody): Response<Unit>
 

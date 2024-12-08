@@ -143,11 +143,14 @@ fun FMusicNavGraph(
 
         composable(FMusicDestinations.REGISTER_ROUTE) {
             RegisterScreen(
+                fMusicRepository = appContainer.fMusicRepository,
                 onBack = {
                     navController.popBackStack()
                 },
                 onRegisterSuccess = {
-                    navController.popBackStack()
+                    navController.navigate(FMusicDestinations.LOGIN_ROUTE) {
+                        popUpTo(FMusicDestinations.REGISTER_ROUTE) { inclusive = true }
+                    }
                 })
         }
 
