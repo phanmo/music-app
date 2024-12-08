@@ -17,6 +17,8 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.Play
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.PasswordBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.profile.ProfileResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.ranking.RankingResponse
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.register.RegisterBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.register.RegisterResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import okhttp3.MultipartBody
@@ -33,6 +35,7 @@ interface FMusicRepository {
     suspend fun addItemToPlaylist(itemPlaylistBody: ItemPlaylistBody): Response<ItemPlaylistResponse>
     suspend fun getAllTrackByPlaylistId(idPlaylist: String): Response<ItemPlaylistResponse>
     suspend fun login(user: UserBody): Response<LoginResponse>
+    suspend fun register(user: RegisterBody): Response<RegisterResponse>
     suspend fun deleteComment(commentId: String): Response<CommentResponse>
     suspend fun getComments(trackId: String): Response<CommentResponse>
     suspend fun getRanking(): Response<RankingResponse>
@@ -77,6 +80,11 @@ class FMusicRepositoryImpl(
     override suspend fun login(user: UserBody): Response<LoginResponse> {
         return externalScope.async {
             fMusicRemoteDataSource.login(user)
+        }.await()
+    }
+    override suspend fun register(user: RegisterBody): Response<RegisterResponse> {
+        return externalScope.async {
+            fMusicRemoteDataSource.register(user)
         }.await()
     }
 
