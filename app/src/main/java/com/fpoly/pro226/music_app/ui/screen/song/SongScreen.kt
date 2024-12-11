@@ -31,6 +31,7 @@ import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.rememberModalBottomSheetState
@@ -90,6 +91,7 @@ import com.fpoly.pro226.music_app.components.services.FMusicPlaybackService
 import com.fpoly.pro226.music_app.components.services.MediaItemTree
 import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.comment.CommentBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.UserInfo
 import com.fpoly.pro226.music_app.data.source.network.models.toFavoriteBody
 import com.fpoly.pro226.music_app.data.source.network.models.toItemPlaylistBody
 import com.fpoly.pro226.music_app.ui.components.InputTextField
@@ -122,6 +124,7 @@ fun SongScreen(
         factory = SongViewModel.provideFactory(PreferencesManager(context).getUserId() ?: ""),
         extras = extras,
     )
+    val userInfo: UserInfo? = PreferencesManager(context).getUser()
 
     val uiState = vm.songUiState
     val sheetState = rememberModalBottomSheetState(
@@ -199,13 +202,12 @@ fun SongScreen(
         )
 
     }
-
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize(),
         topBar = {
             SongTopAppBar(currentMediaMetadata.value?.albumTitle.toString())
         },
-
         ) { innerPadding ->
         ModalBottomSheetLayout(
             sheetShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp),
@@ -239,7 +241,8 @@ fun SongScreen(
                                         .padding(horizontal = 4.dp)
                                         .clickable {
                                             mediaController.value?.currentMediaItemIndex?.let {
-                                                val currentTrack = MediaItemTree.currentTracks[it]
+                                                val currentTrack =
+                                                    MediaItemTree.currentTracks[it]
                                                 val itemPlaylistBody =
                                                     currentTrack.toItemPlaylistBody(data[index]._id)
                                                 vm.addItemToPlaylist(itemPlaylistBody)
@@ -326,8 +329,8 @@ fun SongScreen(
                                         Row(
                                             modifier = modifier
                                                 .fillMaxWidth()
-                                                .padding(vertical = 12.dp, horizontal = 16.dp),
-                                            verticalAlignment = Alignment.CenterVertically
+                                                .padding(vertical = 8.dp, horizontal = 16.dp),
+                                            verticalAlignment = Alignment.Top
                                         ) {
                                             // Avatar
                                             AsyncImage(
@@ -335,8 +338,8 @@ fun SongScreen(
                                                 contentScale = ContentScale.Crop,
                                                 contentDescription = "Avatar",
                                                 modifier = Modifier
-                                                    .size(42.dp)
-                                                    .clip(RoundedCornerShape(10.dp)),
+                                                    .size(38.dp)
+                                                    .clip(CircleShape),
                                                 placeholder = painterResource(R.drawable.ic_app),
                                                 error = painterResource(R.drawable.ic_app)
                                             )
@@ -351,10 +354,11 @@ fun SongScreen(
                                                 ) {
                                                     Text(
                                                         color = _1E1E1E_85,
-                                                        text = "${comments[index].username ?: "#anonymous"}",
+                                                        text = comments[index].username
+                                                            ?: "#anonymous",
                                                         style = MaterialTheme.typography.bodySmall,
                                                         fontWeight = FontWeight.Bold,
-                                                        fontSize = 14.sp
+                                                        fontSize = 12.sp
                                                     )
                                                     Spacer(modifier = Modifier.width(8.dp))
 
@@ -368,16 +372,29 @@ fun SongScreen(
                                                         )
                                                     }
                                                 }
-                                                Spacer(modifier = Modifier.height(4.dp))
-
                                                 Text(
                                                     text = comments[index].content,
                                                     style = MaterialTheme.typography.bodyMedium,
                                                     color = _00C2CB,
-                                                    fontSize = 12.sp
+                                                    fontSize = 14.sp
 
                                                 )
                                             }
+                                            if (userInfo?._id == comments[index].id_user) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Delete,
+                                                    modifier = Modifier
+                                                        .size(17.dp)
+                                                        .clip(CircleShape)
+                                                        .clickable {
+                                                            vm.deleteComment(comments[index]._id)
+                                                        },
+                                                    contentDescription = "Delete",
+                                                    tint = Color.Gray
+                                                )
+                                            }
+
+
                                         }
                                     }
                                 }
@@ -387,7 +404,10 @@ fun SongScreen(
                             }
 
                         }
-                        CommentSection(Modifier.align(Alignment.BottomCenter)) { content ->
+                        CommentSection(
+                            Modifier.align(Alignment.BottomCenter),
+                            userInfo
+                        ) { content ->
                             mediaController.value?.currentMediaItemIndex?.let {
                                 val currentTrack = MediaItemTree.currentTracks[it]
                                 vm.addComment(
@@ -476,7 +496,7 @@ fun SongTopAppBar(albumName: String?) {
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Black // App bar background color
+            containerColor = Color.Black
         ),
         modifier = Modifier.fillMaxWidth()
     )
@@ -484,7 +504,7 @@ fun SongTopAppBar(albumName: String?) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CommentSection(modifier: Modifier, onSend: (String) -> Unit) {
+fun CommentSection(modifier: Modifier, userInfo: UserInfo?, onSend: (String) -> Unit) {
     var comment by remember { mutableStateOf("") }
     val textFieldColors = TextFieldDefaults.outlinedTextFieldColors(
         focusedBorderColor = Color.Transparent,
@@ -497,19 +517,20 @@ fun CommentSection(modifier: Modifier, onSend: (String) -> Unit) {
         modifier = modifier
             .fillMaxWidth()
             .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Avatar
-        Image(
-            painter = painterResource(id = R.drawable.ic_app),
-            contentDescription = "Avatar",
+        AsyncImage(
+            model = "${userInfo?.avatar}",
+            contentDescription = "Profile Picture",
+            placeholder = painterResource(R.drawable.cuteboy),
+            error = painterResource(R.drawable.cuteboy),
             modifier = Modifier
                 .size(42.dp)
-                .clip(CircleShape)
-                .border(1.dp, Color.Gray, CircleShape)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
         )
-
         InputTextField(
             textFieldColors = textFieldColors,
             singleLine = true,
@@ -517,9 +538,10 @@ fun CommentSection(modifier: Modifier, onSend: (String) -> Unit) {
             placeHolder = { Text("Write a comment", color = D9D9D9, fontSize = 13.sp) },
             onValueChange = { comment = it },
             modifier = Modifier
-                .weight(1.3f)
-                .padding(horizontal = 8.dp)
+                .padding(start = 8.dp)
                 .height(40.dp)
+                .fillMaxWidth()
+                .weight(1f)
                 .border(width = 1.dp, shape = RoundedCornerShape(24.dp), color = D9D9D9)
 
         )
@@ -591,7 +613,13 @@ fun SongContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color.Black)
+                .background(Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF102B2D),
+                        Color(0xFF000000),
+                        Color(0xFF000000),
+                    )
+                ))
                 .verticalScroll(state),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -605,7 +633,7 @@ fun SongContent(
                     .fillMaxWidth()
                     .height(330.dp)
                     .padding(horizontal = 24.dp)
-                    .clip(RoundedCornerShape(4.dp))
+                    .clip(CircleShape)
 
             )
             Text(
@@ -847,6 +875,16 @@ fun Timeline(value: String) {
         fontSize = 12.sp,
         style = MaterialTheme.typography.bodyLarge
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CommentPreview() {
+    MusicAppTheme {
+        CommentSection(Modifier, userInfo = null) {
+
+        }
+    }
 }
 
 @Preview(showBackground = true)

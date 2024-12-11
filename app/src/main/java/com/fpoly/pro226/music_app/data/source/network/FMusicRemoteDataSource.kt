@@ -7,6 +7,7 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.Favo
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.UserBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.DeleteItemBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
@@ -71,9 +72,9 @@ class FMusicRemoteDataSource(
             fMusicApiService.getCoin(idUser)
         }
 
-    suspend fun deleteItemInPlaylist(idTrack: String): Response<ItemPlaylistResponse> =
+    suspend fun deleteItemInPlaylist(deleteItemBody: DeleteItemBody): Response<ItemPlaylistResponse> =
         withContext(ioDispatcher) {
-            fMusicApiService.deleteItemInPlaylist(idTrack)
+            fMusicApiService.deleteItemInPlaylist(deleteItemBody)
         }
 
     suspend fun addComment(commentBody: CommentBody): Response<CommentResponse> =

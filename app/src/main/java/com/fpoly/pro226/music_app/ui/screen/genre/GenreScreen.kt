@@ -56,45 +56,45 @@ fun GenreScreen(
         topBar = {
             TopBar(onBack)
         }) { innerPadding ->
-        val tabs = listOf("Artists", "Radios")
+        val tabs = listOf("Artists")
         var selectedTabIndex by remember { mutableIntStateOf(0) }
         val pagerState = rememberPagerState(pageCount = { tabs.size })
         val coroutineScope = rememberCoroutineScope()
 
         Column(modifier = Modifier.padding(innerPadding)) {
-            TabRow(
-                selectedTabIndex = selectedTabIndex,
-                indicator = { tabPositions ->
-                    Box(
-                        modifier = Modifier
-                            .tabIndicatorOffset(tabPositions[selectedTabIndex])
-                            .height(4.dp)
-                            .background(Color.Cyan)
-                    )
-                },
-                containerColor = Color.Black
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = {
-                            selectedTabIndex = index
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(index)
-                            }
-                        },
-                        text = {
-                            Text(
-                                text = title,
-                                color = if (selectedTabIndex == index) Color.Cyan else Color.White,
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontSize = 16.sp
-                            )
-                        }
-                    )
-                }
-            }
+//            TabRow(
+//                selectedTabIndex = selectedTabIndex,
+//                indicator = { tabPositions ->
+//                    Box(
+//                        modifier = Modifier
+//                            .tabIndicatorOffset(tabPositions[selectedTabIndex])
+//                            .height(4.dp)
+//                            .background(Color.Cyan)
+//                    )
+//                },
+//                containerColor = Color.Black
+//            ) {
+//                tabs.forEachIndexed { index, title ->
+//                    Tab(
+//                        selected = selectedTabIndex == index,
+//                        onClick = {
+//                            selectedTabIndex = index
+//                            coroutineScope.launch {
+//                                pagerState.animateScrollToPage(index)
+//                            }
+//                        },
+//                        text = {
+//                            Text(
+//                                text = title,
+//                                color = if (selectedTabIndex == index) Color.Cyan else Color.White,
+//                                fontWeight = FontWeight.Bold,
+//                                style = MaterialTheme.typography.bodyLarge,
+//                                fontSize = 16.sp
+//                            )
+//                        }
+//                    )
+//                }
+//            }
             HorizontalPager(
                 state = pagerState,
                 userScrollEnabled = false
@@ -133,11 +133,11 @@ fun TopBar(onBack: () -> Unit) {
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "POP",
+                    text = "ARTISTS",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White
+                    color = Color.Cyan
                 )
                 Text(
                     text = "Past 30 Days",

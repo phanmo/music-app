@@ -59,7 +59,7 @@ class MyPlaylistViewModel(
 
     init {
         Log.d("TAG", "init: ")
-        getAllPlaylist()
+        getAllPlaylist(true)
     }
 
 
@@ -67,12 +67,12 @@ class MyPlaylistViewModel(
         _toastEvent.emit(message)
     }
 
-    fun getAllPlaylist() {
+    fun getAllPlaylist(isLoading: Boolean) {
         userId?.let { id ->
             fetchPlaylists?.cancel()
             fetchPlaylists = viewModelScope.launch {
                 try {
-                    myPlaylistUiState = myPlaylistUiState.copy(isLoading = true)
+                    myPlaylistUiState = myPlaylistUiState.copy(isLoading = isLoading)
                     val response = fMusicRepository.getPlaylist(id)
                     if (response.isSuccessful) {
                         response.body()?.let { res ->
@@ -129,7 +129,7 @@ class MyPlaylistViewModel(
                     myPlaylistUiState = myPlaylistUiState.copy(isLoading = true)
                     val response = fMusicRepository.addPlaylist(playlistBody)
                     if (response.isSuccessful) {
-                        getAllPlaylist()
+                        getAllPlaylist(true)
                     } else if (response.code() == 400) {
                         response.errorBody()?.let { res ->
                             try {

@@ -36,6 +36,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -94,6 +95,15 @@ fun MyPlaylistScreen(
     )
 
     val uiState = vm.myPlaylistUiState
+
+    DisposableEffect(Unit) {
+        if (!uiState.isLoading) {
+            vm.getAllPlaylist(false)
+        }
+        onDispose {
+
+        }
+    }
     LaunchedEffect(Unit) {
         vm.toastEvent.collect { message ->
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()

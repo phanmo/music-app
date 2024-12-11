@@ -11,6 +11,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.fpoly.pro226.music_app.data.repositories.DeezerRepository
 import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.DeleteItemBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.toTrack
 import com.fpoly.pro226.music_app.data.source.network.models.Playlist
 import com.fpoly.pro226.music_app.data.source.network.models.Tracks
@@ -27,8 +29,10 @@ class PlaylistViewModel(
     private val deezerRepository: DeezerRepository,
     private val fMusicRepository: FMusicRepository,
     private val idPlaylist: String,
-    private val isMyPlaylist: Boolean = false
-) : ViewModel() {
+    private val isMyPlaylist: Boolean = false,
+    private val userId: String,
+
+    ) : ViewModel() {
     companion object {
 
         // Define a custom key for your dependency
@@ -38,6 +42,7 @@ class PlaylistViewModel(
         fun provideFactory(
             idPlaylist: String,
             isMyPlaylist: Boolean = false,
+            userId: String
         ): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val fMusicRepo = this[MY_REPOSITORY_KEY] as FMusicRepository
@@ -47,7 +52,8 @@ class PlaylistViewModel(
                     deezerRepository = deezerRepo,
                     idPlaylist = idPlaylist,
                     fMusicRepository = fMusicRepo,
-                    isMyPlaylist = isMyPlaylist
+                    isMyPlaylist = isMyPlaylist,
+                    userId = userId
                 )
             }
         }
@@ -81,11 +87,40 @@ class PlaylistViewModel(
                             playlist = playlist
                         )
                     }
+                } else {
+                    playlistUiState = playlistUiState.copy(isLoading = false)
                 }
             } catch (e: Exception) {
                 playlistUiState = playlistUiState.copy(isLoading = false)
             } finally {
                 fetchTracks = null
+            }
+        }
+    }
+
+    fun deleteItemPlaylist(deleteItemBody: DeleteItemBody) {
+        viewModelScope.launch {
+            try {
+                playlistUiState = playlistUiState.copy(isLoading = true)
+                val response = fMusicRepository.deleteItemInPlaylist(deleteItemBody)
+                if (response.isSuccessful) {
+                    response.body()?.let { playlist ->
+                        playlistUiState = playlistUiState.copy(
+                            tracks = Tracks(data = playlist.data.map { itemPlaylist ->
+                                itemPlaylist.toTrack()
+                            }),
+                            isLoading = false,
+                            playlist = Playlist(
+                                title = playlist.playlistName ?: "",
+                                description = "${playlist.data.size} Songs"
+                            )
+                        )
+                    }
+                } else {
+                    playlistUiState = playlistUiState.copy(isLoading = false)
+                }
+            } catch (e: Exception) {
+                playlistUiState = playlistUiState.copy(isLoading = false)
             }
         }
     }
@@ -110,6 +145,8 @@ class PlaylistViewModel(
                             )
                         )
                     }
+                } else {
+                    playlistUiState = playlistUiState.copy(isLoading = false)
                 }
             } catch (e: Exception) {
                 playlistUiState = playlistUiState.copy(isLoading = false)

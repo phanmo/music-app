@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,8 +51,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.fpoly.pro226.music_app.R
 import com.fpoly.pro226.music_app.components.di.AppContainer
+import com.fpoly.pro226.music_app.data.source.local.PreferencesManager
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.DeleteItemBody
 import com.fpoly.pro226.music_app.data.source.network.models.Playlist
 import com.fpoly.pro226.music_app.data.source.network.models.Track
+import com.fpoly.pro226.music_app.ui.components.LoadingDialog
 import com.fpoly.pro226.music_app.ui.theme.Black
 import com.fpoly.pro226.music_app.ui.theme.FFFFFF_70
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
@@ -67,6 +71,8 @@ fun PlaylistScreen(
     isMyPlaylist: Boolean = false
 
 ) {
+
+    val context = LocalContext.current
     val menuStates = remember { mutableStateMapOf<String, Boolean>() }
 
     val extras = MutableCreationExtras().apply {
@@ -77,7 +83,8 @@ fun PlaylistScreen(
     val vm: PlaylistViewModel = viewModel(
         factory = PlaylistViewModel.provideFactory(
             idPlaylist = idPlaylist,
-            isMyPlaylist = isMyPlaylist
+            isMyPlaylist = isMyPlaylist,
+            userId = PreferencesManager(context).getUserId() ?: ""
         ),
         extras = extras
     )
@@ -90,147 +97,168 @@ fun PlaylistScreen(
         }
     }
 
-    Scaffold(
-        backgroundColor = Color.Black,
-        topBar = { TopBar(onBack) }
-    )
-    { innerPadding ->
-        LazyColumn(
-            modifier = Modifier.padding(
-                innerPadding
-            )
-        ) {
-            item {
-                AvatarPlaylist(uiState.playlist)
-            }
-            item {
-                Spacer(modifier = Modifier.height(40.dp))
-            }
-            uiState.tracks?.data?.let { tracks ->
-                items(tracks.size) { index ->
-                    Card(
-                        shape = RectangleShape, // This removes the corner radius
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .clickable {
-                                startPlayerActivity(tracks, index)
-                            },
-                        colors = CardDefaults.cardColors(containerColor = Black)
-                    ) {
-                        Box {
-                            Row(
-                                horizontalArrangement = Arrangement.Start,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 6.dp, horizontal = 8.dp)
-                            ) {
-                                AsyncImage(
-                                    model = tracks[index].album?.cover_medium,
-                                    contentScale = ContentScale.Crop,
-                                    contentDescription = "Artists avatar",
-                                    placeholder = painterResource(R.drawable.ic_app),
-                                    error = painterResource(R.drawable.ic_app),
+    Box {
+        Scaffold(
+            backgroundColor = Color.Black,
+            topBar = { TopBar(onBack) }
+        )
+        { innerPadding ->
+            LazyColumn(
+                modifier = Modifier.padding(
+                    innerPadding
+                )
+            ) {
+                item {
+                    AvatarPlaylist(uiState.playlist)
+                }
+                item {
+                    Spacer(modifier = Modifier.height(40.dp))
+                }
+                uiState.tracks?.data?.let { tracks ->
+                    items(tracks.size) { index ->
+                        Card(
+                            shape = RectangleShape, // This removes the corner radius
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .clickable {
+                                    startPlayerActivity(tracks, index)
+                                },
+                            colors = CardDefaults.cardColors(containerColor = Black)
+                        ) {
+                            Box {
+                                Row(
+                                    horizontalArrangement = Arrangement.Start,
+                                    verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
-                                        .size(52.dp)
-                                        .clip(RoundedCornerShape(5.dp))
-                                )
-
-                                Spacer(modifier = Modifier.width(12.dp))
-
-                                Column(
-                                    modifier = Modifier.weight(1f)
+                                        .fillMaxWidth()
+                                        .padding(vertical = 6.dp, horizontal = 8.dp)
                                 ) {
-                                    Text(
-                                        color = Color.White,
-                                        text = tracks[index].title,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp
+                                    AsyncImage(
+                                        model = tracks[index].album?.cover_medium,
+                                        contentScale = ContentScale.Crop,
+                                        contentDescription = "Artists avatar",
+                                        placeholder = painterResource(R.drawable.ic_app),
+                                        error = painterResource(R.drawable.ic_app),
+                                        modifier = Modifier
+                                            .size(52.dp)
+                                            .clip(RoundedCornerShape(5.dp))
                                     )
-                                    Text(
-                                        text = tracks[index].artist?.name ?: "",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = Color.Gray,
-                                        fontSize = 12.sp
 
-                                    )
-                                }
-                                IconButton(onClick = {
-                                    menuStates[tracks[index].id] =
-                                        !(menuStates[tracks[index].id] ?: false)
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.MoreVert,
-                                        contentDescription = "More options",
-                                        tint = Color.White
-                                    )
-                                }
-                            }
-                            if (menuStates[tracks[index].id] == true) {
-                                Popup(
-                                    alignment = Alignment.CenterEnd,
-                                    onDismissRequest = { menuStates[tracks[index].id] = false }
-                                ) {
-                                    Box(modifier = Modifier
-                                        .padding(end = 40.dp)
-                                        .clickable {
-                                            menuStates[tracks[index].id] = false
-//                                                    showDialogConfirm = data[index]
+                                    Spacer(modifier = Modifier.width(12.dp))
+
+                                    Column(
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text(
+                                            color = Color.White,
+                                            text = tracks[index].title,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp
+                                        )
+                                        Text(
+                                            text = tracks[index].artist?.name ?: "",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = Color.Gray,
+                                            fontSize = 12.sp
+
+                                        )
+                                    }
+                                    if (isMyPlaylist) {
+                                        IconButton(onClick = {
+                                            menuStates[tracks[index].id] =
+                                                !(menuStates[tracks[index].id] ?: false)
                                         }) {
-                                        Box(
-                                            modifier = Modifier
-                                                .background(
-                                                    Color.White,
-                                                    shape = RoundedCornerShape(8.dp)
-                                                )
-                                                .padding(4.dp)
+                                            Icon(
+                                                imageVector = Icons.Default.MoreVert,
+                                                contentDescription = "More options",
+                                                tint = Color.White
+                                            )
 
-                                        ) {
-                                            Row(
-                                                horizontalArrangement = Arrangement.Center,
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                modifier = Modifier.padding(
-                                                    horizontal = 8.dp,
-                                                    vertical = 4.dp
-                                                ),
-                                            ) {
-                                                Text(
-                                                    style = MaterialTheme.typography.titleSmall,
-                                                    text = if (isMyPlaylist) {
-                                                        "Delete"
-                                                    } else {
-                                                        "Add to favorites"
-                                                    },
-                                                    color = _00C2CB
-                                                )
-                                                Spacer(modifier = Modifier.width(4.dp))
-                                                Image(
-                                                    colorFilter = ColorFilter.tint(_00C2CB),
-                                                    modifier = Modifier.size(20.dp),
-                                                    painter = painterResource(
-                                                        if (isMyPlaylist) {
-                                                            R.drawable.baseline_delete_24
-                                                        } else {
-                                                            R.drawable.love
-                                                        }
-                                                    ),
-
-                                                    contentDescription = "null"
-                                                )
-                                            }
                                         }
+                                    } else {
+                                        Image(
+                                            painter = painterResource(R.drawable.baseline_play_circle_outline_24),
+                                            contentDescription = "Play",
+                                            colorFilter = ColorFilter.tint(Color.White)
+                                        )
                                     }
 
+                                }
+                                if (menuStates[tracks[index].id] == true) {
+                                    Popup(
+                                        alignment = Alignment.CenterEnd,
+                                        onDismissRequest = { menuStates[tracks[index].id] = false }
+                                    ) {
+                                        Box(modifier = Modifier
+                                            .padding(end = 40.dp)
+                                            .clickable {
+                                                menuStates[tracks[index].id] = false
+                                                if (isMyPlaylist) {
+                                                    val deleteItemBody = DeleteItemBody(
+                                                        id_playlist = idPlaylist,
+                                                        id_track = tracks[index].id
+                                                    )
+                                                    vm.deleteItemPlaylist(deleteItemBody)
+                                                }
+                                            }) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .background(
+                                                        Color.White,
+                                                        shape = RoundedCornerShape(8.dp)
+                                                    )
+                                                    .padding(4.dp)
+
+                                            ) {
+                                                Row(
+                                                    horizontalArrangement = Arrangement.Center,
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    modifier = Modifier.padding(
+                                                        horizontal = 8.dp,
+                                                        vertical = 4.dp
+                                                    ),
+                                                ) {
+                                                    Text(
+                                                        style = MaterialTheme.typography.titleSmall,
+                                                        text = if (isMyPlaylist) {
+                                                            "Delete"
+                                                        } else {
+                                                            "Add to favorites"
+                                                        },
+                                                        color = _00C2CB
+                                                    )
+                                                    Spacer(modifier = Modifier.width(4.dp))
+                                                    Image(
+                                                        colorFilter = ColorFilter.tint(_00C2CB),
+                                                        modifier = Modifier.size(20.dp),
+                                                        painter = painterResource(
+                                                            if (isMyPlaylist) {
+                                                                R.drawable.baseline_delete_24
+                                                            } else {
+                                                                R.drawable.love
+                                                            }
+                                                        ),
+
+                                                        contentDescription = "null"
+                                                    )
+                                                }
+                                            }
+                                        }
+
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
 
+        }
+        if (vm.playlistUiState.isLoading) {
+            LoadingDialog(onDismiss = { })
+        }
     }
 }
 

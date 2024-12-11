@@ -7,6 +7,7 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.Favo
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.UserBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.DeleteItemBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
@@ -22,6 +23,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -49,8 +51,8 @@ interface FMusicApiService {
     @GET("/api/get-list-playlist-item/{idPlaylist}")
     suspend fun getAllTrackByPlaylistId(@Path("idPlaylist") idPlaylist: String): Response<ItemPlaylistResponse>
 
-    @GET("/api/delete-playlist-item/{idTrack}")
-    suspend fun deleteItemInPlaylist(@Path("idTrack") idTrack: String): Response<ItemPlaylistResponse>
+    @HTTP(method = "DELETE", path = "/api/delete-playlist-item", hasBody = true)
+    suspend fun deleteItemInPlaylist(@Body deleteItemBody: DeleteItemBody): Response<ItemPlaylistResponse>
 
     @POST("/api/add-coin")
     suspend fun addCoin(@Body playlistBody: PlaylistBody): Response<CoinResponse>

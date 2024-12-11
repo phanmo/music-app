@@ -102,8 +102,8 @@ fun SettingScreen(
                 AsyncImage(
                     model = "${userInfo?.avatar}",
                     contentDescription = "Avatar",
-                    placeholder = painterResource(R.drawable.ic_app),
-                    error = painterResource(R.drawable.ic_app),
+                    placeholder = painterResource(R.drawable.cuteboy),
+                    error = painterResource(R.drawable.cuteboy),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize()

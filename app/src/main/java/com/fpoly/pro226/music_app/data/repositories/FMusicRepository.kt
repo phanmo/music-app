@@ -10,6 +10,7 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.Favo
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.favorite.FavoriteResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.LoginResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.UserBody
+import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.DeleteItemBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistBody
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.ItemPlaylistResponse
 import com.fpoly.pro226.music_app.data.source.network.fmusic_model.playlist.PlayListResponse
@@ -40,7 +41,7 @@ interface FMusicRepository {
     suspend fun getComments(trackId: String): Response<CommentResponse>
     suspend fun getRanking(): Response<RankingResponse>
     suspend fun addComment(commentBody: CommentBody): Response<CommentResponse>
-
+    suspend fun deleteItemInPlaylist(deleteItemBody: DeleteItemBody): Response<ItemPlaylistResponse>
     suspend fun deleteFavorite(id: String): Response<Unit>
     suspend fun addFavorite(favoriteBody: FavoriteBody): Response<Unit>
     suspend fun getFavorite(userId: String): Response<FavoriteResponse>
@@ -82,6 +83,7 @@ class FMusicRepositoryImpl(
             fMusicRemoteDataSource.login(user)
         }.await()
     }
+
     override suspend fun register(user: RegisterBody): Response<RegisterResponse> {
         return externalScope.async {
             fMusicRemoteDataSource.register(user)
@@ -109,6 +111,12 @@ class FMusicRepositoryImpl(
     override suspend fun addComment(commentBody: CommentBody): Response<CommentResponse> {
         return externalScope.async {
             fMusicRemoteDataSource.addComment(commentBody)
+        }.await()
+    }
+
+    override suspend fun deleteItemInPlaylist(deleteItemBody: DeleteItemBody): Response<ItemPlaylistResponse> {
+        return externalScope.async {
+            fMusicRemoteDataSource.deleteItemInPlaylist(deleteItemBody)
         }.await()
     }
 
