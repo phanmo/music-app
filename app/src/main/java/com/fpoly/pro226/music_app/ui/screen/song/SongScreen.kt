@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,9 +46,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -106,13 +110,15 @@ import com.fpoly.pro226.music_app.ui.theme._A6F3FF
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 @Composable
 fun SongScreen(
     modifier: Modifier = Modifier,
-    appContainer: AppContainer
+    appContainer: AppContainer,
+    scheduleDelayedAction: (Long) -> Unit
 ) {
 
     val extras = MutableCreationExtras().apply {
@@ -208,7 +214,7 @@ fun SongScreen(
         topBar = {
             SongTopAppBar(currentMediaMetadata.value?.albumTitle.toString())
         },
-        ) { innerPadding ->
+    ) { innerPadding ->
         ModalBottomSheetLayout(
             sheetShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp),
             sheetState = sheetState,
@@ -442,7 +448,8 @@ fun SongScreen(
                         sheetState.show()
                     }
                 },
-                viewModel = vm
+                viewModel = vm,
+                scheduleDelayedAction = scheduleDelayedAction
 
             )
         }
@@ -572,8 +579,18 @@ fun SongContent(
     isPlaying: Boolean,
     openBottomSheet: () -> Unit,
     openCommentBottomSheet: () -> Unit,
-    viewModel: SongViewModel
+    viewModel: SongViewModel,
+    scheduleDelayedAction: (Long) -> Unit,
 ) {
+    var showDial by remember { mutableStateOf(false) }
+    val currentTime = Calendar.getInstance()
+
+    val timePickerState = rememberTimePickerState(
+        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
+        initialMinute = currentTime.get(Calendar.MINUTE),
+        is24Hour = true,
+    )
+
     var comment by remember { mutableStateOf(TextFieldValue("")) }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -613,13 +630,15 @@ fun SongContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFF102B2D),
-                        Color(0xFF000000),
-                        Color(0xFF000000),
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFF102B2D),
+                            Color(0xFF000000),
+                            Color(0xFF000000),
+                        )
                     )
-                ))
+                )
                 .verticalScroll(state),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -745,7 +764,7 @@ fun SongContent(
                 horizontalArrangement = Arrangement.Center
             ) {
                 IconButton(onClick = {
-                    //                openBottomSheet()
+                    showDial = true
                 }) {
                     Image(
                         painter = painterResource(id = R.drawable.baseline_alarm_24),
@@ -853,7 +872,75 @@ fun SongContent(
 
             }
         }
+        if (showDial) {
+            TimePickerDialog(onConfirm = {
+                val targetTime = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                    set(Calendar.MINUTE, timePickerState.minute)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                showDial = false
+                scheduleDelayedAction(calculateMinutesToTimeSet(targetTime))
+            }, onDismiss = {
+                showDial = false
+
+            }) {
+                TimePicker(
+                    state = timePickerState,
+                )
+            }
+        }
     }
+}
+
+@Composable
+fun TimePickerDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        dismissButton = {
+            TextButton(onClick = { onDismiss() }) {
+                Text("Dismiss")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm() }) {
+                Text("OK")
+            }
+        },
+        text = { content() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+fun TimePickerPreview() {
+    val currentTime = Calendar.getInstance()
+
+    val timePickerState = rememberTimePickerState(
+        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
+        initialMinute = currentTime.get(Calendar.MINUTE),
+        is24Hour = true,
+    )
+
+    MusicAppTheme {
+        TimePickerDialog(onConfirm = {}, onDismiss = {}) {
+            TimePicker(
+                state = timePickerState,
+            )
+        }
+    }
+}
+
+fun calculateMinutesToTimeSet(targetTime: Calendar): Long {
+    val now = Calendar.getInstance()
+    val diffInMillis = targetTime.timeInMillis - now.timeInMillis
+    return diffInMillis / (1000 * 60)
 }
 
 fun formatTime(timeMs: Long): String {
@@ -914,7 +1001,7 @@ fun SongContentPreview() {
     )
     MusicAppTheme {
         Scaffold { innerPadding ->
-            SongContent(innerPadding, remember { mutableStateOf(null) }, null, false, {}, {}, vm)
+            SongContent(innerPadding, remember { mutableStateOf(null) }, null, false, {}, {}, vm) {}
         }
     }
 }
