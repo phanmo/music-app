@@ -162,6 +162,7 @@ class EditProfileViewModel(
                         onSuccess(res.data)
                     }
                 } else {
+                    editProfileUiState = editProfileUiState.copy(isLoading = false)
                     showToast("Updated profile failed")
                 }
             } catch (e: Exception) {

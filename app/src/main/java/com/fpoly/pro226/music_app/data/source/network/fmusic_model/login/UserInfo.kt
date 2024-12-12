@@ -21,7 +21,7 @@ data class UserInfo(
         return try {
             val zonedDateTime =
                 ZonedDateTime.parse(birthday).withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))
-            "${zonedDateTime.dayOfMonth}-${zonedDateTime.month.value}-${zonedDateTime.year}"
+            "${zonedDateTime.month.value}-${zonedDateTime.dayOfMonth}-${zonedDateTime.year}"
         } catch (e: Exception) {
             birthday
         }
