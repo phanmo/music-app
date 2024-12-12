@@ -11,13 +11,13 @@ data class UserInfo(
     val email: String,
     val username: String,
     val coin: Int,
-    val birthday: String,
+    val birthday: String = "",
     val name: String,
     val avatar: String,
     val password: String,
     val updatedAt: String
 ) {
-    fun getBirthdayByString(): String {
+    fun getBirthdayByString(): String? {
         return try {
             val zonedDateTime =
                 ZonedDateTime.parse(birthday).withZoneSameInstant(ZoneId.of("Asia/Ho_Chi_Minh"))

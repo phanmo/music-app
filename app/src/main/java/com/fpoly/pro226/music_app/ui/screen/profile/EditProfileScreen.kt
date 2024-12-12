@@ -206,11 +206,11 @@ fun EditProfileScreen(onBack: () -> Unit, appContainer: AppContainer) {
                         },
                     )
                     TextField(
-                        value = uiState.userInfo.getBirthdayByString(),
+                        value = uiState.userInfo.getBirthdayByString()?:" ",
                         label = "Birthday",
                         isPassword = false,
                         onValueChange = {
-                            vm.profileBody.birthday = it
+                            vm.profileBody.birthday = it.trim()
                         },
                     )
                     Spacer(modifier = Modifier.height(20.dp))

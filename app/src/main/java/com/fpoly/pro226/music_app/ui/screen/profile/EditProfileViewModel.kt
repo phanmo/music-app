@@ -118,7 +118,7 @@ class EditProfileViewModel(
                         editProfileUiState =
                             editProfileUiState.copy(userInfo = res.data, isLoading = false)
                         profileBody.apply {
-                            birthday = res.data.getBirthdayByString()
+                            birthday = res.data.getBirthdayByString()?:" "
                             name = res.data.name
                             email = res.data.email
                             username = res.data.username
