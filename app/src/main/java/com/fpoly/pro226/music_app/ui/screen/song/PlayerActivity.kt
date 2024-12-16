@@ -38,12 +38,17 @@ class PlayerActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SongScreen(appContainer = appContainer){targetTime->
-                        if(targetTime > 0) {
-                            Toast.makeText(this, "The music will turn off in $targetTime minutes.", Toast.LENGTH_LONG).show()
+                    SongScreen(appContainer = appContainer) { targetTime ->
+                        if (targetTime > 0) {
+                            Toast.makeText(
+                                this,
+                                "The music will turn off in $targetTime minutes.",
+                                Toast.LENGTH_LONG
+                            ).show()
                             scheduleDelayedAction(this, targetTime)
                         } else {
-                            Toast.makeText(this, "Appointment at least 1 minute", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this, "Appointment at least 1 minute", Toast.LENGTH_LONG)
+                                .show()
                         }
 
                     }

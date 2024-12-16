@@ -169,6 +169,8 @@ fun FMusicNavGraph(
                     navController.navigate(FMusicDestinations.LOGIN_ROUTE) {
                         popUpTo(FMusicDestinations.SETTING_ROUTE) { inclusive = true }
                         popUpTo(FMusicDestinations.MAIN_ROUTE) { inclusive = true }
+                        selectedItem.intValue = 0
+                        pagerState.requestScrollToPage(0)
                     }
                 },
                 onChangePassword = {

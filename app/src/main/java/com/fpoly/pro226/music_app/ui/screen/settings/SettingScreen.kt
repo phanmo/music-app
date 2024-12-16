@@ -102,8 +102,8 @@ fun SettingScreen(
                 AsyncImage(
                     model = "${userInfo?.avatar}",
                     contentDescription = "Avatar",
-                    placeholder = painterResource(R.drawable.cuteboy),
-                    error = painterResource(R.drawable.cuteboy),
+                    placeholder = painterResource(R.drawable.ic_app),
+                    error = painterResource(R.drawable.ic_app),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize()
@@ -120,13 +120,13 @@ fun SettingScreen(
             ) {
                 Text(
                     style = MaterialTheme.typography.labelMedium,
-                    text = "${userInfo?.name}",
+                    text = userInfo?.name?:"",
                     fontSize = 20.sp, fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${userInfo?.email}",
+                    text = userInfo?.email?:"",
                     style = TextStyle(fontSize = 14.sp, color = _00C2CB)
                 )
             }

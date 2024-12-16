@@ -39,6 +39,7 @@ import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fpoly.pro226.music_app.R
 import com.fpoly.pro226.music_app.data.repositories.FMusicRepository
+import com.fpoly.pro226.music_app.ui.components.LoadingDialog
 import com.fpoly.pro226.music_app.ui.screen.login.ButtonWithElevation
 import com.fpoly.pro226.music_app.ui.screen.login.ContinueWith
 import com.fpoly.pro226.music_app.ui.screen.login.TextField
@@ -74,179 +75,184 @@ fun RegisterScreen(
             onRegisterSuccess()
         }
     }
-    Column(
-        modifier = Modifier
-            .background(_121111)
-            .padding(16.dp)
-            .fillMaxHeight()
-            .verticalScroll(scrollState)
+    Box {
+        Column(
+            modifier = Modifier
+                .background(_121111)
+                .padding(16.dp)
+                .fillMaxHeight()
+                .verticalScroll(scrollState)
 
-    ) {
-//        Image(
-//            painterResource(
-//                id = R.drawable.back
-//            ),
-//            contentDescription = "Logo",
-//            modifier = Modifier
-//                .width(24.dp)
-//                .height(24.dp)
-//                .fillMaxWidth()
-//                .clickable {
-//                    onBack()
-//                }
-//                .align(alignment = Alignment.Start)
-//        )
-        Image(
-            painterResource(
-                id = R.drawable.ic_app
-            ),
-            contentDescription = "Logo",
-            modifier = Modifier
-                .width(120.dp)
-                .height(120.dp)
-                .fillMaxWidth()
-                .align(alignment = Alignment.CenterHorizontally)
-        )
-        Text(
-            text = "Create a new account",
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            fontSize = 28.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp)
-        )
-        TextField(
-            label = "Full name",
-            isPassword = false,
-            leadingIcon = {
-                Icon(
-                    painterResource(id = R.drawable.profile),
-                    contentDescription = "Email Icon",
-                    tint = FFFFFF_87,
-                    modifier = Modifier.size(16.dp)
-                )
-            },
-            onValueChange = {
-                vm.registerBody = vm.registerBody.copy(name = it)
-            },
-        )
-        TextField(
-            label = "Email",
-            isPassword = false,
-            leadingIcon = {
-                Icon(
-                    painterResource(id = R.drawable.mail),
-                    contentDescription = "Email Icon",
-                    tint = FFFFFF_87,
-                    modifier = Modifier.size(16.dp)
-                )
-            },
-            onValueChange = {
-                vm.registerBody = vm.registerBody.copy(email = it)
-            },
-        )
-        TextField(
-            label = "Password",
-            isPassword = true,
-            leadingIcon = {
-                Icon(
-                    painterResource(id = R.drawable.lock),
-                    contentDescription = "Password Icon",
-                    tint = FFFFFF_87,
-                    modifier = Modifier.size(16.dp)
-                )
-            },
-            onValueChange = {
-                vm.registerBody = vm.registerBody.copy(password = it)
-            },
-        )
-        TextField(
-            label = "Confirm password",
-            isPassword = true,
-            leadingIcon = {
-                Icon(
-                    painterResource(id = R.drawable.lock),
-                    contentDescription = "Password Icon",
-                    tint = FFFFFF_87,
-                    modifier = Modifier.size(16.dp)
-                )
-            },
-            onValueChange = {
-                vm.confirmPass = it
-            },
-        )
-        ButtonWithElevation(
-            label = "Register",
-            onclick = {
-                vm.register()
-            })
-        ContinueWith()
-        Row(
-            modifier = Modifier
-                .padding(bottom = 20.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
         ) {
-            Box(
-                contentAlignment = Alignment.Center,
+            //        Image(
+            //            painterResource(
+            //                id = R.drawable.back
+            //            ),
+            //            contentDescription = "Logo",
+            //            modifier = Modifier
+            //                .width(24.dp)
+            //                .height(24.dp)
+            //                .fillMaxWidth()
+            //                .clickable {
+            //                    onBack()
+            //                }
+            //                .align(alignment = Alignment.Start)
+            //        )
+            Image(
+                painterResource(
+                    id = R.drawable.ic_app
+                ),
+                contentDescription = "Logo",
                 modifier = Modifier
-                    .padding(end = 40.dp)
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .border(
-                        BorderStroke(1.dp, _DBE7E8),
-                        shape = CircleShape
-                    )
-                    .padding(5.dp)
-                    .clickable {}
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.google),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .border(
-                        BorderStroke(1.dp, _DBE7E8),
-                        shape = CircleShape
-                    )
-                    .padding(5.dp)
-                    .clickable {}
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.facebook),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
+                    .width(120.dp)
+                    .height(120.dp)
+                    .fillMaxWidth()
+                    .align(alignment = Alignment.CenterHorizontally)
+            )
             Text(
-                text = "Don't have an account? ",
-                fontSize = 16.sp,
-                fontWeight = FontWeight(500),
+                text = "Create a new account",
                 color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 28.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 20.dp)
             )
-            Text(
-                text = "Log in",
-                fontSize = 16.sp,
-                color = _7CEEFF,
-                modifier = Modifier.clickable {
-                    onBack()
+            TextField(
+                label = "Full name",
+                isPassword = false,
+                leadingIcon = {
+                    Icon(
+                        painterResource(id = R.drawable.profile),
+                        contentDescription = "Email Icon",
+                        tint = FFFFFF_87,
+                        modifier = Modifier.size(16.dp)
+                    )
+                },
+                onValueChange = {
+                    vm.registerBody = vm.registerBody.copy(name = it)
+                },
+            )
+            TextField(
+                label = "Email",
+                isPassword = false,
+                leadingIcon = {
+                    Icon(
+                        painterResource(id = R.drawable.mail),
+                        contentDescription = "Email Icon",
+                        tint = FFFFFF_87,
+                        modifier = Modifier.size(16.dp)
+                    )
+                },
+                onValueChange = {
+                    vm.registerBody = vm.registerBody.copy(email = it)
+                },
+            )
+            TextField(
+                label = "Password",
+                isPassword = true,
+                leadingIcon = {
+                    Icon(
+                        painterResource(id = R.drawable.lock),
+                        contentDescription = "Password Icon",
+                        tint = FFFFFF_87,
+                        modifier = Modifier.size(16.dp)
+                    )
+                },
+                onValueChange = {
+                    vm.registerBody = vm.registerBody.copy(password = it)
+                },
+            )
+            TextField(
+                label = "Confirm password",
+                isPassword = true,
+                leadingIcon = {
+                    Icon(
+                        painterResource(id = R.drawable.lock),
+                        contentDescription = "Password Icon",
+                        tint = FFFFFF_87,
+                        modifier = Modifier.size(16.dp)
+                    )
+                },
+                onValueChange = {
+                    vm.confirmPass = it
+                },
+            )
+            ButtonWithElevation(
+                label = "Register",
+                onclick = {
+                    vm.register()
+                })
+            ContinueWith()
+            Row(
+                modifier = Modifier
+                    .padding(bottom = 20.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .padding(end = 40.dp)
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .border(
+                            BorderStroke(1.dp, _DBE7E8),
+                            shape = CircleShape
+                        )
+                        .padding(5.dp)
+                        .clickable {}
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.google),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
-            )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .border(
+                            BorderStroke(1.dp, _DBE7E8),
+                            shape = CircleShape
+                        )
+                        .padding(5.dp)
+                        .clickable {}
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.facebook),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Don't have an account? ",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight(500),
+                    color = Color.White,
+                )
+                Text(
+                    text = "Log in",
+                    fontSize = 16.sp,
+                    color = _7CEEFF,
+                    modifier = Modifier.clickable {
+                        onBack()
+                    }
+                )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
         }
-        Spacer(modifier = Modifier.height(20.dp))
+        if (uiState.isLoading) {
+            LoadingDialog(onDismiss = { })
+        }
     }
 }
 
