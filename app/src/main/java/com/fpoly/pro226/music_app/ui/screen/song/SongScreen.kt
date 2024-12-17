@@ -648,9 +648,10 @@ fun SongContent(
                 model = "${currentMediaMetadata?.artworkUri ?: ""}",
                 contentScale = ContentScale.Crop,
                 contentDescription = "Album Art",
+                error = painterResource(R.drawable.ic_app),
+                placeholder = painterResource(R.drawable.ic_app),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(330.dp)
+                    .fillMaxSize()
                     .padding(horizontal = 24.dp)
                     .clip(CircleShape)
 

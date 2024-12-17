@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
@@ -80,6 +82,8 @@ fun RankingScreen(onBack: () -> Unit, onStart: () -> Unit, appContainer: AppCont
     }
 
     val uiState = vm.rankingUiState
+    val popupNameState = remember { mutableStateMapOf<String, Boolean>() }
+
 
     Scaffold(
         floatingActionButton = {
@@ -169,9 +173,26 @@ fun RankingScreen(onBack: () -> Unit, onStart: () -> Unit, appContainer: AppCont
                                     .size(56.dp)
                                     .background(Color.Gray, shape = CircleShape)
                                     .align(Alignment.TopCenter)
-                                    .clip(CircleShape),
+                                    .clip(CircleShape)
+                                    .clickable {
+                                        popupNameState[ranking[1]._id] = true
+                                    },
                                 contentScale = ContentScale.Crop
                             )
+                            if (popupNameState[ranking[1]._id] == true) {
+                                Popup(
+                                    alignment = Alignment.TopCenter,
+                                    onDismissRequest = {
+                                        popupNameState[ranking[1]._id] = false
+                                    },
+                                ) {
+                                    Text(
+                                        ranking[1].name,
+                                        color = Color.White,
+                                        modifier = Modifier.padding(top = 24.dp, end = 16.dp)
+                                    )
+                                }
+                            }
                         }
                         Box(
                             modifier = Modifier
@@ -215,9 +236,26 @@ fun RankingScreen(onBack: () -> Unit, onStart: () -> Unit, appContainer: AppCont
                                     .size(56.dp)
                                     .background(Color.Gray, shape = CircleShape)
                                     .align(Alignment.TopCenter)
-                                    .clip(CircleShape),
+                                    .clip(CircleShape)
+                                    .clickable {
+                                        popupNameState[ranking[0]._id] = true
+                                    },
                                 contentScale = ContentScale.Crop
                             )
+                            if (popupNameState[ranking[0]._id] == true) {
+                                Popup(
+                                    alignment = Alignment.TopCenter,
+                                    onDismissRequest = {
+                                        popupNameState[ranking[0]._id] = false
+                                    },
+                                ) {
+                                    Text(
+                                        ranking[0].name,
+                                        color = Color.White,
+                                        modifier = Modifier.padding(top = 54.dp, end = 8.dp)
+                                    )
+                                }
+                            }
                         }
                         Box(
                             modifier = Modifier
@@ -258,12 +296,29 @@ fun RankingScreen(onBack: () -> Unit, onStart: () -> Unit, appContainer: AppCont
                                 error = painterResource(R.drawable.cuteboy),
                                 modifier = Modifier
                                     .padding(top = 50.dp, start = 24.dp)
+                                    .align(Alignment.TopCenter)
                                     .size(56.dp)
                                     .background(Color.Gray, shape = CircleShape)
-                                    .align(Alignment.TopCenter)
-                                    .clip(CircleShape),
+                                    .clip(CircleShape)
+                                    .clickable {
+                                        popupNameState[ranking[2]._id] = true
+                                    },
                                 contentScale = ContentScale.Crop
                             )
+                            if (popupNameState[ranking[2]._id] == true) {
+                                Popup(
+                                    alignment = Alignment.TopCenter,
+                                    onDismissRequest = {
+                                        popupNameState[ranking[2]._id] = false
+                                    },
+                                    ) {
+                                    Text(
+                                        ranking[2].name,
+                                        color = Color.White,
+                                        modifier = Modifier.padding(top = 24.dp, start = 24.dp)
+                                    )
+                                }
+                            }
                         }
                     }
 
