@@ -118,6 +118,7 @@ import java.util.concurrent.TimeUnit
 fun SongScreen(
     modifier: Modifier = Modifier,
     appContainer: AppContainer,
+    downloadTrack: (String, String) -> Unit,
     scheduleDelayedAction: (Long) -> Unit
 ) {
 
@@ -449,7 +450,8 @@ fun SongScreen(
                     }
                 },
                 viewModel = vm,
-                scheduleDelayedAction = scheduleDelayedAction
+                scheduleDelayedAction = scheduleDelayedAction,
+                downloadTrack = downloadTrack
 
             )
         }
@@ -581,6 +583,7 @@ fun SongContent(
     openCommentBottomSheet: () -> Unit,
     viewModel: SongViewModel,
     scheduleDelayedAction: (Long) -> Unit,
+    downloadTrack: (String, String) -> Unit
 ) {
     var showDial by remember { mutableStateOf(false) }
     val currentTime = Calendar.getInstance()
@@ -685,12 +688,18 @@ fun SongContent(
                 Row {
                     Image(
                         modifier = Modifier
-                            .size(20.dp)
-                            .align(Alignment.CenterVertically),
-                        painter = painterResource(R.drawable.share),
-                        contentDescription = "null" // decorative element
+                            .size(24.dp)
+                            .align(Alignment.CenterVertically)
+                            .clickable {
+                                downloadTrack(
+                                    "${mediaController.value?.currentMediaItem?.localConfiguration?.uri}",
+                                    (currentMediaMetadata?.title ?: "").toString()
+                                )
+                            },
+                        painter = painterResource(R.drawable.outline_download_24),
+                        contentDescription = "Download" // decorative element
                     )
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Image(
                         modifier = Modifier
                             .size(24.dp)
@@ -1002,7 +1011,16 @@ fun SongContentPreview() {
     )
     MusicAppTheme {
         Scaffold { innerPadding ->
-            SongContent(innerPadding, remember { mutableStateOf(null) }, null, false, {}, {}, vm) {}
+            SongContent(
+                innerPadding,
+                remember { mutableStateOf(null) },
+                null,
+                false,
+                {},
+                {},
+                vm,
+                {},
+                { _, _ -> })
         }
     }
 }
