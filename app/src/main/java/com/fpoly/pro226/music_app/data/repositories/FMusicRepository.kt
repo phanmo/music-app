@@ -47,6 +47,9 @@ interface FMusicRepository {
     suspend fun getFavorite(userId: String): Response<FavoriteResponse>
     suspend fun getProfile(id: String): Response<ProfileResponse>
     suspend fun changePassword(userId: String, passwordBody: PasswordBody): Response<Unit>
+
+    suspend fun newPassword(email: String, passwordBody: PasswordBody): Response<Unit>
+
     suspend fun updateProfileAll(
         userId: String,
         data: Map<String, @JvmSuppressWildcards RequestBody>,
@@ -157,6 +160,15 @@ class FMusicRepositoryImpl(
     ): Response<Unit> {
         return externalScope.async {
             fMusicRemoteDataSource.changePassword(userId, passwordBody)
+        }.await()
+    }
+
+    override suspend fun newPassword(
+        email: String,
+        passwordBody: PasswordBody
+    ): Response<Unit> {
+        return externalScope.async {
+            fMusicRemoteDataSource.newPassword(email, passwordBody)
         }.await()
     }
 

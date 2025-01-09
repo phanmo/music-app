@@ -46,6 +46,8 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/NOTICE.md"
+            excludes += "META-INF/LICENSE.md"
         }
     }
 }
@@ -103,4 +105,7 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    implementation("com.sun.mail:android-mail:1.6.7")
+
 }
