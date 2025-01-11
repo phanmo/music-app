@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -25,6 +26,7 @@ import com.fpoly.pro226.music_app.components.FMusicApplication
 import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.components.worker.DelayedActionWorker
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 
@@ -80,7 +82,6 @@ class PlayerActivity : ComponentActivity() {
             )
 
         }
-
     }
 
     private fun downloadTrack(url: String, fileName: String) {
@@ -90,13 +91,17 @@ class PlayerActivity : ComponentActivity() {
             val request = DownloadManager.Request(Uri.parse(url))
 
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC, fileName)
+            val finalFileName = if (fileName.endsWith(".mp3", ignoreCase = true)) {
+                fileName
+            } else {
+                "$fileName.mp3"
+            }
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC, finalFileName)
 
             request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
 
             val downloadId = downloadManager.enqueue(request)
-            Toast.makeText(this, "Downloading $fileName.mp3...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Downloading...", Toast.LENGTH_SHORT).show()
 
         } catch (e: Exception) {
             e.printStackTrace()

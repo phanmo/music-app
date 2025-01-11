@@ -31,13 +31,16 @@ import kotlinx.coroutines.launch
 
 data class SongUiState(
     val isLoading: Boolean = false,
+    val isLoadingDownload: Boolean = false,
     val isPlaying: Boolean = false,
     val currentSong: Track? = null,
     val album: Album? = null,
     val playListResponse: PlayListResponse? = null,
     val commentResponse: CommentResponse? = null,
     val isFavorite: Boolean = false,
-    val favoriteResponse: FavoriteResponse? = null
+    val isDownload: Boolean = false,
+    val favoriteResponse: FavoriteResponse? = null,
+    val downloadedResponse: FavoriteResponse? = null
 )
 
 class SongViewModel(
@@ -81,6 +84,7 @@ class SongViewModel(
 
     init {
         getFavorites()
+        getListDownloaded()
     }
 
     suspend fun showToast(message: String) {
@@ -228,6 +232,26 @@ class SongViewModel(
         }
     }
 
+    fun addToDownloaded(favoriteBody: FavoriteBody, allowedDownload: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                songUiState = songUiState.copy(isLoadingDownload = true)
+                val response = fMusicRepository.addDownload(favoriteBody.copy(id_user = userId))
+                if (response.isSuccessful) {
+                    allowedDownload()
+                    response.body()?.let {
+                        songUiState = songUiState.copy(isLoadingDownload = false)
+                    }
+                } else {
+                    songUiState = songUiState.copy(isLoadingDownload = false)
+                    showToast("Not enough coins to download")
+                }
+            } catch (e: Exception) {
+                songUiState = songUiState.copy(isLoadingDownload = false)
+            }
+        }
+    }
+
     private fun getFavorites() {
         fetchFav?.cancel()
         fetchFav = viewModelScope.launch {
@@ -243,6 +267,22 @@ class SongViewModel(
                 songUiState = songUiState.copy(isLoading = false)
             } finally {
                 fetchFav = null
+            }
+        }
+    }
+
+    private fun getListDownloaded() {
+        viewModelScope.launch {
+            try {
+                songUiState = songUiState.copy(isLoading = true)
+                val response = fMusicRepository.getListDownloaded(userId)
+                if (response.isSuccessful) {
+                    response.body()?.let { res ->
+                        songUiState = songUiState.copy(downloadedResponse = res, isLoading = false)
+                    }
+                }
+            } catch (e: Exception) {
+                songUiState = songUiState.copy(isLoading = false)
             }
         }
     }

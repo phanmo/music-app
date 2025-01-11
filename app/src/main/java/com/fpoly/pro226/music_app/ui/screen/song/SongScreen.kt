@@ -99,6 +99,7 @@ import com.fpoly.pro226.music_app.data.source.network.fmusic_model.login.UserInf
 import com.fpoly.pro226.music_app.data.source.network.models.toFavoriteBody
 import com.fpoly.pro226.music_app.data.source.network.models.toItemPlaylistBody
 import com.fpoly.pro226.music_app.ui.components.InputTextField
+import com.fpoly.pro226.music_app.ui.components.LoadingDialog
 import com.fpoly.pro226.music_app.ui.theme.D9D9D9
 import com.fpoly.pro226.music_app.ui.theme.FFFFFF_70
 import com.fpoly.pro226.music_app.ui.theme.MusicAppTheme
@@ -209,253 +210,259 @@ fun SongScreen(
         )
 
     }
-    Scaffold(
-        modifier = modifier
-            .fillMaxSize(),
-        topBar = {
-            SongTopAppBar(currentMediaMetadata.value?.albumTitle.toString())
-        },
-    ) { innerPadding ->
-        ModalBottomSheetLayout(
-            sheetShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp),
-            sheetState = sheetState,
-            sheetContent = {
-                if (!isShowComment.value) {
-                    LazyColumn(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp)
-                    ) {
-                        item {
-                            Text(
-                                text = "Add to playlist",
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.labelLarge,
-                                modifier = Modifier.padding(bottom = 8.dp, top = 12.dp)
-                            )
-                        }
-                        item {
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-                        uiState.playListResponse?.data?.let { data ->
-                            items(data.size) { index ->
-                                Card(
-                                    shape = RectangleShape,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 4.dp)
-                                        .clickable {
-                                            mediaController.value?.currentMediaItemIndex?.let {
-                                                val currentTrack =
-                                                    MediaItemTree.currentTracks[it]
-                                                val itemPlaylistBody =
-                                                    currentTrack.toItemPlaylistBody(data[index]._id)
-                                                vm.addItemToPlaylist(itemPlaylistBody)
-                                            }
-
-                                        },
-                                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                                ) {
-                                    Column {
-                                        Row(
-                                            horizontalArrangement = Arrangement.Start,
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(vertical = 6.dp, horizontal = 8.dp)
-                                        ) {
-                                            Image(
-                                                painter = painterResource(R.drawable.logotransparent),
-                                                contentScale = ContentScale.Crop,
-                                                contentDescription = "Artists avatar",
-                                                modifier = Modifier
-                                                    .size(52.dp)
-                                                    .border(
-                                                        width = 2.dp,
-                                                        color = _00C2CB,
-                                                        shape = RoundedCornerShape(8.dp)
-                                                    )
-                                                    .clip(RoundedCornerShape(5.dp))
-                                            )
-                                            Spacer(modifier = Modifier.width(12.dp))
-
-                                            Column(
-                                                modifier = Modifier.weight(1f)
-                                            ) {
-                                                Text(
-                                                    color = _00C2CB,
-                                                    text = data[index].name,
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    fontWeight = FontWeight.Bold,
-                                                    fontSize = 16.sp
-                                                )
-                                                Text(
-                                                    text = "${data[index].count} songs",
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    color = Color.Gray,
-                                                    fontSize = 12.sp
-
-                                                )
-                                            }
-                                            Image(
-                                                painter = painterResource(id = R.drawable.baseline_playlist_add_24),
-                                                contentDescription = "Add",
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                    }
-                } else {
-                    Box {
-                        Column(
+    Box {
+        Scaffold(
+            modifier = modifier
+                .fillMaxSize(),
+            topBar = {
+                SongTopAppBar(currentMediaMetadata.value?.albumTitle.toString())
+            },
+        ) { innerPadding ->
+            ModalBottomSheetLayout(
+                sheetShape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp),
+                sheetState = sheetState,
+                sheetContent = {
+                    if (!isShowComment.value) {
+                        LazyColumn(
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(LocalConfiguration.current.screenHeightDp.dp / 1.5f)
+                                .padding(4.dp)
                         ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 24.dp, top = 8.dp),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
+                            item {
                                 Text(
-                                    text = "Comments",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    text = "Add to playlist",
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    modifier = Modifier.padding(bottom = 8.dp, top = 12.dp)
                                 )
                             }
-                            LazyColumn {
-                                vm.songUiState.commentResponse?.data?.let { comments ->
-                                    items(comments.size) { index ->
-                                        Row(
-                                            modifier = modifier
-                                                .fillMaxWidth()
-                                                .padding(vertical = 8.dp, horizontal = 16.dp),
-                                            verticalAlignment = Alignment.Top
-                                        ) {
-                                            // Avatar
-                                            AsyncImage(
-                                                model = comments[index].avatar,
-                                                contentScale = ContentScale.Crop,
-                                                contentDescription = "Avatar",
+                            item {
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                            uiState.playListResponse?.data?.let { data ->
+                                items(data.size) { index ->
+                                    Card(
+                                        shape = RectangleShape,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 4.dp)
+                                            .clickable {
+                                                mediaController.value?.currentMediaItemIndex?.let {
+                                                    val currentTrack =
+                                                        MediaItemTree.currentTracks[it]
+                                                    val itemPlaylistBody =
+                                                        currentTrack.toItemPlaylistBody(data[index]._id)
+                                                    vm.addItemToPlaylist(itemPlaylistBody)
+                                                }
+
+                                            },
+                                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                                    ) {
+                                        Column {
+                                            Row(
+                                                horizontalArrangement = Arrangement.Start,
+                                                verticalAlignment = Alignment.CenterVertically,
                                                 modifier = Modifier
-                                                    .size(38.dp)
-                                                    .clip(CircleShape),
-                                                placeholder = painterResource(R.drawable.ic_app),
-                                                error = painterResource(R.drawable.ic_app)
-                                            )
-                                            Spacer(modifier = Modifier.width(12.dp))
-                                            Column(
-                                                modifier = Modifier.weight(1f)
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 6.dp, horizontal = 8.dp)
                                             ) {
-                                                Row(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    horizontalArrangement = Arrangement.Start,
+                                                Image(
+                                                    painter = painterResource(R.drawable.logotransparent),
+                                                    contentScale = ContentScale.Crop,
+                                                    contentDescription = "Artists avatar",
+                                                    modifier = Modifier
+                                                        .size(52.dp)
+                                                        .border(
+                                                            width = 2.dp,
+                                                            color = _00C2CB,
+                                                            shape = RoundedCornerShape(8.dp)
+                                                        )
+                                                        .clip(RoundedCornerShape(5.dp))
+                                                )
+                                                Spacer(modifier = Modifier.width(12.dp))
+
+                                                Column(
+                                                    modifier = Modifier.weight(1f)
                                                 ) {
                                                     Text(
-                                                        color = _1E1E1E_85,
-                                                        text = comments[index].username
-                                                            ?: "#anonymous",
+                                                        color = _00C2CB,
+                                                        text = data[index].name,
                                                         style = MaterialTheme.typography.bodySmall,
                                                         fontWeight = FontWeight.Bold,
-                                                        fontSize = 12.sp
+                                                        fontSize = 16.sp
                                                     )
-                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                    Text(
+                                                        text = "${data[index].count} songs",
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        color = Color.Gray,
+                                                        fontSize = 12.sp
 
-                                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                                        Text(
-                                                            text = comments[index].getFormatDate(),
-                                                            style = MaterialTheme.typography.bodyMedium,
-                                                            color = Color.Gray,
-                                                            fontSize = 10.sp
-
-                                                        )
-                                                    }
+                                                    )
                                                 }
-                                                Text(
-                                                    text = comments[index].content,
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    color = _00C2CB,
-                                                    fontSize = 14.sp
-
+                                                Image(
+                                                    painter = painterResource(id = R.drawable.baseline_playlist_add_24),
+                                                    contentDescription = "Add",
                                                 )
                                             }
-                                            if (userInfo?._id == comments[index].id_user) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Delete,
-                                                    modifier = Modifier
-                                                        .size(17.dp)
-                                                        .clip(CircleShape)
-                                                        .clickable {
-                                                            vm.deleteComment(comments[index]._id)
-                                                        },
-                                                    contentDescription = "Delete",
-                                                    tint = Color.Gray
-                                                )
-                                            }
-
-
                                         }
                                     }
                                 }
-                                item {
-                                    Spacer(modifier = Modifier.height(80.dp))
+                            }
+
+                        }
+                    } else {
+                        Box {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(LocalConfiguration.current.screenHeightDp.dp / 1.5f)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 24.dp, top = 8.dp),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = "Comments",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                    )
+                                }
+                                LazyColumn {
+                                    vm.songUiState.commentResponse?.data?.let { comments ->
+                                        items(comments.size) { index ->
+                                            Row(
+                                                modifier = modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 8.dp, horizontal = 16.dp),
+                                                verticalAlignment = Alignment.Top
+                                            ) {
+                                                // Avatar
+                                                AsyncImage(
+                                                    model = comments[index].avatar,
+                                                    contentScale = ContentScale.Crop,
+                                                    contentDescription = "Avatar",
+                                                    modifier = Modifier
+                                                        .size(38.dp)
+                                                        .clip(CircleShape),
+                                                    placeholder = painterResource(R.drawable.ic_app),
+                                                    error = painterResource(R.drawable.ic_app)
+                                                )
+                                                Spacer(modifier = Modifier.width(12.dp))
+                                                Column(
+                                                    modifier = Modifier.weight(1f)
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.Start,
+                                                    ) {
+                                                        Text(
+                                                            color = _1E1E1E_85,
+                                                            text = comments[index].username
+                                                                ?: "#anonymous",
+                                                            style = MaterialTheme.typography.bodySmall,
+                                                            fontWeight = FontWeight.Bold,
+                                                            fontSize = 12.sp
+                                                        )
+                                                        Spacer(modifier = Modifier.width(8.dp))
+
+                                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                                            Text(
+                                                                text = comments[index].getFormatDate(),
+                                                                style = MaterialTheme.typography.bodyMedium,
+                                                                color = Color.Gray,
+                                                                fontSize = 10.sp
+
+                                                            )
+                                                        }
+                                                    }
+                                                    Text(
+                                                        text = comments[index].content,
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        color = _00C2CB,
+                                                        fontSize = 14.sp
+
+                                                    )
+                                                }
+                                                if (userInfo?._id == comments[index].id_user) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Delete,
+                                                        modifier = Modifier
+                                                            .size(17.dp)
+                                                            .clip(CircleShape)
+                                                            .clickable {
+                                                                vm.deleteComment(comments[index]._id)
+                                                            },
+                                                        contentDescription = "Delete",
+                                                        tint = Color.Gray
+                                                    )
+                                                }
+
+
+                                            }
+                                        }
+                                    }
+                                    item {
+                                        Spacer(modifier = Modifier.height(80.dp))
+                                    }
+                                }
+
+                            }
+                            CommentSection(
+                                Modifier.align(Alignment.BottomCenter),
+                                userInfo
+                            ) { content ->
+                                mediaController.value?.currentMediaItemIndex?.let {
+                                    val currentTrack = MediaItemTree.currentTracks[it]
+                                    vm.addComment(
+                                        commentBody = CommentBody(
+                                            content = content,
+                                            id_track = currentTrack.id,
+                                        )
+                                    )
+
                                 }
                             }
 
                         }
-                        CommentSection(
-                            Modifier.align(Alignment.BottomCenter),
-                            userInfo
-                        ) { content ->
-                            mediaController.value?.currentMediaItemIndex?.let {
-                                val currentTrack = MediaItemTree.currentTracks[it]
-                                vm.addComment(
-                                    commentBody = CommentBody(
-                                        content = content,
-                                        id_track = currentTrack.id,
-                                    )
-                                )
-
-                            }
-                        }
-
                     }
                 }
+            ) {
+                SongContent(
+                    innerPadding = innerPadding,
+                    mediaController,
+                    currentMediaMetadata.value,
+                    isPlaying.value,
+                    openBottomSheet = {
+                        scope.launch {
+                            isShowComment.value = false
+                            sheetState.show()
+
+                        }
+                    },
+                    openCommentBottomSheet = {
+                        scope.launch {
+                            isShowComment.value = true
+                            sheetState.show()
+                        }
+                    },
+                    viewModel = vm,
+                    scheduleDelayedAction = scheduleDelayedAction,
+                    downloadTrack = downloadTrack
+
+                )
             }
-        ) {
-            SongContent(
-                innerPadding = innerPadding,
-                mediaController,
-                currentMediaMetadata.value,
-                isPlaying.value,
-                openBottomSheet = {
-                    scope.launch {
-                        isShowComment.value = false
-                        sheetState.show()
 
-                    }
-                },
-                openCommentBottomSheet = {
-                    scope.launch {
-                        isShowComment.value = true
-                        sheetState.show()
-                    }
-                },
-                viewModel = vm,
-                scheduleDelayedAction = scheduleDelayedAction,
-                downloadTrack = downloadTrack
-
-            )
         }
 
+        if (vm.songUiState.isLoadingDownload) {
+            LoadingDialog(onDismiss = { })
+        }
     }
 
 
@@ -595,7 +602,7 @@ fun SongContent(
     )
 
     var comment by remember { mutableStateOf(TextFieldValue("")) }
-
+    val isDownload = remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     val currentPosition = remember { mutableLongStateOf(0L) }
     val duration = remember { mutableLongStateOf(0L) }
@@ -603,9 +610,20 @@ fun SongContent(
     val state = rememberScrollState()
     val context = LocalContext.current
 
+
     DisposableEffect(Unit) {
         viewModel.getAllPlaylist()
         onDispose { }
+    }
+    LaunchedEffect(viewModel.songUiState.downloadedResponse) {
+        val trackDownloaded = viewModel.songUiState.downloadedResponse?.data
+        mediaController.value?.currentMediaItemIndex?.let {
+            val currentTrack = MediaItemTree.currentTracks[it]
+            isDownload.value = trackDownloaded?.firstOrNull { tr ->
+                tr.id_track == currentTrack.id
+            } != null
+        }
+
     }
 
     LaunchedEffect(Unit) { state.animateScrollTo(0) }
@@ -686,19 +704,37 @@ fun SongContent(
 
                     )
                 Row {
-                    Image(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .align(Alignment.CenterVertically)
-                            .clickable {
-                                downloadTrack(
-                                    "${mediaController.value?.currentMediaItem?.localConfiguration?.uri}",
-                                    (currentMediaMetadata?.title ?: "").toString()
-                                )
-                            },
-                        painter = painterResource(R.drawable.outline_download_24),
-                        contentDescription = "Download" // decorative element
-                    )
+                    if (!isDownload.value) {
+                        Image(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .align(Alignment.CenterVertically)
+                                .clickable {
+                                    mediaController.value?.currentMediaItemIndex?.let {
+                                        val currentTrack = MediaItemTree.currentTracks[it]
+                                        val favoriteBody = currentTrack.toFavoriteBody()
+                                        val url = currentTrack.preview
+                                        val fileName =
+                                            "${currentTrack.id}]~[${currentTrack.title}]~[${currentTrack.artist?.name ?: "Unknown"}"
+                                        viewModel.addToDownloaded(
+                                            favoriteBody = favoriteBody,
+                                            allowedDownload = {
+                                                downloadTrack(url, fileName)
+                                            })
+                                    }
+                                },
+                            painter = painterResource(R.drawable.outline_download_24),
+                            contentDescription = "Download" // decorative element
+                        )
+                    } else {
+                        Image(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .align(Alignment.CenterVertically),
+                            painter = painterResource(R.drawable.baseline_download_done_24),
+                            contentDescription = "Download" // decorative element
+                        )
+                    }
                     Spacer(modifier = Modifier.width(8.dp))
                     Image(
                         modifier = Modifier
@@ -721,7 +757,6 @@ fun SongContent(
                             painterResource(R.drawable.baseline_favorite_border_24)
                         },
                         contentDescription = "Favorite"
-
                     )
                 }
             }

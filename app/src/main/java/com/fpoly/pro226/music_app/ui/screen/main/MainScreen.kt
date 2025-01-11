@@ -35,6 +35,7 @@ fun MainScreen(
     onPlayGame: () -> Unit,
     onAddPlaylist: () -> Unit,
     onFavorite: () -> Unit,
+    onDownloadedClick: () -> Unit,
     pagerState: PagerState,
     selectedItem: MutableIntState,
     onClickProfile: () -> Unit
@@ -87,6 +88,9 @@ fun MainScreen(
                         },
                         onAddPlaylist = {
                             onAddPlaylist()
+                        },
+                        onDownloadedClick = {
+                            onDownloadedClick()
                         }
                     )
                 }

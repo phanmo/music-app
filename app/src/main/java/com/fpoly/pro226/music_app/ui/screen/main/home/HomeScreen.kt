@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,6 +45,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
@@ -78,12 +82,21 @@ fun HomeScreen(
     )
     val uiState = vm.homeUiState
     val context = LocalContext.current
-
-    DisposableEffect(Unit) {
-        PreferencesManager(context).getUser()?.let { user ->
-            vm.setCurrentUser(user)
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleObserver = remember {
+        LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                PreferencesManager(context).getUser()?.let { user ->
+                    vm.setCurrentUser(user)
+                }
+            }
         }
-        onDispose { }
+    }
+    DisposableEffect(Unit) {
+        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
+        }
     }
 
     LaunchedEffect(uiState) {

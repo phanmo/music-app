@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.fpoly.pro226.music_app.components.di.AppContainer
 import com.fpoly.pro226.music_app.data.models.TrackDestination
 import com.fpoly.pro226.music_app.data.source.network.models.Track
+import com.fpoly.pro226.music_app.ui.screen.downloaded.DownloadedScreen
 import com.fpoly.pro226.music_app.ui.screen.favorite.FavoriteScreen
 import com.fpoly.pro226.music_app.ui.screen.game.GameScreen
 import com.fpoly.pro226.music_app.ui.screen.genre.GenreScreen
@@ -71,6 +72,9 @@ fun FMusicNavGraph(
                 onFavorite = {
                     navController.navigate(FMusicDestinations.FAVORITE_ROUTE)
                 },
+                onDownloadedClick = {
+                    navController.navigate(FMusicDestinations.DOWNLOADED_ROUTE)
+                },
                 pagerState = pagerState,
                 selectedItem = selectedItem,
                 onClickProfile = {
@@ -107,6 +111,16 @@ fun FMusicNavGraph(
                 onLoadTrackList = {
                     onLoadTrackList(it)
                 },
+            )
+        }
+
+        composable(FMusicDestinations.DOWNLOADED_ROUTE) {
+            DownloadedScreen(
+                appContainer = appContainer,
+                onBack = { navController.popBackStack() },
+                onItemClick = { tracks, startIndex ->
+                    startPlayerActivity(tracks, startIndex)
+                }
             )
         }
 

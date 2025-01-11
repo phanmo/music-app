@@ -79,8 +79,14 @@ interface FMusicApiService {
     @POST("/api/add-favorite")
     suspend fun addFavorite(@Body favoriteBody: FavoriteBody): Response<Unit>
 
+    @POST("/api/add-download")
+    suspend fun addDownload(@Body favoriteBody: FavoriteBody): Response<Unit>
+
     @GET("/api/get-favorite/{userId}")
     suspend fun getFavorite(@Path("userId") userId: String): Response<FavoriteResponse>
+
+    @GET("/api/get-list-download/{userId}")
+    suspend fun getListDownloaded(@Path("userId") userId: String): Response<FavoriteResponse>
 
     @DELETE("/api/delele-favorite/{id}")
     suspend fun deleteFavorite(@Path("id") id: String): Response<Unit>

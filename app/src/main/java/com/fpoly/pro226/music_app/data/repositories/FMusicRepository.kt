@@ -25,6 +25,7 @@ import kotlinx.coroutines.async
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
+import retrofit2.http.Path
 
 
 interface FMusicRepository {
@@ -45,8 +46,11 @@ interface FMusicRepository {
     suspend fun deleteFavorite(id: String): Response<Unit>
     suspend fun addFavorite(favoriteBody: FavoriteBody): Response<Unit>
     suspend fun getFavorite(userId: String): Response<FavoriteResponse>
+    suspend fun getListDownloaded(userId: String): Response<FavoriteResponse>
     suspend fun getProfile(id: String): Response<ProfileResponse>
     suspend fun changePassword(userId: String, passwordBody: PasswordBody): Response<Unit>
+    suspend fun addDownload(downloadBody: FavoriteBody): Response<Unit>
+
     suspend fun updateProfileAll(
         userId: String,
         data: Map<String, @JvmSuppressWildcards RequestBody>,
@@ -59,6 +63,7 @@ interface FMusicRepository {
     ): Response<ProfileResponse>
 
     val currentFavorites: SnapshotStateList<FavoriteBody>
+    val currentDownloaded: SnapshotStateList<FavoriteBody>
 
     fun removeFavoriteLocal(trackId: String)
 
@@ -71,6 +76,7 @@ class FMusicRepositoryImpl(
 
     private val _currentFavorites = mutableStateListOf<FavoriteBody>()
 
+    private val _currentDownloaded = mutableStateListOf<FavoriteBody>()
 
     override suspend fun getPlaylist(idUser: String): Response<PlayListResponse> {
         return externalScope.async {
@@ -145,6 +151,19 @@ class FMusicRepositoryImpl(
         return response
     }
 
+    override suspend fun getListDownloaded(userId: String): Response<FavoriteResponse> {
+        val response = externalScope.async {
+            fMusicRemoteDataSource.getListDownloaded(userId)
+        }.await()
+        if (response.isSuccessful) {
+            response.body()?.let {
+                _currentDownloaded.clear()
+                _currentDownloaded.addAll(it.data)
+            }
+        }
+        return response
+    }
+
     override suspend fun getProfile(id: String): Response<ProfileResponse> {
         return externalScope.async {
             fMusicRemoteDataSource.getProfile(id)
@@ -157,6 +176,12 @@ class FMusicRepositoryImpl(
     ): Response<Unit> {
         return externalScope.async {
             fMusicRemoteDataSource.changePassword(userId, passwordBody)
+        }.await()
+    }
+
+    override suspend fun addDownload(downloadBody: FavoriteBody): Response<Unit> {
+        return externalScope.async {
+            fMusicRemoteDataSource.addDownload(downloadBody)
         }.await()
     }
 
@@ -181,6 +206,8 @@ class FMusicRepositoryImpl(
 
     override val currentFavorites: SnapshotStateList<FavoriteBody>
         get() = _currentFavorites
+    override val currentDownloaded: SnapshotStateList<FavoriteBody>
+        get() = _currentDownloaded
 
     override fun removeFavoriteLocal(trackId: String) {
         _currentFavorites.removeIf { it.id_track == trackId }

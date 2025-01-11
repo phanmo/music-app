@@ -174,6 +174,10 @@ class MainActivity : ComponentActivity() {
         initializeBrowser()
     }
 
+    override fun onResume() {
+        super.onResume()
+    }
+
     override fun onStop() {
         releaseBrowser()
         super.onStop()

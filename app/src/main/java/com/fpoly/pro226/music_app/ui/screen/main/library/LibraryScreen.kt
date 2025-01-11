@@ -43,6 +43,7 @@ fun LibraryScreen(
     onFavorite: () -> Unit,
     onSettingClick: () -> Unit,
     onPlayGame: () -> Unit,
+    onDownloadedClick: () -> Unit,
     onAddPlaylist: () -> Unit
 ) {
     Box(
@@ -96,6 +97,22 @@ fun LibraryScreen(
                     onClick = {
                         onFavorite()
                     }
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+            item {
+                ItemButton(
+                    content = {
+                        Image(
+                            painter = painterResource(R.drawable.rounded_download_24),
+                            contentDescription = "Icon app",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    title = "Downloaded",
+                    onClick = { onDownloadedClick() }
                 )
             }
             item {
