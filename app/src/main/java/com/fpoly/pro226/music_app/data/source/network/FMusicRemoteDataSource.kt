@@ -22,7 +22,6 @@ import kotlinx.coroutines.withContext
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
-import retrofit2.http.Path
 
 class FMusicRemoteDataSource(
     private val fMusicApiService: FMusicApiService,
@@ -127,6 +126,10 @@ class FMusicRemoteDataSource(
     suspend fun changePassword(userId: String, passwordBody: PasswordBody): Response<Unit> =
         withContext(ioDispatcher) {
             fMusicApiService.changePassword(userId, passwordBody)
+        }
+    suspend fun newPassword(email: String, passwordBody: PasswordBody): Response<Unit> =
+        withContext(ioDispatcher) {
+            fMusicApiService.newPassword(email, passwordBody)
         }
 
     suspend fun addDownload(downloadBody: FavoriteBody): Response<Unit> =

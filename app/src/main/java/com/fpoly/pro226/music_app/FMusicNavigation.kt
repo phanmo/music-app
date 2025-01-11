@@ -20,7 +20,9 @@ private object FMusicScreens {
     const val SETTINGS_SCREEN = "settings"
     const val EDIT_PROFILE_SCREEN = "edit_profile"
     const val CHANGE_PASSWORD_SCREEN = "change_password"
-
+    const val FORGOT_SCREEN = "forgot"
+    const val VERIFY_OTP_ROUTE = "verify_otp"
+    const val NEW_PASSWORD_SCREEN = "new_password"
 }
 
 object FMusicDestinations {
@@ -43,4 +45,7 @@ object FMusicDestinations {
     const val SETTING_ROUTE = FMusicScreens.SETTINGS_SCREEN
     const val EDIT_PROFILE_ROUTE = FMusicScreens.EDIT_PROFILE_SCREEN
     const val CHANGE_PASSWORD_ROUTE = FMusicScreens.CHANGE_PASSWORD_SCREEN
+    const val FORGOT_ROUTE = FMusicScreens.FORGOT_SCREEN
+    const val VERIFY_OTP_ROUTE = FMusicScreens.VERIFY_OTP_ROUTE
+    const val NEW_PASSWORD_ROUTE = FMusicScreens.NEW_PASSWORD_SCREEN
 }

@@ -15,6 +15,9 @@ import com.fpoly.pro226.music_app.data.models.TrackDestination
 import com.fpoly.pro226.music_app.data.source.network.models.Track
 import com.fpoly.pro226.music_app.ui.screen.downloaded.DownloadedScreen
 import com.fpoly.pro226.music_app.ui.screen.favorite.FavoriteScreen
+import com.fpoly.pro226.music_app.ui.screen.forgot.ForgotScreen
+import com.fpoly.pro226.music_app.ui.screen.forgot.NewPasswordScreen
+import com.fpoly.pro226.music_app.ui.screen.forgot.VerifyOTPScreen
 import com.fpoly.pro226.music_app.ui.screen.game.GameScreen
 import com.fpoly.pro226.music_app.ui.screen.genre.GenreScreen
 import com.fpoly.pro226.music_app.ui.screen.login.LoginScreen
@@ -150,6 +153,9 @@ fun FMusicNavGraph(
                         popUpTo(FMusicDestinations.LOGIN_ROUTE) { inclusive = true }
                     }
                 },
+                onClickForgotPassword = {
+                    navController.navigate(FMusicDestinations.FORGOT_ROUTE)
+                },
                 onClickRegister = {
                     navController.navigate(FMusicDestinations.REGISTER_ROUTE)
                 })
@@ -166,6 +172,37 @@ fun FMusicNavGraph(
                         popUpTo(FMusicDestinations.REGISTER_ROUTE) { inclusive = true }
                     }
                 })
+        }
+
+        composable(FMusicDestinations.FORGOT_ROUTE) {
+            ForgotScreen(
+                fMusicRepository = appContainer.fMusicRepository,
+                onNextVerifyOTP = {
+                    navController.navigate(FMusicDestinations.VERIFY_OTP_ROUTE) {
+                        popUpTo(FMusicDestinations.FORGOT_ROUTE) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(FMusicDestinations.VERIFY_OTP_ROUTE) {
+            VerifyOTPScreen(
+                fMusicRepository = appContainer.fMusicRepository,
+                onNewPassword = {
+                    navController.navigate(FMusicDestinations.NEW_PASSWORD_ROUTE) {
+                        popUpTo(FMusicDestinations.VERIFY_OTP_ROUTE) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(FMusicDestinations.NEW_PASSWORD_ROUTE) {
+            NewPasswordScreen(
+                appContainer = appContainer,
+                onBack = {
+                    navController.popBackStack()
+                },
+            )
         }
 
         composable(FMusicDestinations.CHANGE_PASSWORD_ROUTE) {
