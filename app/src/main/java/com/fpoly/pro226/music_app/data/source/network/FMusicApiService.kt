@@ -109,4 +109,10 @@ interface FMusicApiService {
         @Path("userId") userId: String,
         @Body passwordBody: PasswordBody
     ): Response<Unit>
+
+    @PUT("/api/force-update-password/{email}")
+    suspend fun newPassword(
+        @Path("email") email: String,
+        @Body passwordBody: PasswordBody
+    ): Response<Unit>
 }

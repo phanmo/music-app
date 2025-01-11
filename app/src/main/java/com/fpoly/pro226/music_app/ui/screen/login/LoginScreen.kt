@@ -70,6 +70,7 @@ import com.fpoly.pro226.music_app.ui.theme._DBE7E8
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onClickRegister: () -> Unit,
+    onClickForgotPassword: () -> Unit,
     fMusicRepository: FMusicRepository
 ) {
     val extras = MutableCreationExtras().apply {
@@ -176,7 +177,9 @@ fun LoginScreen(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .padding(top = 5.dp)
-                    .clickable { }
+                    .clickable {
+                        onClickForgotPassword()
+                    }
             )
             ContinueWith()
             Row(

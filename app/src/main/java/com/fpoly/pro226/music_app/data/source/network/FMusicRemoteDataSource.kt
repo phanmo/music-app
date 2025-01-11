@@ -122,7 +122,10 @@ class FMusicRemoteDataSource(
         withContext(ioDispatcher) {
             fMusicApiService.changePassword(userId, passwordBody)
         }
-
+    suspend fun newPassword(email: String, passwordBody: PasswordBody): Response<Unit> =
+        withContext(ioDispatcher) {
+            fMusicApiService.newPassword(email, passwordBody)
+        }
     suspend fun updateProfileAll(
         userId: String,
         data: Map<String, @JvmSuppressWildcards RequestBody>,
